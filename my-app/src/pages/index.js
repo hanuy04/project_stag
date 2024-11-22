@@ -1,8 +1,9 @@
 import React from 'react'
 
+
 const index = () => {
   return (
-    <div>
+    <div className=' bg-yellow-300'>
       hai
     </div>
   )
