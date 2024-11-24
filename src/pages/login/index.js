@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import InputAdornment from '@mui/material/InputAdornment';
-import logo from "../../../public/images/logo_stag.png"
+// import logo from "../../../public/images/logo_stag.png"
 import Image from "next/image";
 
 // Custom styled components to blend MUI with Tailwind
@@ -40,7 +40,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 
 const LoginPage = () => {
   return (
-    <div className="min-h-screen flex bg-blue-600">
+    <div className="min-h-screen flex bg-blue">
       {/* Left side with school icon - only visible on desktop */}
         <div className="hidden md:flex w-1/2 items-center justify-center p-8">
         <div className="text-white">
@@ -74,13 +74,13 @@ const LoginPage = () => {
             <CardContent className="p-6">
               {/* Desktop Header - only visible on desktop */}
               <div className="hidden md:flex items-center gap-4 mb-8">
-                <Image
+                {/* <Image
                   src={logo}
                   alt="School Logo"
                   width={50}
-                />
+                /> */}
                 <div>
-                  <h1 className="text-2xl font-bold text-blue-600">STAGFAST</h1>
+                  <h1 className="text-2xl font-bold text-blue">STAGFAST</h1>
                   <p className="text-sm text-gray-600">
                     Sistem Fasilitas SMAK Santa Agnes
                   </p>
@@ -123,7 +123,7 @@ const LoginPage = () => {
                   fullWidth
                   variant="contained"
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 normal-case py-3"
+                  className="bg-blue hover:bg-blue-700 normal-case py-3"
                 >
                   Log In
                 </StyledButton>

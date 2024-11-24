@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id      String @id @map("role_id") @db.Char(1)
+  name    String @map("role_name")
+  users   User[]
+
+  @@map("roles")
+}
+
+model Room {
+  id           String  @id @map("room_id") @db.VarChar(5)
+  name         String  @map("room_name") @db.VarChar(10)
+  capacity     Int     @map("room_capacity")
+  status       String  @map("room_status") @default("available")
+  
+  // Relations
+  facilities          Facility[]
+  users              User[]
+  classroomFacilities ClassroomFacility[]
+  reservations        Reservation[]
+
+  @@map("rooms")
+}
+
+model Facility {
+  id          String  @id @map("facility_id") @db.VarChar(5)
+  name        String  @map("facility_name") @db.VarChar(100)
+  description String  @map("facility_description") @db.Text
+  quantity    Int     @map("facility_qty")
+  roomId      String  @map("room_id") @db.VarChar(5)
+  
+  // Relations
+  room                Room                 @relation(fields: [roomId], references: [id])
+  classroomFacilities ClassroomFacility[]
+
+  @@map("facilities")
+}
+
+model User {
+  username    String  @id @db.VarChar(255)
+  password    String
+  name        String
+  roleId      String  @map("role_id") @db.Char(1)
+  status      String  @default("1") @db.Char(1)
+  roomId      String  @map("room_id") @db.VarChar(5)
+  
+  // Relations
+  role         Role          @relation(fields: [roleId], references: [id])
+  room         Room          @relation(fields: [roomId], references: [id])
+  complains    Complain[]
+  reservations Reservation[]
+
+  @@map("users")
+}
+
+model ClassroomFacility {
+  id          String  @id @map("classroom_facilities_id") @db.VarChar(5)
+  roomId      String  @map("room_id") @db.VarChar(5)
+  facilityId  String  @map("facility_id") @db.VarChar(5)
+  quantity    Int     @map("qty")
+  condition   String
+
+  // Relations
+  room      Room       @relation(fields: [roomId], references: [id])
+  facility  Facility   @relation(fields: [facilityId], references: [id])
+  complains Complain[]
+
+  @@map("classroom_facilities")
+}
+
+model Complain {
+  id                   String         @id @map("complain_id") @db.VarChar(5)
+  username             String         @db.VarChar(5)
+  classroomFacilityId  String         @map("classroom_facilities_id") @db.VarChar(5)
+  description          String         @db.Text
+  createdAt            DateTime       @default(now()) @map("created_at")
+  status              ComplainStatus @default(unresolved)
+
+  // Relations
+  user               User               @relation(fields: [username], references: [username])
+  classroomFacility  ClassroomFacility  @relation(fields: [classroomFacilityId], references: [id])
+
+  @@map("complains")
+}
+
+model Reservation {
+  id        String            @id @map("reservation_id") @db.VarChar(5)
+  username  String            @db.VarChar(255)
+  roomId    String           @map("room_id") @db.VarChar(5)
+  startTime DateTime         @map("start_time")
+  endTime   DateTime         @map("end_time")
+  purpose   String           @db.VarChar(255)
+  status    ReservationStatus @default(pending)
+
+  // Relations
+  user      User   @relation(fields: [username], references: [username])
+  room      Room   @relation(fields: [roomId], references: [id])
+
+  @@map("reservations")
+}
+
+enum ComplainStatus {
+  resolved
+  still_resolving @map("still resolving")
+  unresolved
+}
+
+enum ReservationStatus {
+  pending
+  approved
+  rejected
+  cancelled
+}
