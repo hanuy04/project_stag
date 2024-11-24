@@ -21,14 +21,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import foto from "../../../public/images/logo_stag.png"
 
-const getIcon = (name) => {
+const getIcon = (name, active) => {
+  const color = active ? "text-blue" : "text-white"
   const icons = {
-    'Beranda': <GridViewIcon className="text-white" />,
-    'Ruangan': <MeetingRoomIcon className="text-white" />,
-    'Peminjaman': <AccessTimeIcon className="text-white" />,
-    'Pengaduan': <ChatIcon className="text-white" />
+    'Beranda': <GridViewIcon className={color} />,
+    'Ruangan': <MeetingRoomIcon className={color} />,
+    'Peminjaman': <AccessTimeIcon className={color} />,
+    'Pengaduan': <ChatIcon className={color} />
   };
-  return icons[name] || <GridViewIcon className="text-white" />;
+  return icons[name]
 };
 
 const getPath = (name) => {
@@ -50,55 +51,77 @@ const Sidebar = ({ menuItems = [], children }) => {
   };
 
   const sidebarContent = (
+
     <Box className="h-full bg-blue text-white relative">
       {/* Header with Logo */}
-      <Box className="flex items-center gap-1 p-4">
-        <Box className="w-20 h-20 flex items-center justify-center">
-          <img src="/images/logo_stag.png" alt="Stagfast" className="w-16" />
+      <Box className="bg-white" >
+        <Box className={`flex items-center ${pathname == getPath(menuItems[0]) ? 'rounded-ee-3xl' : ""} bg-blue p-4`}>
+          <Box className="w-20 h-20 flex items-center justify-center">
+            <img src="/images/logo_stag.png" alt="Stagfast" className="w-16" />
+          </Box>
+          <Typography variant="h5" className="font-bold text-white w-full">
+            STAGFAST
+          </Typography>
+
+          <IconButton
+            className="text-white ml-auto md:hidden "
+            onClick={handleDrawerToggle}
+          >
+            <ArrowBackIcon className='text-white'/>
+          </IconButton>
         </Box>
-        <Typography variant="h4" className="font-bold text-white w-20">
-          STAGFAST
-        </Typography>
-        
-        <IconButton
-          className="text-white ml-auto md:hidden"
-          onClick={handleDrawerToggle}
-        >
-          <ArrowBackIcon />
-        </IconButton>
       </Box>
 
+
       {/* Menu Items */}
-      <List className="mt-4">
-        {menuItems.map((item) => {
+      <List className="m-0 p-0" disablePadding>
+        {menuItems.map((item, index) => {
           const path = getPath(item);
           const isActive = pathname === path;
+          const isLastItemActive = pathname == getPath(menuItems[menuItems.length - 1]);
+          const prevItemActive = pathname == getPath(menuItems[index - 1]);
+          const nextItemActive = index < menuItems.length - 1 && pathname === getPath(menuItems[index + 1]);
 
+          if (isLastItemActive){
+            menuItems.push("");
+          }
           return (
             <ListItem
               key={item}
-              className="p-0"
+              className="p-0 ps-5 m-0"
               disablePadding
             >
-              <Link
-                href={path}
-                className={`w-full block ${isActive
-                    ? "bg-blue-700"
-                    : "hover:bg-blue-700"
-                  }`}
-              >
-                <Box className="flex items-center px-4 py-3">
-                  <ListItemIcon className="min-w-[40px]">
-                    {getIcon(item)}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={item}
-                    primaryTypographyProps={{
-                      className: "text-white"
-                    }}
-                  />
-                </Box>
-              </Link>
+              <Box className={"bg-white rounded-s-full w-full border-none"}>
+                <Link
+                  href={path}
+                  className={`w-full block ${isActive
+                    ? "bg-white rounded-s-full"
+                    : "bg-blue hover:px-5"
+                    } ${
+                    // Add rounded corners to previous item if current is active
+                    !isActive && nextItemActive
+                      ? "rounded-ee-3xl"
+                      : ""
+                    } ${
+                    // Add rounded corners to next item if current is active
+                    !isActive && prevItemActive
+                      ? "rounded-se-3xl"
+                      : ""
+                    }`}
+                >
+                  <Box className="flex items-center px-4 py-3">
+                    <ListItemIcon className="min-w-[40px]">
+                      {getIcon(item, isActive)}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item}
+                      primaryTypographyProps={{
+                        className: isActive ? "text-blue-700" : "text-white"
+                      }}
+                    />
+                  </Box>
+                </Link>
+              </Box>
             </ListItem>
           );
         })}
