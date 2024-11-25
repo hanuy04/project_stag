@@ -1,5 +1,17 @@
-import { Menu } from "@mui/material";
 import React, { useState } from "react";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  IconButton,
+  FormControl,
+  InputLabel,
+} from "@mui/material";
+import { Menu, X } from "@mui/icons-material";
 
 const dummyData = [
   {
@@ -24,16 +36,73 @@ const dummyData = [
   },
 ];
 
+const rooms = [
+  "Ruang XII-5",
+  "Ruang XII-4",
+  "Ruang XII-3",
+  "Ruang XII-2",
+  "Ruang XII-1",
+  "Lapangan Upacara",
+];
+
 const RoomReservation = () => {
+  const generateTimeOptions = (startHour, endHour) => {
+    const times = [];
+    for (let hour = startHour; hour <= endHour; hour++) {
+      for (let minutes = 0; minutes < 60; minutes += 15) {
+        const timeString = `${hour.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}`;
+        times.push(timeString);
+      }
+    }
+    return times;
+  };
+
+  const startTimeOptions = generateTimeOptions(7, 19);
+  const endTimeOptions = generateTimeOptions(7, 21);
   const [showLogout, setShowLogout] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [formData, setFormData] = useState({
+    tanggal: "",
+    waktuMulai: "",
+    waktuSelesai: "",
+    ruangan: "",
+    keperluan: "",
+  });
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(dummyData.length / itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+  };
+
+  const handleFormChange = (field) => (event) => {
+    let value = event.target.value;
+
+    // Add time validation logic
+    if (field === "waktuMulai") {
+      const time = value.split(":")[0];
+      if (parseInt(time) < 7) value = "07:00";
+      if (parseInt(time) > 19) value = "19:00";
+    } else if (field === "waktuSelesai") {
+      const time = value.split(":")[0];
+      if (parseInt(time) < 7) value = "07:00";
+      if (parseInt(time) > 21) value = "21:00";
+    }
+
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  };
+
+  const handleSubmit = () => {
+    console.log("Form submitted:", formData);
+    setOpenModal(false);
   };
 
   return (
@@ -45,7 +114,7 @@ const RoomReservation = () => {
             <div className="relative">
               <button
                 onClick={() => setShowLogout(!showLogout)}
-                className="bg-blue text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
               >
                 Agnes [12345]
                 <Menu size={20} />
@@ -71,7 +140,10 @@ const RoomReservation = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <button className="bg-gray-900 text-white px-4 py-2 rounded-lg">
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+              onClick={() => setOpenModal(true)}
+            >
               + Ajukan Peminjaman
             </button>
           </div>
@@ -79,7 +151,7 @@ const RoomReservation = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-blue text-white">
+                <tr className="bg-blue-600 text-white">
                   <th className="border p-2 text-left">No</th>
                   <th className="border p-2 text-left">Tanggal</th>
                   <th className="border p-2 text-left">Waktu</th>
@@ -133,7 +205,7 @@ const RoomReservation = () => {
                 onClick={() => handlePageChange(page)}
                 className={`px-3 py-1 rounded-lg ${
                   currentPage === page
-                    ? "bg-blue text-white"
+                    ? "bg-blue-600 text-white"
                     : "border hover:bg-gray-50"
                 }`}
               >
@@ -154,6 +226,104 @@ const RoomReservation = () => {
           </div>
         </div>
       </div>
+
+      <Dialog
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle className="flex justify-between items-center">
+          <span>Ajukan Peminjaman</span>
+          <IconButton onClick={() => setOpenModal(false)} size="small">
+            <X size={20} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <div className="space-y-4">
+            <TextField
+              label="Tanggal"
+              type="date"
+              value={formData.tanggal}
+              onChange={handleFormChange("tanggal")}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <div className="flex gap-4 items-center">
+              <FormControl fullWidth>
+                <InputLabel>Waktu Mulai</InputLabel>
+                <Select
+                  value={formData.waktuMulai}
+                  onChange={handleFormChange("waktuMulai")}
+                  label="Waktu Mulai"
+                >
+                  {startTimeOptions.map((time) => (
+                    <MenuItem key={time} value={time}>
+                      {time}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <span>sampai</span>
+              <FormControl fullWidth>
+                <InputLabel>Waktu Selesai</InputLabel>
+                <Select
+                  value={formData.waktuSelesai}
+                  onChange={handleFormChange("waktuSelesai")}
+                  label="Waktu Selesai"
+                >
+                  {endTimeOptions.map((time) => (
+                    <MenuItem key={time} value={time}>
+                      {time}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <FormControl fullWidth>
+              <InputLabel>Ruangan</InputLabel>
+              <Select
+                value={formData.ruangan}
+                onChange={handleFormChange("ruangan")}
+                label="Ruangan"
+              >
+                {rooms.map((room) => (
+                  <MenuItem key={room} value={room}>
+                    {room}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Keperluan"
+              multiline
+              rows={4}
+              value={formData.keperluan}
+              onChange={handleFormChange("keperluan")}
+              fullWidth
+              placeholder="Tuliskan keperluan"
+              InputProps={{
+                endAdornment: (
+                  <span className="text-gray-400">
+                    {formData.keperluan.length}/50
+                  </span>
+                ),
+              }}
+            />
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <button
+            onClick={handleSubmit}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          >
+            Submit
+          </button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
