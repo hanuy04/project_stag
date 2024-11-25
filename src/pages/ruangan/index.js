@@ -3,7 +3,9 @@ import React from 'react'
 
 const index = () => {
   return (
-    <MainLayout></MainLayout>
+    <MainLayout>
+        <div className='text-yellow-50'></div>
+    </MainLayout>
   )
 }
 
