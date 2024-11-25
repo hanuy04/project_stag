@@ -9,7 +9,7 @@ const MainLayout = ({ children }) => {
         sarpras: ["Peminjaman", "Pengaduan", "Jadwal", "Fasilitas", "User"],
     };
 
-    const menuItems = menuItemsByRole["osis"];
+    const menuItems = menuItemsByRole["teacher"];
 
     return (
         <div className='w-full'>

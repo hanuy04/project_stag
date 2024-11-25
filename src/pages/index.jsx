@@ -45,12 +45,12 @@ export default function Home() {
 
        <Box className="flex-1 p-8">
           <Box className="flex justify-between items-start mb-8">
-           {/* <Box>
+           <Box>
               <RequestSection
                 title="Peminjaman Aktif"
                 requests={currentRequests}
               />
-            </Box>*/}
+            </Box>
 
             <Box className="w-96">
               <UserProfile
