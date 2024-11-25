@@ -1,13 +1,14 @@
-import MainLayout from '@/components/layouts/MainLayout'
-import Sidebar from '@/components/sidebar/sidebar'
-import React from 'react'
+import MainLayout from "@/components/layouts/MainLayout";
+import RoomReservation from "@/components/peminjaman/RoomReservation";
+import Sidebar from "@/components/sidebar/sidebar";
+import React from "react";
 
 const index = () => {
+  return (
+    <MainLayout>
+      <RoomReservation />
+    </MainLayout>
+  );
+};
 
-
-    return (
-        <MainLayout></MainLayout>
-    )
-}
-
-export default index
+export default index;
