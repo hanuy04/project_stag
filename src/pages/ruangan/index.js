@@ -4,11 +4,15 @@ import React, { useEffect, useState } from "react";
 const Index = () => {
   const [roomData, setRoomData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("X-");
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const response = await fetch("/api/rooms");
+        const response = await fetch(
+          `/api/reservations?kategori=${selectedCategory}`
+        );
+        console.log("category: ", selectedCategory);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -34,7 +38,7 @@ const Index = () => {
     };
 
     fetchRooms();
-  }, []);
+  }, [selectedCategory]);
 
   const timeSlots = [
     "07:00 - 08:00",
@@ -50,35 +54,30 @@ const Index = () => {
     "17:00 - 18:00",
   ];
 
-  // Function to check availability for a specific room at a specific time slot
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+  };
+
+  // Filter rooms based on selected category
+  const filteredRooms = roomData.filter((room) =>
+    room.name.startsWith(`Ruang ${selectedCategory}`)
+  );
+
   const renderAvailability = (room, timeSlot) => {
-    // Split the time slot into start and end times (in 24-hour format)
-    const [startSlot, endSlot] = timeSlot.split(" - ").map((t) => {
-      const [hour, minute] = t.split(":").map(Number);
-      const date = new Date();
-      date.setHours(hour, minute, 0, 0); // Set to current date with specified time
-      return date;
-    });
+    const [startSlot, endSlot] = timeSlot
+      .split(" - ")
+      .map((t) => t.substring(0, 5)); // Ambil waktu pertama dari timeSlots
 
-    // Loop through reservations to check for overlapping times
     const reservation = room.reservations.find((res) => {
-      const resStart = new Date(res.startTime); // Parse startTime (YYYY-MM-DD HH:MM:SS)
-      const resEnd = new Date(res.endTime); // Parse endTime
+      const resStart = res.startTime.substring(11, 16); // Ambil jam pertama dari startTime
+      const resEnd = res.endTime.substring(11, 16); // Ambil jam pertama dari endTime
 
-      // Normalize reservation times to match the current date and the provided time slot
-      resStart.setFullYear(
-        startSlot.getFullYear(),
-        startSlot.getMonth(),
-        startSlot.getDate()
+      // Cek jika waktu slot overlap dengan waktu reservasi
+      return (
+        (resStart >= startSlot && resStart < endSlot) || // Reservasi mulai dalam slot
+        (resEnd > startSlot && resEnd <= endSlot) || // Reservasi berakhir dalam slot
+        (resStart <= startSlot && resEnd >= endSlot) // Reservasi mencakup seluruh slot
       );
-      resEnd.setFullYear(
-        startSlot.getFullYear(),
-        startSlot.getMonth(),
-        startSlot.getDate()
-      );
-
-      // Check for overlap between reservation and timeSlot
-      return resStart < endSlot && resEnd > startSlot;
     });
 
     if (reservation) {
@@ -90,8 +89,8 @@ const Index = () => {
           <br />
           {reservation.purpose}
           <br />
-          {new Date(reservation.startTime).toLocaleString()} -{" "}
-          {new Date(reservation.endTime).toLocaleString()}
+          {reservation.startTime.substring(11, 16)} -{" "}
+          {reservation.endTime.substring(11, 16)}
         </td>
       );
     } else {
@@ -115,10 +114,14 @@ const Index = () => {
 
           <div className="flex w-1/2 mt-10">
             <label>Kategori</label>
-            <select className="form-control border border-black rounded p-1 mx-3 w-full">
-              <option>Kelas X</option>
-              <option>Kelas XI</option>
-              <option>Kelas XII</option>
+            <select
+              className="form-control border border-black rounded p-1 mx-3 w-full"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+            >
+              <option value="X-">Kelas X</option>
+              <option value="XI-">Kelas XI</option>
+              <option value="XII-">Kelas XII</option>
             </select>
           </div>
 
@@ -127,18 +130,38 @@ const Index = () => {
               <thead className="border border-blue-700">
                 <tr className="bg-blue-700 text-white">
                   <th className="border border-blue-700">Waktu</th>
-                  {roomData.map((room) => (
-                    <th key={room.id} className="border border-blue-700">
-                      {room.name}
+                  {filteredRooms.length > 0 ? (
+                    filteredRooms.map((room) => (
+                      <th key={room.id} className="border border-blue-700">
+                        {room.name}
+                      </th>
+                    ))
+                  ) : (
+                    <th
+                      className="border border-blue-700"
+                      colSpan={timeSlots.length + 1}
+                    >
+                      Tidak ada ruangan untuk {selectedCategory}
                     </th>
-                  ))}
+                  )}
                 </tr>
               </thead>
               <tbody className="text-center">
                 {timeSlots.map((timeSlot) => (
                   <tr key={timeSlot}>
                     <td className="border border-blue-700 p-2">{timeSlot}</td>
-                    {roomData.map((room) => renderAvailability(room, timeSlot))}
+                    {filteredRooms.length > 0 ? (
+                      filteredRooms.map((room) =>
+                        renderAvailability(room, timeSlot)
+                      )
+                    ) : (
+                      <td
+                        className="border border-blue-700 p-1"
+                        colSpan={filteredRooms.length}
+                      >
+                        -
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

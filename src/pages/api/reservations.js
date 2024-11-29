@@ -5,6 +5,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const { kategori } = req.query;
+  console.log("api get the category: ", kategori);
+
   try {
     const today = new Date();
     const dayStart = new Date(today.setHours(0, 0, 0, 0));
@@ -14,14 +17,7 @@ export default async function handler(req, res) {
     const roomsData = await prisma.room.findMany({
       where: {
         name: {
-          in: [
-            "Ruang X-1",
-            "Ruang X-2",
-            "Ruang X-3",
-            "Ruang X-4",
-            "Ruang X-5",
-            "Ruang X-6",
-          ],
+          contains: `Ruang ${kategori}`,
         },
       },
       select: {
