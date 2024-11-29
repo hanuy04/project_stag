@@ -8,14 +8,30 @@ export default async function handler(req, res) {
 
     // Query the rooms along with their reservations
     const roomsData = await prisma.room.findMany({
-      include: {
+      where: {
+        name: {
+          in: [
+            "Ruang X-1",
+            "Ruang X-2",
+            "Ruang X-3",
+            "Ruang X-4",
+            "Ruang X-5",
+            "Ruang X-6",
+          ],
+        },
+      },
+      select: {
+        id: true,
+        name: true, // Field `room_name` diakses menggunakan alias Prisma `name`
         reservations: {
           where: {
             startTime: { gte: dayStart },
             endTime: { lte: dayEnd },
-            status: "approved", // Only approved reservations
+            status: "approved", // Hanya reservasi yang disetujui
           },
-          include: {
+          select: {
+            startTime: true,
+            endTime: true,
             user: { select: { username: true, name: true } },
           },
           orderBy: {
@@ -25,11 +41,7 @@ export default async function handler(req, res) {
       },
     });
 
-    if (rooms.length === 0) {
-      return <div>No rooms available for today.</div>;
-    }
-
-    // Send the rooms data with reservations for today
+    // Kirim data rooms dengan reservations
     res.status(200).json(roomsData);
   } catch (error) {
     console.error("Error fetching rooms data:", error);
