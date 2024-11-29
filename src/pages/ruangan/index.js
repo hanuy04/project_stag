@@ -1,7 +1,7 @@
 import MainLayout from "@/components/layouts/MainLayout";
 import React, { useEffect, useState } from "react";
 
-const index = () => {
+const Index = () => {
   const [roomData, setRoomData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -9,8 +9,23 @@ const index = () => {
     const fetchRooms = async () => {
       try {
         const response = await fetch("/api/rooms");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json();
-        setRoomData(data);
+        console.log("Data rooms:", data);
+
+        if (!data || data.error) {
+          console.error(
+            "Error fetching rooms:",
+            data?.message || "Unknown error"
+          );
+          return;
+        }
+
+        setRoomData(data.rooms);
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch room data:", error);
@@ -35,24 +50,53 @@ const index = () => {
     "17:00 - 18:00",
   ];
 
+  // Function to check availability for a specific room at a specific time slot
   const renderAvailability = (room, timeSlot) => {
-    const [start, end] = timeSlot.split(" - ").map((t) => {
+    // Split the time slot into start and end times (in 24-hour format)
+    const [startSlot, endSlot] = timeSlot.split(" - ").map((t) => {
       const [hour, minute] = t.split(":").map(Number);
       const date = new Date();
-      date.setHours(hour, minute, 0, 0);
+      date.setHours(hour, minute, 0, 0); // Set to current date with specified time
       return date;
     });
 
-    const isBooked = room.reservations.some(
-      (reservation) =>
-        reservation.startTime <= start && reservation.endTime >= end
-    );
+    // Loop through reservations to check for overlapping times
+    const reservation = room.reservations.find((res) => {
+      const resStart = new Date(res.startTime); // Parse startTime (YYYY-MM-DD HH:MM:SS)
+      const resEnd = new Date(res.endTime); // Parse endTime
 
-    return isBooked ? (
-      <td className="border border-blue-700 bg-red-500 p-2">Tidak Tersedia</td>
-    ) : (
-      <td className="border border-blue-700 p-2">Tersedia</td>
-    );
+      // Normalize reservation times to match the current date and the provided time slot
+      resStart.setFullYear(
+        startSlot.getFullYear(),
+        startSlot.getMonth(),
+        startSlot.getDate()
+      );
+      resEnd.setFullYear(
+        startSlot.getFullYear(),
+        startSlot.getMonth(),
+        startSlot.getDate()
+      );
+
+      // Check for overlap between reservation and timeSlot
+      return resStart < endSlot && resEnd > startSlot;
+    });
+
+    if (reservation) {
+      return (
+        <td className="border border-blue-700 bg-orange-500 text-left p-1">
+          <b>{reservation.user.username}</b>
+          <br />
+          {room.name}
+          <br />
+          {reservation.purpose}
+          <br />
+          {new Date(reservation.startTime).toLocaleString()} -{" "}
+          {new Date(reservation.endTime).toLocaleString()}
+        </td>
+      );
+    } else {
+      return <td className="border border-blue-700 bg-white p-1"></td>;
+    }
   };
 
   if (loading) {
@@ -63,13 +107,12 @@ const index = () => {
     <MainLayout>
       <div className="bg-white w-full h-screen">
         <div className="p-4 w-full">
-          {/* header */}
           <div className="flex">
             <h1 className="font-semibold text-4xl text-black">
               Informasi Ketersediaan Kelas
             </h1>
           </div>
-          {/* kategori */}
+
           <div className="flex w-1/2 mt-10">
             <label>Kategori</label>
             <select className="form-control border border-black rounded p-1 mx-3 w-full">
@@ -78,7 +121,7 @@ const index = () => {
               <option>Kelas XII</option>
             </select>
           </div>
-          {/* table */}
+
           <div className="w-full mt-5">
             <table border={"1"} className="w-full border border-blue-700">
               <thead className="border border-blue-700">
@@ -107,4 +150,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;
