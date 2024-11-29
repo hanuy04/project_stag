@@ -1,4 +1,4 @@
-import ConfirmationCard from "@/components/Konfirmasi/CardLayout/ConfirmationCard";
+import ConfirmationCard from "@/components/konfirmasi/CardLayout/ConfirmationCard";
 import {
   Button,
   Card,

@@ -1,6 +1,6 @@
 import React from "react";
 import MainLayout from "@/components/layouts/MainLayout";
-import ConfirmPage from "@/components/Konfirmasi/ConfirmPage";
+import ConfirmPage from "@/components/konfirmasi/ConfirmPage";
 
 const index = () => {
   return (
