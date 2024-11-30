@@ -6,6 +6,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 // import logo from "../../../public/images/logo_stag.png"
 import Image from "next/image";
 
+import { FormEvent } from "react";
+
 const StyledCard = styled(Card)(({ theme }) => ({
   boxShadow: "none",
   border: "none",
@@ -38,6 +40,41 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const LoginPage = () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const username = formData.get("username");
+    const password = formData.get("password");
+
+    fetch("/api/auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          alert(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Tangani data jika login berhasil
+        alert(`Login successful: ${data.message}`);
+        console.log("User data:", data.user);
+      })
+      .catch((error) => {
+        // Tangani error dari respon atau request
+        console.error("Error:", error);
+        alert(`Login failed: ${error.message}`);
+      });
+  };
+
   return (
     <div className="min-h-screen flex bg-blue">
       <div className="hidden md:flex w-1/2 items-center justify-center p-8">
@@ -85,12 +122,14 @@ const LoginPage = () => {
                 Login
               </h2>
 
-              <form className="space-y-6">
+              <form className="space-y-6" onSubmit={handleLogin}>
                 <StyledTextField
                   fullWidth
                   placeholder="Nomor Induk"
                   variant="outlined"
                   size="medium"
+                  name="username"
+                  required
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -106,6 +145,8 @@ const LoginPage = () => {
                   type="password"
                   variant="outlined"
                   size="medium"
+                  name="password"
+                  required
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">

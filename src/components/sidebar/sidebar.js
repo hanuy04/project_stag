@@ -45,89 +45,72 @@ const getPath = (name) => {
   return paths[name] || '/';
 };
 
-const MenuItemContent = ({ item, isActive, isCollapsed }) => (
+const MenuItemContent = ({ item, isActive }) => (
   <motion.div className="flex items-center px-4 py-3" layout>
     <ListItemIcon className="min-w-[40px]">
       {getIcon(item, isActive)}
     </ListItemIcon>
-    {!isCollapsed && (
-      <motion.div
-        initial={false}
-        className="overflow-hidden whitespace-nowrap"
-        style={{ width: isCollapsed ? 0 : 'auto' }}
-      >
-        <ListItemText
-          primary={item}
-          primaryTypographyProps={{
-            className: `transition-colors duration-300 ${isActive ? "text-blue-700" : "text-white"}`
-          }}
-        />
-      </motion.div>
-    )}
+    <motion.div
+      className="overflow-hidden whitespace-nowrap"
+      style={{ width: 'auto' }}
+    >
+      <ListItemText
+        primary={item}
+        primaryTypographyProps={{
+          className: `transition-colors duration-300 ${isActive ? "text-blue-700" : "text-white"}`
+        }}
+      />
+    </motion.div>
   </motion.div>
 );
 
-const HelpCenter = ({ isCollapsed, isMobile }) => (
-  <AnimatePresence>
-    {(!isCollapsed || isMobile) && (
-      <motion.div
-        className="absolute bottom-4 left-4 right-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Box className="bg-white/10 rounded-xl p-4">
-          <Box className="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center mb-2">
-            <HelpIcon className="text-white text-xl" />
-          </Box>
-          <Typography className="font-semibold mb-1 text-white">
-            Pusat Bantuan
-          </Typography>
-          <Typography className="text-sm text-gray-200 mb-3">
-            Jika terjadi kesalahan, silahkan hubungi tim IT.
-          </Typography>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link
-              href="/help"
-              className="block w-full bg-pink-600 text-white rounded-lg py-2 px-4 text-sm font-medium hover:bg-pink-700 transition-colors text-center"
-            >
-              Go To Help Center
-            </Link>
-          </motion.div>
-        </Box>
+const HelpCenter = () => (
+  <motion.div
+    className="absolute bottom-4 left-4 right-4"
+    initial={{ opacity: 1 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.3 }}
+  >
+    <Box className="bg-white/10 rounded-xl p-4">
+      <Box className="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center mb-2">
+        <HelpIcon className="text-white text-xl" />
+      </Box>
+      <Typography className="font-semibold mb-1 text-white">
+        Pusat Bantuan
+      </Typography>
+      <Typography className="text-sm text-gray-200 mb-3">
+        Jika terjadi kesalahan, silahkan hubungi tim IT.
+      </Typography>
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <Link
+          href="/help"
+          className="block w-full bg-pink-600 text-white rounded-lg py-2 px-4 text-sm font-medium hover:bg-pink-700 transition-colors text-center"
+        >
+          Go To Help Center
+        </Link>
       </motion.div>
-    )}
-  </AnimatePresence>
+    </Box>
+  </motion.div>
 );
 
 const DesktopSidebar = ({ menuItems, pathname }) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [hoveredItem, setHoveredItem] = useState(null);
-
   return (
     <motion.div
-      className="hidden md:block fixed h-full"
-      initial={{ width: isCollapsed ? 100 : 280 }}
-      animate={{ width: isCollapsed ? 100 : 280 }}
+      className="hidden md:block fixed h-full w-[280px]"
       transition={{ duration: 0.3, ease: "easeInOut" }}
       layout
     >
       <Box
         className="h-full bg-blue text-white relative"
-        onMouseEnter={() => setIsCollapsed(false)}
-        onMouseLeave={() => setIsCollapsed(true)}
       >
         <Box className="bg-white">
           <Box className="hidden md:flex items-center bg-blue p-4">
-            <Box className={`${isCollapsed ? 'w-12' : 'w-20'} h-20 flex items-center justify-center transition-all duration-300`}>
-              <img src="/images/logo_stag.png" alt="Stagfast" className={`${isCollapsed ? 'w-10' : 'w-16'} transition-all duration-300`} />
+            <Box className="w-20 h-20 flex items-center justify-center">
+              <img src="/images/logo_stag.png" alt="Stagfast" className="w-16" />
             </Box>
-            {!isCollapsed && (
-              <Typography variant="h5" className="font-bold text-white w-full">
-                STAGFAST
-              </Typography>
-            )}
+            <Typography variant="h5" className="font-bold text-white w-full">
+              STAGFAST
+            </Typography>
           </Box>
         </Box>
 
@@ -143,48 +126,23 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
                 key={item}
                 className="p-0 ps-5 m-0"
                 disablePadding
-                onMouseEnter={() => setHoveredItem(item)}
-                onMouseLeave={() => setHoveredItem(null)}
               >
                 <Box className="bg-white rounded-s-full w-full border-none">
-                  {isCollapsed ? (
-                    <Tooltip title={item} placement="right">
-                      <Link
-                        href={path}
-                        className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"} 
-                          ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
-                          ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
-                      >
-                        <MenuItemContent item={item} isActive={isActive} isCollapsed={isCollapsed} />
-                      </Link>
-                    </Tooltip>
-                  ) : (
-                    <Link
-                      href={path}
-                      className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"}
-                        ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
-                        ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
-                    >
-                      <MenuItemContent item={item} isActive={isActive} isCollapsed={isCollapsed} />
-                    </Link>
-                  )}
-                  {!isActive && (
-                    <motion.div
-                      className="absolute inset-0 bg-white rounded-s-full pointer-events-none ms-4"
-                      initial={false}
-                      animate={{
-                        opacity: hoveredItem === item ? 0.1 : 0,
-                      }}
-                      transition={{ duration: 0.2 }}
-                    />
-                  )}
+                  <Link
+                    href={path}
+                    className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"} 
+                      ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
+                      ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
+                  >
+                    <MenuItemContent item={item} isActive={isActive} />
+                  </Link>
                 </Box>
               </ListItem>
             );
           })}
         </List>
 
-        <HelpCenter isCollapsed={isCollapsed} isMobile={false} />
+        <HelpCenter />
       </Box>
     </motion.div>
   );
@@ -199,7 +157,6 @@ const MobileSidebar = ({ menuItems, pathname }) => {
 
   const MobileTopBar = () => (
     <Box className="md:hidden flex items-center bg-blue p-4 h-[72px]">
-
       <IconButton className="text-white ml-auto" onClick={handleDrawerToggle}>
         <MenuIcon className="text-white" />
       </IconButton>
@@ -246,7 +203,7 @@ const MobileSidebar = ({ menuItems, pathname }) => {
                     ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
                   onClick={handleDrawerToggle}
                 >
-                  <MenuItemContent item={item} isActive={isActive} isCollapsed={false} />
+                  <MenuItemContent item={item} isActive={isActive} />
                 </Link>
               </Box>
             </ListItem>
@@ -254,7 +211,7 @@ const MobileSidebar = ({ menuItems, pathname }) => {
         })}
       </List>
 
-      <HelpCenter isCollapsed={false} isMobile={true} />
+      <HelpCenter />
     </Box>
   );
 
@@ -290,7 +247,7 @@ const Sidebar = ({ menuItems = [], children }) => {
       <DesktopSidebar menuItems={menuItems} pathname={pathname} />
       <MobileSidebar menuItems={menuItems} pathname={pathname} />
 
-      <Box className="flex-1 transition-all duration-300 pt-[72px] md:pt-0 md:ml-[100px]">
+      <Box className="flex-1 transition-all duration-300 pt-[72px] md:pt-0 md:ml-[280px]">
         {children}
       </Box>
     </Box>
