@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -13,29 +13,6 @@ import {
 } from "@mui/material";
 import { Menu, X } from "@mui/icons-material";
 
-const dummyData = [
-  {
-    no: 1,
-    tanggal: "12/12/2024",
-    waktu: "14:00 - 16:00",
-    ruangan: "Ruang XII - 2",
-    keperluan: "Kerja kelompok bahasa Inggris",
-    pendamping: "-",
-    status: "MENUNGGU PERSETUJUAN",
-    keterangan: "Menunggu disetujui Tim Sarpras",
-  },
-  {
-    no: 2,
-    tanggal: "12/12/2024",
-    waktu: "14:00 - 17:00",
-    ruangan: "Lapangan Upacara",
-    keperluan: "Latihan Upacara",
-    pendamping: "Bernardus Totok, S.Psi.",
-    status: "DISETUJUI",
-    keterangan: "-",
-  },
-];
-
 const rooms = [
   "Ruang XII-5",
   "Ruang XII-4",
@@ -46,6 +23,30 @@ const rooms = [
 ];
 
 const RoomReservation = () => {
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/reservationsCecil");
+        if (!response.ok) {
+          throw new Error("Failed to fetch reservations.");
+        }
+        const data = await response.json();
+        setReservations(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const generateTimeOptions = (startHour, endHour) => {
     const times = [];
     for (let hour = startHour; hour <= endHour; hour++) {
@@ -74,29 +75,16 @@ const RoomReservation = () => {
   });
 
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(dummyData.length / itemsPerPage);
+  const totalPages = Math.ceil(reservations.length / itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
   const handleFormChange = (field) => (event) => {
-    let value = event.target.value;
-
-    // Add time validation logic
-    if (field === "waktuMulai") {
-      const time = value.split(":")[0];
-      if (parseInt(time) < 7) value = "07:00";
-      if (parseInt(time) > 19) value = "19:00";
-    } else if (field === "waktuSelesai") {
-      const time = value.split(":")[0];
-      if (parseInt(time) < 7) value = "07:00";
-      if (parseInt(time) > 21) value = "21:00";
-    }
-
     setFormData({
       ...formData,
-      [field]: value,
+      [field]: event.target.value,
     });
   };
 
@@ -104,6 +92,17 @@ const RoomReservation = () => {
     console.log("Form submitted:", formData);
     setOpenModal(false);
   };
+
+  const filteredData = reservations.filter((item) =>
+    Object.values(item)
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -148,48 +147,56 @@ const RoomReservation = () => {
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-blue-600 text-white">
-                  <th className="border p-2 text-left">No</th>
-                  <th className="border p-2 text-left">Tanggal</th>
-                  <th className="border p-2 text-left">Waktu</th>
-                  <th className="border p-2 text-left">Ruangan</th>
-                  <th className="border p-2 text-left">Keperluan</th>
-                  <th className="border p-2 text-left">Pendamping</th>
-                  <th className="border p-2 text-left">Status</th>
-                  <th className="border p-2 text-left">Keterangan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dummyData.map((item) => (
-                  <tr key={item.no} className="hover:bg-gray-50">
-                    <td className="border p-2">{item.no}</td>
-                    <td className="border p-2">{item.tanggal}</td>
-                    <td className="border p-2">{item.waktu}</td>
-                    <td className="border p-2">{item.ruangan}</td>
-                    <td className="border p-2">{item.keperluan}</td>
-                    <td className="border p-2">{item.pendamping}</td>
-                    <td className="border p-2">
-                      <span
-                        className={`px-2 py-1 rounded-full text-sm ${
-                          item.status === "DISETUJUI"
-                            ? "bg-green-100 text-green-800"
-                            : item.status === "DITOLAK"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="border p-2">{item.keterangan}</td>
+          {loading ? (
+            <p>Loading...</p>
+          ) : error ? (
+            <p className="text-red-600">{error}</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-blue-600 text-white">
+                    <th className="border p-2 text-left">No</th>
+                    <th className="border p-2 text-left">Tanggal</th>
+                    <th className="border p-2 text-left">Waktu</th>
+                    <th className="border p-2 text-left">Ruangan</th>
+                    <th className="border p-2 text-left">Keperluan</th>
+                    <th className="border p-2 text-left">Pendamping</th>
+                    <th className="border p-2 text-left">Status</th>
+                    <th className="border p-2 text-left">Keterangan</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {paginatedData.map((item, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="border p-2">
+                        {(currentPage - 1) * itemsPerPage + index + 1}
+                      </td>
+                      <td className="border p-2">{item.tanggal}</td>
+                      <td className="border p-2">{item.waktu}</td>
+                      <td className="border p-2">{item.room_id}</td>
+                      <td className="border p-2">{item.purpose}</td>
+                      <td className="border p-2">{item.pendamping}</td>
+                      <td className="border p-2">
+                        <span
+                          className={`px-2 py-1 rounded-full text-sm ${
+                            item.status === "DISETUJUI"
+                              ? "bg-green-100 text-green-800"
+                              : item.status === "DITOLAK"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="border p-2">{item.keterangan}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 mt-4">
             <button
@@ -227,67 +234,49 @@ const RoomReservation = () => {
         </div>
       </div>
 
-      <Dialog
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle className="flex justify-between items-center">
-          <span>Ajukan Peminjaman</span>
-          <IconButton onClick={() => setOpenModal(false)} size="small">
-            <X size={20} />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          <div className="space-y-4">
+      {/* Modal */}
+      <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+        <DialogTitle>Ajukan Peminjaman</DialogTitle>
+        <DialogContent>
+          <form className="grid gap-4">
             <TextField
               label="Tanggal"
               type="date"
+              InputLabelProps={{ shrink: true }}
               value={formData.tanggal}
               onChange={handleFormChange("tanggal")}
-              fullWidth
-              InputLabelProps={{ shrink: true }}
             />
-
-            <div className="flex gap-4 items-center">
-              <FormControl fullWidth>
-                <InputLabel>Waktu Mulai</InputLabel>
-                <Select
-                  value={formData.waktuMulai}
-                  onChange={handleFormChange("waktuMulai")}
-                  label="Waktu Mulai"
-                >
-                  {startTimeOptions.map((time) => (
-                    <MenuItem key={time} value={time}>
-                      {time}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <span>sampai</span>
-              <FormControl fullWidth>
-                <InputLabel>Waktu Selesai</InputLabel>
-                <Select
-                  value={formData.waktuSelesai}
-                  onChange={handleFormChange("waktuSelesai")}
-                  label="Waktu Selesai"
-                >
-                  {endTimeOptions.map((time) => (
-                    <MenuItem key={time} value={time}>
-                      {time}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-
-            <FormControl fullWidth>
+            <FormControl>
+              <InputLabel>Waktu Mulai</InputLabel>
+              <Select
+                value={formData.waktuMulai}
+                onChange={handleFormChange("waktuMulai")}
+              >
+                {startTimeOptions.map((time) => (
+                  <MenuItem key={time} value={time}>
+                    {time}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <InputLabel>Waktu Selesai</InputLabel>
+              <Select
+                value={formData.waktuSelesai}
+                onChange={handleFormChange("waktuSelesai")}
+              >
+                {endTimeOptions.map((time) => (
+                  <MenuItem key={time} value={time}>
+                    {time}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
               <InputLabel>Ruangan</InputLabel>
               <Select
                 value={formData.ruangan}
                 onChange={handleFormChange("ruangan")}
-                label="Ruangan"
               >
                 {rooms.map((room) => (
                   <MenuItem key={room} value={room}>
@@ -296,29 +285,23 @@ const RoomReservation = () => {
                 ))}
               </Select>
             </FormControl>
-
             <TextField
               label="Keperluan"
-              multiline
-              rows={4}
               value={formData.keperluan}
               onChange={handleFormChange("keperluan")}
-              fullWidth
-              placeholder="Tuliskan keperluan"
-              InputProps={{
-                endAdornment: (
-                  <span className="text-gray-400">
-                    {formData.keperluan.length}/50
-                  </span>
-                ),
-              }}
             />
-          </div>
+          </form>
         </DialogContent>
         <DialogActions>
           <button
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg"
+            onClick={() => setOpenModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
             onClick={handleSubmit}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
           >
             Submit
           </button>
