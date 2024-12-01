@@ -7,6 +7,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Image from "next/image";
 
 import { FormEvent } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { refreshToken } from "@/store/persistSlices/authSlice";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   boxShadow: "none",
@@ -40,39 +42,44 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const LoginPage = () => {
+  const token = useSelector((state) => state.persist.auth.token);
+  const dispatch = useDispatch();
+
   const handleLogin = async (e) => {
+    // console.log("halo");
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     const username = formData.get("username");
     const password = formData.get("password");
 
-    fetch("/api/auth", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username,
-        password,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          alert(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Tangani data jika login berhasil
-        alert(`Login successful: ${data.message}`);
-        console.log("User data:", data.user);
-      })
-      .catch((error) => {
-        // Tangani error dari respon atau request
-        console.error("Error:", error);
-        alert(`Login failed: ${error.message}`);
+    try {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        alert(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      alert(data.token)
+      dispatch(refreshToken(data.token));
+
+      console.log("Response data:", data);
+    } catch (error) {
+      console.error("Error:", error);
+      alert(`Login failed: ${error.message}`);
+    }
   };
 
   return (
@@ -120,6 +127,7 @@ const LoginPage = () => {
 
               <h2 className="text-xl font-semibold text-gray-800 mb-6">
                 Login
+                {token}
               </h2>
 
               <form className="space-y-6" onSubmit={handleLogin}>

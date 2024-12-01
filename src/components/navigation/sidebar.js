@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Box,
   Drawer,
@@ -10,39 +10,37 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Tooltip
-} from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import MenuIcon from '@mui/icons-material/Menu';
-import GridViewIcon from '@mui/icons-material/GridView';
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import ChatIcon from '@mui/icons-material/Chat';
-import HelpIcon from '@mui/icons-material/Help';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
+  Tooltip,
+} from "@mui/material";
+import { motion, AnimatePresence } from "framer-motion";
+import MenuIcon from "@mui/icons-material/Menu";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import HelpIcon from "@mui/icons-material/Help";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import {
+  CheckCircle,
+  EventNote,
+  Home,
+  Person2,
+  ReportProblem,
+  Schedule,
+  Widgets,
+} from "@mui/icons-material";
+import Topbar from "./topbar";
 
 const getIcon = (name, active) => {
-  const color = active ? "text-blue" : "text-white"
+  const color = active ? "text-blue" : "text-white";
   const icons = {
-    'Beranda': <GridViewIcon className={color} />,
-    'Ruangan': <MeetingRoomIcon className={color} />,
-    'Peminjaman': <AccessTimeIcon className={color} />,
-    'Pengaduan': <ChatIcon className={color} />,
-    'Konfirmasi': <TaskAltIcon className={color} />
+    Beranda: <Home className={color} />,
+    Ruangan: <MeetingRoomIcon className={color} />,
+    Jadwal: <Schedule className={color} />,
+    Peminjaman: <EventNote className={color} />,
+    Pengaduan: <ReportProblem className={color} />,
+    Konfirmasi: <CheckCircle className={color} />,
+    Fasilitas: <Widgets className={color} />,
+    User: <Person2 className={color} />,
   };
-  return icons[name]
-};
-
-const getPath = (name) => {
-  const paths = {
-    'Beranda': '/',
-    'Ruangan': '/ruangan',
-    'Peminjaman': '/peminjaman',
-    'Pengaduan': '/pengaduan',
-    'Konfirmasi': '/konfirmasi'
-  };
-  return paths[name] || '/';
+  return icons[name];
 };
 
 const MenuItemContent = ({ item, isActive }) => (
@@ -52,12 +50,14 @@ const MenuItemContent = ({ item, isActive }) => (
     </ListItemIcon>
     <motion.div
       className="overflow-hidden whitespace-nowrap"
-      style={{ width: 'auto' }}
+      style={{ width: "auto" }}
     >
       <ListItemText
         primary={item}
         primaryTypographyProps={{
-          className: `transition-colors duration-300 ${isActive ? "text-blue-700" : "text-white"}`
+          className: `transition-colors duration-300 ${
+            isActive ? "text-blue-700" : "text-white"
+          }`,
         }}
       />
     </motion.div>
@@ -100,13 +100,19 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       layout
     >
-      <Box
-        className="h-full bg-blue text-white relative"
-      >
+      <Box className="h-full bg-blue text-white relative">
         <Box className="bg-white">
-          <Box className="hidden md:flex items-center bg-blue p-4">
+          <Box
+            className={`hidden md:flex items-center bg-blue p-4 ${
+              menuItems[0].path === pathname ? "rounded-ee-3xl" : ""
+            }`}
+          >
             <Box className="w-20 h-20 flex items-center justify-center">
-              <img src="/images/logo_stag.png" alt="Stagfast" className="w-16" />
+              <img
+                src="/images/logo_stag.png"
+                alt="Stagfast"
+                className="w-16"
+              />
             </Box>
             <Typography variant="h5" className="font-bold text-white w-full">
               STAGFAST
@@ -116,31 +122,43 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
 
         <List className="m-0 p-0" disablePadding>
           {menuItems.map((item, index) => {
-            const path = getPath(item);
-            const isActive = pathname === path;
-            const prevItemActive = pathname === getPath(menuItems[index - 1]);
-            const nextItemActive = index < menuItems.length - 1 && pathname === getPath(menuItems[index + 1]);
+            const isActive = pathname === item.path;
+            const prevItemActive =
+              index > 0 && pathname === menuItems[index - 1].path;
+            const nextItemActive =
+              index < menuItems.length - 1 &&
+              pathname === menuItems[index + 1].path;
 
             return (
-              <ListItem
-                key={item}
-                className="p-0 ps-5 m-0"
-                disablePadding
-              >
-                <Box className="bg-white rounded-s-full w-full border-none">
+              <ListItem key={item.menu} className="p-0 ps-5 m-0" disablePadding>
+                <Box className="bg-gray-100 rounded-s-full w-full border-none">
                   <Link
-                    href={path}
-                    className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"} 
+                    href={item.path}
+                    className={`w-full block ${
+                      isActive ? "bg-gray-100 rounded-s-full" : "bg-blue"
+                    } 
                       ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
                       ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
                   >
-                    <MenuItemContent item={item} isActive={isActive} />
+                    <MenuItemContent item={item.menu} isActive={isActive} />
                   </Link>
                 </Box>
               </ListItem>
             );
           })}
         </List>
+
+        {menuItems[menuItems.length - 1].path === pathname && (
+          <ListItem className="p-0 ps-5 +m-0" disablePadding>
+            <Box className="bg-gray-100 rounded-s-full w-full border-none rounded-ee-3xl">
+              <Box
+                className={
+                  "w-full block bg-gray-100 rounded-se-3xl bg-blue py-5"
+                }
+              ></Box>
+            </Box>
+          </ListItem>
+        )}
 
         <HelpCenter />
       </Box>
@@ -173,14 +191,21 @@ const MobileSidebar = ({ menuItems, pathname }) => {
   const drawerContent = (
     <Box className="h-full bg-blue text-white relative">
       <Box className="bg-white">
-        <Box className="flex items-center bg-blue p-4">
+        <Box
+          className={`flex items-center bg-blue p-4 ${
+            menuItems[0].path === pathname ? "rounded-ee-3xl" : ""
+          }`}
+        >
           <Box className="w-20 h-20 flex items-center justify-center">
             <img src="/images/logo_stag.png" alt="Stagfast" className="w-16" />
           </Box>
           <Typography variant="h5" className="font-bold text-white w-full">
             STAGFAST
           </Typography>
-          <IconButton className="text-white ml-auto" onClick={handleDrawerToggle}>
+          <IconButton
+            className="text-white ml-auto"
+            onClick={handleDrawerToggle}
+          >
             <ArrowBackIcon className="text-white" />
           </IconButton>
         </Box>
@@ -188,22 +213,27 @@ const MobileSidebar = ({ menuItems, pathname }) => {
 
       <List className="m-0 p-0" disablePadding>
         {menuItems.map((item, index) => {
-          const path = getPath(item);
-          const isActive = pathname === path;
-          const prevItemActive = pathname === getPath(menuItems[index - 1]);
-          const nextItemActive = index < menuItems.length - 1 && pathname === getPath(menuItems[index + 1]);
+          const isActive = pathname === item.path;
+
+          const prevItemActive =
+            index > 0 && pathname === menuItems[index - 1].path;
+          const nextItemActive =
+            index < menuItems.length - 1 &&
+            pathname === menuItems[index + 1].path;
 
           return (
-            <ListItem key={item} className="p-0 ps-5 m-0" disablePadding>
+            <ListItem key={item.menu} className="p-0 ps-5 m-0" disablePadding>
               <Box className="bg-white rounded-s-full w-full border-none">
                 <Link
-                  href={path}
-                  className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"}
+                  href={item.path}
+                  className={`w-full block ${
+                    isActive ? "bg-white rounded-s-full" : "bg-blue"
+                  }
                     ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
                     ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
                   onClick={handleDrawerToggle}
                 >
-                  <MenuItemContent item={item} isActive={isActive} />
+                  <MenuItemContent item={item.menu} isActive={isActive} />
                 </Link>
               </Box>
             </ListItem>
@@ -221,20 +251,24 @@ const MobileSidebar = ({ menuItems, pathname }) => {
         <MobileTopBar />
       </Box>
 
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        className="md:hidden"
-        ModalProps={{
-          keepMounted: true
-        }}
-        PaperProps={{
-          className: 'w-[280px] bg-blue'
-        }}
+      <Box
+        inert={!mobileOpen ? true : undefined}
       >
-        {drawerContent}
-      </Drawer>
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          className="md:hidden"
+          ModalProps={{
+            keepMounted: true,
+          }}
+          PaperProps={{
+            className: "w-[280px] bg-blue",
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      </Box>
     </>
   );
 };
@@ -248,7 +282,13 @@ const Sidebar = ({ menuItems = [], children }) => {
       <MobileSidebar menuItems={menuItems} pathname={pathname} />
 
       <Box className="flex-1 transition-all duration-300 pt-[72px] md:pt-0 md:ml-[280px]">
-        {children}
+
+        <Box>
+          <Topbar/>
+          {children}
+        </Box>
+        
+        
       </Box>
     </Box>
   );
