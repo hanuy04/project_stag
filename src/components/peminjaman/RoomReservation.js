@@ -7,36 +7,35 @@ import {
   TextField,
   Select,
   MenuItem,
-  IconButton,
   FormControl,
   InputLabel,
 } from "@mui/material";
 import { Menu, X } from "@mui/icons-material";
 
-const rooms = [
-  "Ruang XII-5",
-  "Ruang XII-4",
-  "Ruang XII-3",
-  "Ruang XII-2",
-  "Ruang XII-1",
-  "Lapangan Upacara",
-];
-
 const RoomReservation = () => {
   const [reservations, setReservations] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchReservations = async () => {
       try {
-        setLoading(true);
-        const response = await fetch("/api/reservationsCecil");
-        if (!response.ok) {
-          throw new Error("Failed to fetch reservations.");
-        }
-        const data = await response.json();
-        setReservations(data);
+        const resResponse = await fetch("/api/reservationsCecil");
+        if (!resResponse.ok) throw new Error("Failed to fetch reservations.");
+        const resData = await resResponse.json();
+        setReservations(resData);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    const fetchRooms = async () => {
+      try {
+        const roomResponse = await fetch("/api/roomsCecil");
+        if (!roomResponse.ok) throw new Error("Failed to fetch rooms.");
+        const roomData = await roomResponse.json();
+        setRooms(roomData);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -44,8 +43,14 @@ const RoomReservation = () => {
       }
     };
 
-    fetchData();
+    fetchReservations();
+    fetchRooms();
   }, []);
+
+  const getRoomName = (roomId) => {
+    const room = rooms.find((r) => r.room_id === roomId);
+    return room ? room.room_name : "Unknown Room";
+  };
 
   const generateTimeOptions = (startHour, endHour) => {
     const times = [];
@@ -93,12 +98,17 @@ const RoomReservation = () => {
     setOpenModal(false);
   };
 
-  const filteredData = reservations.filter((item) =>
+  const sortedData = reservations.sort(
+    (a, b) => new Date(b.start_time) - new Date(a.start_time)
+  );
+
+  const filteredData = sortedData.filter((item) =>
     Object.values(item)
       .join(" ")
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
+
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -167,32 +177,50 @@ const RoomReservation = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedData.map((item, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="border p-2">
-                        {(currentPage - 1) * itemsPerPage + index + 1}
-                      </td>
-                      <td className="border p-2">{item.tanggal}</td>
-                      <td className="border p-2">{item.waktu}</td>
-                      <td className="border p-2">{item.room_id}</td>
-                      <td className="border p-2">{item.purpose}</td>
-                      <td className="border p-2">{item.pendamping}</td>
-                      <td className="border p-2">
-                        <span
-                          className={`px-2 py-1 rounded-full text-sm ${
-                            item.status === "DISETUJUI"
-                              ? "bg-green-100 text-green-800"
-                              : item.status === "DITOLAK"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="border p-2">{item.keterangan}</td>
-                    </tr>
-                  ))}
+                  {paginatedData.map((item, index) => {
+                    const startDate = new Date(item.start_time);
+                    const formattedDate = startDate.toLocaleDateString("id-ID");
+                    const formattedTime = `${startDate
+                      .getHours()
+                      .toString()
+                      .padStart(2, "0")}:${startDate
+                      .getMinutes()
+                      .toString()
+                      .padStart(2, "0")}`;
+
+                    return (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="border p-2">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="border p-2">{formattedDate}</td>
+                        <td className="border p-2">{formattedTime}</td>
+                        <td className="border p-2">
+                          {getRoomName(item.room_id)}
+                        </td>
+                        <td className="border p-2">{item.purpose}</td>
+                        <td className="border p-2">-</td>
+                        <td className="border p-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-sm ${
+                              item.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : item.status === "rejected"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="border p-2">
+                          {item.status === "pending"
+                            ? "menunggu disetujui oleh tim sarpras"
+                            : ""}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
