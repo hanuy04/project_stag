@@ -12,14 +12,13 @@ const Index = () => {
         const response = await fetch(
           `/api/reservations?kategori=${selectedCategory}`
         );
-        console.log("category: ", selectedCategory);
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("Data rooms:", data);
+        // console.log("data: ", data.rooms);
 
         if (!data || data.error) {
           console.error(
@@ -30,9 +29,9 @@ const Index = () => {
         }
 
         setRoomData(data.rooms);
-        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch room data:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -59,38 +58,44 @@ const Index = () => {
   };
 
   // Filter rooms based on selected category
-  const filteredRooms = roomData.filter((room) =>
-    room.name.startsWith(`Ruang ${selectedCategory}`)
+  const filteredRooms = roomData.filter(
+    (room) =>
+      room.room_name && room.room_name.includes(`Ruang ${selectedCategory}`)
   );
+  // console.log("filteredRooms: ", filteredRooms);
 
   const renderAvailability = (room, timeSlot) => {
     const [startSlot, endSlot] = timeSlot
       .split(" - ")
-      .map((t) => t.substring(0, 5)); // Ambil waktu pertama dari timeSlots
+      .map((t) => t.substring(0, 5));
 
     const reservation = room.reservations.find((res) => {
-      const resStart = res.startTime.substring(11, 16); // Ambil jam pertama dari startTime
-      const resEnd = res.endTime.substring(11, 16); // Ambil jam pertama dari endTime
+      const resStart = res.start_time.slice(11, 16); // Format HH:mm dari start_time
+      const resEnd = res.end_time.slice(11, 16); // Format HH:mm dari end_time
 
-      // Cek jika waktu slot overlap dengan waktu reservasi
-      return (
-        (resStart >= startSlot && resStart < endSlot) || // Reservasi mulai dalam slot
-        (resEnd > startSlot && resEnd <= endSlot) || // Reservasi berakhir dalam slot
-        (resStart <= startSlot && resEnd >= endSlot) // Reservasi mencakup seluruh slot
-      );
+      // Ambil reservasi yang mulai setelah startSlot dan sebelum endSlot
+      return resStart >= startSlot && resEnd <= endSlot;
     });
+
+    // console.log("reservation: ", reservation);
+    // console.log("Room Data:", roomData);
+    // console.log("Selected Category:", selectedCategory);
+    // console.log("Filtered Rooms:", filteredRooms);
 
     if (reservation) {
       return (
         <td className="border border-blue-700 bg-orange-500 text-left p-1">
-          <b>{reservation.user.username}</b>
-          <br />
-          {room.name}
+          <b>
+            {reservation.users.name} {"("} {room.room_name}
+            {")"}
+          </b>
           <br />
           {reservation.purpose}
           <br />
-          {reservation.startTime.substring(11, 16)} -{" "}
-          {reservation.endTime.substring(11, 16)}
+          <b>
+            {reservation.start_time.substring(11, 16)} -{" "}
+            {reservation.end_time.substring(11, 16)}
+          </b>
         </td>
       );
     } else {
@@ -130,20 +135,11 @@ const Index = () => {
               <thead className="border border-blue-700">
                 <tr className="bg-blue-700 text-white">
                   <th className="border border-blue-700">Waktu</th>
-                  {filteredRooms.length > 0 ? (
-                    filteredRooms.map((room) => (
-                      <th key={room.id} className="border border-blue-700">
-                        {room.name}
-                      </th>
-                    ))
-                  ) : (
-                    <th
-                      className="border border-blue-700"
-                      colSpan={timeSlots.length + 1}
-                    >
-                      Tidak ada ruangan untuk {selectedCategory}
+                  {filteredRooms.map((room) => (
+                    <th key={room.room_id} className="border border-blue-700">
+                      {room.room_name}
                     </th>
-                  )}
+                  ))}
                 </tr>
               </thead>
               <tbody className="text-center">

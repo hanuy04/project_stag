@@ -12,31 +12,33 @@ export default async function handler(req, res) {
     const today = new Date();
     const dayStart = new Date(today.setHours(0, 0, 0, 0));
     const dayEnd = new Date(today.setHours(23, 59, 59, 999));
+    // console.log(dayStart, " - ", dayEnd);
 
     // Query the rooms along with their reservations
-    const roomsData = await prisma.room.findMany({
+    const roomsData = await prisma.rooms.findMany({
       where: {
-        name: {
+        room_name: {
           contains: `Ruang ${kategori}`,
         },
+        room_status: "available",
       },
       select: {
-        id: true,
-        name: true,
+        room_id: true,
+        room_name: true,
         reservations: {
           where: {
-            startTime: { gte: dayStart },
-            endTime: { lte: dayEnd },
+            start_time: { gte: dayStart },
+            end_time: { lte: dayEnd },
             status: "approved", // Ensure we're only getting approved reservations
           },
           select: {
-            startTime: true,
-            endTime: true,
+            start_time: true,
+            end_time: true,
             purpose: true,
-            user: { select: { username: true } },
+            users: { select: { username: true, name: true } },
           },
           orderBy: {
-            startTime: "asc", // Sort by start time for reservations
+            start_time: "asc", // Sort by start time for reservations
           },
         },
       },
@@ -46,15 +48,16 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "No rooms found" });
     }
 
+    // console.log("roomsData with reservations:", roomsData);
+
     // Pastikan tidak ada data yang null atau tidak sesuai
     const responseData = roomsData.map((room) => ({
-      id: room.id,
-      name: room.name,
-      class: room.class,
+      room_id: room.room_id,
+      room_name: room.room_name,
       reservations: room.reservations.map((reservation) => ({
-        startTime: reservation.startTime,
-        endTime: reservation.endTime,
-        user: reservation.user,
+        start_time: reservation.start_time,
+        end_time: reservation.end_time,
+        users: reservation.users,
         purpose: reservation.purpose,
       })),
     }));

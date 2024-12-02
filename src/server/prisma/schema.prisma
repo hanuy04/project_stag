@@ -8,110 +8,91 @@ datasource db {
 }
 
 model complains {
-  complain_id             String           @id @db.VarChar(5)
-  username                String           @db.VarChar(5)
-  classroom_facilities_id String           @db.VarChar(5)
-  description             String           @db.Text
-  created_at              DateTime         @default(now())
-  status                  complains_status @default(unresolved)
-  room_facilities         room_facilities  @relation(fields: [classroom_facilities_id], references: [room_facilities_id])
-  users                   users            @relation(fields: [username], references: [username])
+  complain_id             String               @id @db.VarChar(5)
+  username                String               @db.VarChar(5)
+  classroom_facilities_id String               @db.VarChar(5)
+  description             String               @db.Text
+  created_at              DateTime             @default(now()) @db.DateTime(0)
+  status                  complains_status     @default(unresolved)
+  users                   users                @relation(fields: [username], references: [username], onUpdate: Restrict, map: "complains_ibfk_1")
+  room_facilities         classroom_facilities @relation(fields: [classroom_facilities_id], references: [classroom_facilities_id], onUpdate: Restrict, map: "complains_ibfk_2")
 
-  @@index([classroom_facilities_id], map: "complains_classroom_facilities_id_fkey")
-  @@index([username], map: "complains_username_fkey")
+  @@index([classroom_facilities_id], map: "classroom_facilities_id")
+  @@index([username], map: "username")
 }
 
 model facilities {
-  facility_id          String            @id @db.VarChar(5)
-  facility_name        String            @db.VarChar(100)
-  facility_description String            @db.Text
+  facility_id          String                 @id @db.VarChar(5)
+  facility_name        String                 @db.VarChar(100)
+  facility_description String                 @db.Text
   facility_qty         Int
-  room_id              String            @db.VarChar(5)
-  rooms                rooms             @relation(fields: [room_id], references: [room_id])
-  room_facilities      room_facilities[]
+  room_id              String                 @db.VarChar(5)
+  classroom_facilities classroom_facilities[]
+  rooms                rooms                  @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "facilities_ibfk_1")
 
-  @@index([room_id], map: "facilities_room_id_fkey")
+  @@index([room_id], map: "room_id")
 }
 
 model reservations {
   reservation_id String              @id @db.VarChar(5)
   username       String              @db.VarChar(255)
   room_id        String              @db.VarChar(5)
-  start_time     DateTime
-  end_time       DateTime
+  start_time     DateTime            @db.DateTime(0)
+  end_time       DateTime            @db.DateTime(0)
   purpose        String              @db.VarChar(255)
   status         reservations_status @default(pending)
-  rooms          rooms               @relation(fields: [room_id], references: [room_id])
-  users          users               @relation(fields: [username], references: [username])
+  users          users               @relation(fields: [username], references: [username], onUpdate: Restrict, map: "reservations_ibfk_1")
+  rooms          rooms               @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "reservations_ibfk_2")
 
-  @@index([room_id], map: "reservations_room_id_fkey")
-  @@index([username], map: "reservations_username_fkey")
+  @@index([room_id], map: "room_id")
+  @@index([username], map: "username")
 }
 
 model roles {
   role_id   String  @id @db.Char(1)
-  role_name String
+  role_name String  @db.VarChar(255)
   users     users[]
 }
 
-model room_facilities {
-  room_facilities_id String      @id @db.VarChar(5)
-  room_id            String      @db.VarChar(5)
-  facility_id        String      @db.VarChar(5)
-  qty                Int
-  condition          String
-  complains          complains[]
-  facilities         facilities  @relation(fields: [facility_id], references: [facility_id], map: "classroom_facilities_facility_id_fkey")
-  rooms              rooms       @relation(fields: [room_id], references: [room_id], map: "classroom_facilities_room_id_fkey")
-
-  @@index([facility_id], map: "classroom_facilities_facility_id_fkey")
-  @@index([room_id], map: "classroom_facilities_room_id_fkey")
-}
-
 model rooms {
-  room_id         String            @id @db.VarChar(5)
-  room_name       String            @db.VarChar(10)
-  room_capacity   Int
-  room_status     String            @default("available")
-  facilities      facilities[]
-  reservations    reservations[]
-  room_facilities room_facilities[]
-  students        students[]
-}
-
-model settings {
-  day               String   @id @db.VarChar(10)
-  booking_start     DateTime @db.Time(0)
-  booking_end       DateTime @db.Time(0)
-  reservation_start DateTime @db.Time(0)
-  conditional_time  DateTime @db.Time(0)
-  reservation_end   DateTime @db.Time(0)
-}
-
-model students {
-  student_id  Int    @id @default(autoincrement())
-  username    String @db.VarChar(5)
-  room_id     String @db.VarChar(5)
-  school_year Int    @db.Year
-  rooms       rooms  @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "fk_student_room")
-  users       users  @relation(fields: [username], references: [username], onUpdate: Restrict, map: "fk_student_user")
-
-  @@index([room_id], map: "fk_student_room")
-  @@index([username], map: "fk_student_user")
+  room_id              String                 @id @db.VarChar(5)
+  room_name            String                 @db.VarChar(15)
+  room_capacity        Int
+  room_status          String                 @default("available") @db.VarChar(255)
+  classroom_facilities classroom_facilities[]
+  facilities           facilities[]
+  reservations         reservations[]
+  users                users[]
 }
 
 model users {
   username     String         @id @db.VarChar(255)
-  password     String
-  name         String
+  password     String         @db.VarChar(255)
+  name         String         @db.VarChar(255)
   role_id      String         @db.Char(1)
   status       String         @default("1") @db.Char(1)
+  room_id      String         @db.VarChar(5)
   complains    complains[]
   reservations reservations[]
-  students     students[]
-  roles        roles          @relation(fields: [role_id], references: [role_id])
+  roles        roles          @relation(fields: [role_id], references: [role_id], onUpdate: Restrict, map: "users_ibfk_1")
+  rooms        rooms          @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "users_ibfk_2")
 
-  @@index([role_id], map: "users_role_id_fkey")
+  @@index([role_id], map: "role_id")
+  @@index([room_id], map: "room_id")
+}
+
+model classroom_facilities {
+  classroom_facilities_id String      @id @db.VarChar(5)
+  room_id                 String      @db.VarChar(5)
+  facility_id             String      @db.VarChar(5)
+  qty                     Int
+  condition               String      @db.VarChar(255)
+  rooms                   rooms       @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "classroom_facilities_ibfk_1")
+  facilities              facilities  @relation(fields: [facility_id], references: [facility_id], onUpdate: Restrict, map: "classroom_facilities_ibfk_2")
+  complains               complains[]
+
+  @@index([facility_id], map: "facility_id")
+  @@index([room_id], map: "room_id")
 }
 
 enum complains_status {
