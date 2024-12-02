@@ -11,6 +11,7 @@ import {
   InputLabel,
 } from "@mui/material";
 import { Menu, X } from "@mui/icons-material";
+import index from "@/pages/pengaduan";
 
 const RoomReservation = () => {
   const [reservations, setReservations] = useState([]);
@@ -93,14 +94,33 @@ const RoomReservation = () => {
     });
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    setOpenModal(false);
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch("/api/reservationsCecil", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setOpenModal(false);
+        const newReservations = await response.json();
+        setReservations((prev) => [...prev, newReservations]);
+      } else {
+        setError("Failed to submit reservation.");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const sortedData = reservations.sort(
-    (a, b) => new Date(b.start_time) - new Date(a.start_time)
-  );
+  const sortedData = reservations.sort((a, b) => {
+    const numA = parseInt(a.reservation_id.match(/\d+/)[0]);
+    const numB = parseInt(b.reservation_id.match(/\d+/)[0]);
+    return numB - numA;
+  });
 
   const filteredData = sortedData.filter((item) =>
     Object.values(item)
@@ -115,158 +135,163 @@ const RoomReservation = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Peminjaman Ruangan</h1>
-            <div className="relative">
-              <button
-                onClick={() => setShowLogout(!showLogout)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-              >
-                Agnes [12345]
-                <Menu size={20} />
-              </button>
-              {showLogout && (
+    <>
+      <div className="min-h-screen bg-gray-100">
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Peminjaman Ruangan</h1>
+              <div className="relative">
                 <button
-                  className="absolute right-0 mt-2 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
-                  onClick={() => console.log("Logout clicked")}
+                  onClick={() => setShowLogout(!showLogout)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                 >
-                  Logout
+                  Agnes [12345]
+                  <Menu size={20} />
                 </button>
-              )}
+                {showLogout && (
+                  <button
+                    className="absolute right-0 mt-2 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
+                    onClick={() => console.log("Logout clicked")}
+                  >
+                    Logout
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-4 mb-6">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Ruangan, keperluan, pendamping, status"
-                className="w-full px-4 py-2 border rounded-lg"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-              onClick={() => setOpenModal(true)}
-            >
-              + Ajukan Peminjaman
-            </button>
-          </div>
-
-          {loading ? (
-            <p>Loading...</p>
-          ) : error ? (
-            <p className="text-red-600">{error}</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-blue-600 text-white">
-                    <th className="border p-2 text-left">No</th>
-                    <th className="border p-2 text-left">Tanggal</th>
-                    <th className="border p-2 text-left">Waktu</th>
-                    <th className="border p-2 text-left">Ruangan</th>
-                    <th className="border p-2 text-left">Keperluan</th>
-                    <th className="border p-2 text-left">Pendamping</th>
-                    <th className="border p-2 text-left">Status</th>
-                    <th className="border p-2 text-left">Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedData.map((item, index) => {
-                    const startDate = new Date(item.start_time);
-                    const formattedDate = startDate.toLocaleDateString("id-ID");
-                    const formattedTime = `${startDate
-                      .getHours()
-                      .toString()
-                      .padStart(2, "0")}:${startDate
-                      .getMinutes()
-                      .toString()
-                      .padStart(2, "0")}`;
-
-                    return (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="border p-2">
-                          {(currentPage - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td className="border p-2">{formattedDate}</td>
-                        <td className="border p-2">{formattedTime}</td>
-                        <td className="border p-2">
-                          {getRoomName(item.room_id)}
-                        </td>
-                        <td className="border p-2">{item.purpose}</td>
-                        <td className="border p-2">-</td>
-                        <td className="border p-2">
-                          <span
-                            className={`px-2 py-1 rounded-full text-sm ${
-                              item.status === "approved"
-                                ? "bg-green-100 text-green-800"
-                                : item.status === "rejected"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
-                        </td>
-                        <td className="border p-2">
-                          {item.status === "pending"
-                            ? "menunggu disetujui oleh tim sarpras"
-                            : ""}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 border rounded-lg disabled:opacity-50"
-            >
-              &lt;
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <div className="flex gap-4 mb-6">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Ruangan, keperluan, pendamping, status"
+                  className="w-full px-4 py-2 border rounded-lg"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
               <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === page
-                    ? "bg-blue-600 text-white"
-                    : "border hover:bg-gray-50"
-                }`}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                onClick={() => setOpenModal(true)}
               >
-                {page}
+                + Ajukan Peminjaman
               </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 border rounded-lg disabled:opacity-50"
-            >
-              &gt;
-            </button>
-          </div>
+            </div>
 
-          <div className="mt-6 text-center text-gray-500 text-sm">
-            2020 © Sistem Fasilitas SMAK Santa Agnes
+            {loading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p className="text-red-600">{error}</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-blue-600 text-white">
+                      <th className="border p-2 text-left">No</th>
+                      <th className="border p-2 text-left">Tanggal</th>
+                      <th className="border p-2 text-left">Waktu</th>
+                      <th className="border p-2 text-left">Ruangan</th>
+                      <th className="border p-2 text-left">Keperluan</th>
+                      <th className="border p-2 text-left">Pendamping</th>
+                      <th className="border p-2 text-left">Status</th>
+                      <th className="border p-2 text-left">Keterangan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((item, index) => {
+                      const startDate = new Date(item.start_time);
+                      const formattedDate =
+                        startDate.toLocaleDateString("id-ID");
+                      const formattedTime = `${startDate
+                        .getHours()
+                        .toString()
+                        .padStart(2, "0")}:${startDate
+                        .getMinutes()
+                        .toString()
+                        .padStart(2, "0")}`;
+
+                      return (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="border p-2">
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td className="border p-2">{formattedDate}</td>
+                          <td className="border p-2">{formattedTime}</td>
+                          <td className="border p-2">
+                            {getRoomName(item.room_id)}
+                          </td>
+                          <td className="border p-2">{item.purpose}</td>
+                          <td className="border p-2">-</td>
+                          <td className="border p-2">
+                            <span
+                              className={`px-2 py-1 rounded-full text-sm ${
+                                item.status === "approved"
+                                  ? "bg-green-100 text-green-800"
+                                  : item.status === "rejected"
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          </td>
+                          <td className="border p-2">
+                            {item.status === "pending"
+                              ? "menunggu disetujui oleh tim sarpras"
+                              : ""}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border rounded-lg disabled:opacity-50"
+              >
+                &lt;
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : "border hover:bg-gray-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border rounded-lg disabled:opacity-50"
+              >
+                &gt;
+              </button>
+            </div>
+
+            <div className="mt-6 text-center text-gray-500 text-sm">
+              2020 © Sistem Fasilitas SMAK Santa Agnes
+            </div>
           </div>
         </div>
       </div>
-
+      {error && <p className="text-red-600">Error: {error}</p>}
       {/* Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle>Ajukan Peminjaman</DialogTitle>
         <DialogContent>
-          <form className="grid gap-4">
+          <form className="grid gap-4 mt-2">
             <TextField
               label="Tanggal"
               type="date"
@@ -307,8 +332,8 @@ const RoomReservation = () => {
                 onChange={handleFormChange("ruangan")}
               >
                 {rooms.map((room) => (
-                  <MenuItem key={room} value={room}>
-                    {room}
+                  <MenuItem key={room.room_id} value={room.room_name}>
+                    {room.room_name}
                   </MenuItem>
                 ))}
               </Select>
@@ -335,7 +360,7 @@ const RoomReservation = () => {
           </button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 };
 
