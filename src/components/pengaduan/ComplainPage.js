@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Button,
@@ -12,11 +12,41 @@ import {
   Paper,
   Menu,
   MenuItem,
-} from '@mui/material';
-import { ArrowDropDown, Add, Person } from '@mui/icons-material';
+} from "@mui/material";
+import { ArrowDropDown, Add, Person } from "@mui/icons-material";
 
 function ComplainPage() {
+  const [searchPengaduan, setSearchPengaduan] = useState("");
+  const [complains, setComplains] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [complaintsPerPage] = useState(10);
+
+  useEffect(() => {
+    const fetchComplains = async () => {
+      try {
+        const response = await fetch(`/api/fetchComplains`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data || data.error) {
+          console.error(
+            "Error fetching complains:",
+            data?.message || "Unknown error"
+          );
+          return;
+        }
+
+        setComplains(data.complaints);
+      } catch (error) {
+        console.error("Failed to fetch complain data:", error);
+      }
+    };
+
+    fetchComplains();
+  }, []);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -26,48 +56,77 @@ function ComplainPage() {
     setAnchorEl(null);
   };
 
-  // Data contoh
-  const complaints = [
-    { id: 1, date: '12/12/2024 13:05', facility: 'AC', room: 'Ruang XII-6', complaint: 'AC nya tidak dingin', status: 'DIPROSES', description: 'AC sedang diperbaiki' },
-    { id: 2, date: '12/12/2024 13:05', facility: 'Meja', room: 'Ruang XII-6', complaint: 'AC nya tidak dingin', status: 'DIPROSES', description: 'AC sedang diperbaiki' },
-    { id: 3, date: '12/12/2024 13:05', facility: 'Papan tulis', room: 'Ruang XII-6', complaint: 'AC nya tidak dingin', status: 'DIPROSES', description: 'AC sedang diperbaiki' },
-    { id: 4, date: '12/12/2024 13:05', facility: 'LCD', room: 'Ruang XII-6', complaint: 'AC nya tidak dingin', status: 'DIPROSES', description: 'AC sedang diperbaiki' },
-    // ... data lainnya
-  ];
+  const filteredComplaints = complains.filter(
+    (complain) =>
+      complain.fasilitas
+        ?.toLowerCase()
+        .includes(searchPengaduan.toLowerCase()) ||
+      complain.ruangan?.toLowerCase().includes(searchPengaduan.toLowerCase()) ||
+      complain.description.toLowerCase().includes(searchPengaduan.toLowerCase())
+  );
+
+  // Pagination Logic
+  const indexOfLastComplaint = currentPage * complaintsPerPage;
+  const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
+  const currentComplaints = filteredComplaints.slice(
+    indexOfFirstComplaint,
+    indexOfLastComplaint
+  );
+
+  // Handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // format tanggal
+  const formatDate = (date) => {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // Use 24-hour format
+    };
+    return new Date(date).toLocaleString("en-US", options);
+  };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '24px' }}>
-      {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '24px'
-      }}>
-        <Typography 
-          variant="h4" 
-          style={{ 
-            fontWeight: 'bold',
-            color: '#000000',
-            fontSize: '28px'
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f5f5f5",
+        padding: "24px",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px",
+        }}
+      >
+        <Typography
+          variant="h4"
+          style={{
+            fontWeight: "bold",
+            color: "#000000",
+            fontSize: "28px",
           }}
         >
           Pengaduan Fasilitas
         </Typography>
-        
+
         <Button
           onClick={handleClick}
           style={{
-            backgroundColor: '#3F51B5',
-            color: 'white',
-            borderRadius: '50px',
-            padding: '8px 16px',
-            textTransform: 'none',
-            boxShadow: '0px 2px 4px rgba(0,0,0,0.2)'
+            backgroundColor: "#3F51B5",
+            color: "white",
+            borderRadius: "50px",
+            padding: "8px 16px",
+            textTransform: "none",
+            boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
           }}
-          startIcon={
-            <Person style={{ fontSize: '20px' }} />
-          }
+          startIcon={<Person style={{ fontSize: "20px" }} />}
           endIcon={<ArrowDropDown />}
         >
           Agnes [12345]
@@ -78,60 +137,65 @@ function ComplainPage() {
           onClose={handleClose}
           PaperProps={{
             style: {
-              marginTop: '8px'
-            }
+              marginTop: "8px",
+            },
           }}
         >
           <MenuItem onClick={handleClose}>Logout</MenuItem>
         </Menu>
       </div>
 
-      {/* Search and Add Button */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
         <TextField
           variant="outlined"
           placeholder="Fasilitas, kelas, masalah"
           style={{ flexGrow: 1 }}
           InputProps={{
-            style: { backgroundColor: 'white' }
+            style: { backgroundColor: "white" },
           }}
+          onChange={(e) => setSearchPengaduan(e.target.value)}
         />
         <Button
           variant="contained"
           startIcon={<Add />}
-          style={{ backgroundColor: '#212121', color: 'white' }}
+          style={{ backgroundColor: "#212121", color: "white" }}
         >
           Ajukan Pengaduan
         </Button>
       </div>
 
-      {/* Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow style={{ backgroundColor: '#3F51B5' }}>
-              <TableCell style={{ color: 'white' }}>No</TableCell>
-              <TableCell style={{ color: 'white' }}>Tanggal Waktu</TableCell>
-              <TableCell style={{ color: 'white' }}>Fasilitas</TableCell>
-              <TableCell style={{ color: 'white' }}>Ruangan</TableCell>
-              <TableCell style={{ color: 'white' }}>Keluhan</TableCell>
-              <TableCell style={{ color: 'white' }}>Status</TableCell>
-              <TableCell style={{ color: 'white' }}>Keterangan</TableCell>
-              <TableCell style={{ color: 'white' }}></TableCell>
+            <TableRow>
+              <TableCell>No</TableCell>
+              <TableCell>Tanggal Waktu</TableCell>
+              <TableCell>Fasilitas</TableCell>
+              <TableCell>Ruangan</TableCell>
+              <TableCell>Keluhan</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Keterangan</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {complaints.map((complaint) => (
-              <TableRow key={complaint.id}>
-                <TableCell>{complaint.id}</TableCell>
-                <TableCell>{complaint.date}</TableCell>
-                <TableCell>{complaint.facility}</TableCell>
-                <TableCell style={{ color: '#3F51B5' }}>{complaint.room}</TableCell>
-                <TableCell style={{ color: '#3F51B5' }}>{complaint.complaint}</TableCell>
-                <TableCell>{complaint.status}</TableCell>
+            {currentComplaints.map((complaint, index) => (
+              <TableRow key={index}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{formatDate(complaint.date)}</TableCell>
+                <TableCell>{complaint.fasilitas}</TableCell>
+                <TableCell>{complaint.ruangan}</TableCell>
                 <TableCell>{complaint.description}</TableCell>
                 <TableCell>
-                  <Button variant="outlined" style={{ color: '#3F51B5', borderColor: '#3F51B5' }} size="small">
+                  {complaint.status.status1}{" "}
+                  {complaint.status.status2 && `${complaint.status.status2}`}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    style={{ color: "#3F51B5", borderColor: "#3F51B5" }}
+                    size="small"
+                  >
                     Detail
                   </Button>
                 </TableCell>
@@ -141,21 +205,26 @@ function ComplainPage() {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-        <Button disabled>&lt;</Button>
-        <Button variant="contained" style={{ backgroundColor: '#3F51B5', color: 'white' }}>1</Button>
-        <Button>2</Button>
-        <Button>&gt;</Button>
+      <div
+        style={{ display: "flex", justifyContent: "center", marginTop: "24px" }}
+      >
+        <Button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <Button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={
+            currentPage * complaintsPerPage >= filteredComplaints.length
+          }
+        >
+          Next
+        </Button>
       </div>
-
-      {/* Footer */}
-      <Typography variant="body2" style={{ textAlign: 'center', marginTop: '32px', color: '#757575' }}>
-        2020 © Sistem Fasilitas SMAK Santa Agnes
-      </Typography>
     </div>
   );
 }
 
 export default ComplainPage;
-
