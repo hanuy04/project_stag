@@ -21,6 +21,9 @@ function ComplainPage() {
   const [anchorEl, setAnchorEl] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [complaintsPerPage] = useState(10);
+  const [detailForm, setDetailForm] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
 
   useEffect(() => {
     const fetchComplains = async () => {
@@ -195,6 +198,11 @@ function ComplainPage() {
                     variant="outlined"
                     style={{ color: "#3F51B5", borderColor: "#3F51B5" }}
                     size="small"
+                    onClick={() => {
+                      setDetailForm(true);
+                      setSelectedStatus(complaint.status);
+                      setSelectedComplaint(complaint);
+                    }}
                   >
                     Detail
                   </Button>
@@ -223,6 +231,68 @@ function ComplainPage() {
           Next
         </Button>
       </div>
+
+      {/* detail form saat ditekan detail */}
+      {detailForm && selectedComplaint && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "8px",
+              padding: "24px",
+              width: "500px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <Typography variant="h6" style={{ marginBottom: "16px" }}>
+              Detail Pengaduan
+            </Typography>
+            <div style={{ marginBottom: "16px" }}>
+              <Typography variant="subtitle1">Fasilitas:</Typography>
+              <Typography>{selectedComplaint.fasilitas}</Typography>
+            </div>
+            <div style={{ marginBottom: "16px" }}>
+              <Typography variant="subtitle1">Ruangan:</Typography>
+              <Typography>{selectedComplaint.ruangan}</Typography>
+            </div>
+            <div style={{ marginBottom: "16px" }}>
+              <Typography variant="subtitle1">Keluhan:</Typography>
+              <Typography>{selectedComplaint.description}</Typography>
+            </div>
+            <div style={{ marginBottom: "16px" }}>
+              <Typography variant="subtitle1">Lampiran:</Typography>
+              <Typography>
+                <img
+                  src="https://png.pngtree.com/png-clipart/20190614/original/pngtree-background-material-design-for-lorem-ipsum-logo-png-image_3624650.jpg"
+                  className="w-20 h-20"
+                ></img>
+              </Typography>
+            </div>
+            <Button
+              variant="outlined"
+              color="black"
+              onClick={() => setDetailForm(false)}
+            >
+              X
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
