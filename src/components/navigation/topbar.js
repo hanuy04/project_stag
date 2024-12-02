@@ -5,7 +5,7 @@ const Topbar = (props) => {
   const type = props.type;
 
   return (
-    <div className="p-4">
+    <div className="">
       {type == "navbar" && (
         <>
           <Navbar />

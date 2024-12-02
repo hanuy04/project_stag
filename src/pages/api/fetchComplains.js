@@ -6,6 +6,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log("masuk");
+
     // Query complaints dengan status "unresolved" atau "still resolving"
     const complains = await prisma.complains.findMany({
       where: {
@@ -30,6 +32,7 @@ export default async function handler(req, res) {
         },
       },
     });
+    console.log("asjdalsdnbal");
 
     console.log("Complaints fetched:", complains);
 
