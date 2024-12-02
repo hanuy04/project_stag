@@ -33,14 +33,15 @@ const MainLayout = ({ children }) => {
 
   const menuItems = menuItemsByRole["sarpras"];
 
-  
-  console.log(menuItems)
+  console.log(menuItems);
 
   return (
     <div className="w-full">
       <Sidebar menuItems={menuItems}>
         <div className="w-full min-h-full bg-gray-100">
-          <div className="w-full transition-all duration-300 bg-gray-100">{children}</div>
+          <div className="w-full transition-all duration-300 bg-gray-100">
+            {children}
+          </div>
         </div>
       </Sidebar>
     </div>

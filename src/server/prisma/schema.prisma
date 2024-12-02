@@ -33,19 +33,26 @@ model facilities {
   @@index([room_id], map: "room_id")
 }
 
-model reservations {
-  reservation_id String              @id @db.VarChar(5)
-  username       String              @db.VarChar(255)
-  room_id        String              @db.VarChar(5)
-  start_time     DateTime            @db.DateTime(0)
-  end_time       DateTime            @db.DateTime(0)
-  purpose        String              @db.VarChar(255)
-  status         reservations_status @default(pending)
-  users          users               @relation(fields: [username], references: [username], onUpdate: Restrict, map: "reservations_ibfk_1")
-  rooms          rooms               @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "reservations_ibfk_2")
 
+model reservations {
+  reservation_id     String              @id @db.VarChar(5)
+  username           String              @db.VarChar(255)
+  room_id            String              @db.VarChar(5)
+  start_time         DateTime            @db.DateTime(0)
+  end_time           DateTime            @db.DateTime(0)
+  purpose            String              @db.VarChar(255)
+  status             reservations_status @default(pending)
+  teacher_assistant  String?             @db.VarChar(5)  
+  
+  // Relations
+  users              users               @relation(fields: [username], references: [username], onUpdate: Restrict, map: "reservations_ibfk_1")
+  rooms              rooms               @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "reservations_ibfk_2")
+  teacher            users?              @relation("TeacherAssistant", fields: [teacher_assistant], references: [username], onUpdate: Restrict)
+
+  // Indexes
   @@index([room_id], map: "room_id")
   @@index([username], map: "username")
+  @@index([teacher_assistant], map: "teacher_assistant") 
 }
 
 model roles {
