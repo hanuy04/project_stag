@@ -18,6 +18,17 @@ const RoomReservation = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [teachers, setTeachers] = useState([]);
+  const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
+
+  const [formData, setFormData] = useState({
+    tanggal: "",
+    waktuMulai: "",
+    waktuSelesai: "",
+    ruangan: "",
+    keperluan: "",
+    teacher: "",
+  });
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -44,9 +55,33 @@ const RoomReservation = () => {
       }
     };
 
+    const fetchTeachers = async () => {
+      try {
+        const response = await fetch("/api/usersCecil");
+        if (!response.ok) throw new Error("Failed to fetch teachers.");
+        const data = await response.json();
+        const filteredTeachers = data.filter((teacher) =>
+          teacher.username.startsWith("GR")
+        );
+        setTeachers(filteredTeachers);
+        console.log(filteredTeachers);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchTeachers();
     fetchReservations();
     fetchRooms();
   }, []);
+
+  useEffect(() => {
+    const checkEndTime = () => {
+      const [hours] = formData.waktuSelesai.split(":");
+      setShowTeacherDropdown(parseInt(hours) >= 17);
+    };
+    checkEndTime();
+  }, [formData.waktuSelesai]);
 
   const getRoomName = (roomId) => {
     const room = rooms.find((r) => r.room_id === roomId);
@@ -72,13 +107,6 @@ const RoomReservation = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [openModal, setOpenModal] = useState(false);
-  const [formData, setFormData] = useState({
-    tanggal: "",
-    waktuMulai: "",
-    waktuSelesai: "",
-    ruangan: "",
-    keperluan: "",
-  });
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(reservations.length / itemsPerPage);
@@ -96,6 +124,7 @@ const RoomReservation = () => {
 
   const handleSubmit = async () => {
     try {
+      console.log("Form data being submitted:", formData);
       const response = await fetch("/api/reservationsCecil", {
         method: "POST",
         headers: {
@@ -343,6 +372,22 @@ const RoomReservation = () => {
               value={formData.keperluan}
               onChange={handleFormChange("keperluan")}
             />
+            {/* Conditionally render the teacher dropdown */}
+            {showTeacherDropdown && (
+              <FormControl>
+                <InputLabel>Guru Pendamping</InputLabel>
+                <Select
+                  value={formData.teacher}
+                  onChange={handleFormChange("teacher")}
+                >
+                  {teachers.map((teacher) => (
+                    <MenuItem key={teacher.username} value={teacher.username}>
+                      {teacher.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
           </form>
         </DialogContent>
         <DialogActions>
