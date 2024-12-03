@@ -184,7 +184,7 @@ const UserProfile = () => {
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800")}`}
                         >
-                          {user.status === "1" ? "Aktif" : "Nonaktif"}
+                          {(user.status = "1" ? "Aktif" : "Nonaktif")}
                         </span>
                       </td>
                     </tr>
