@@ -38,15 +38,15 @@ export default async function handler(req, res) {
     // console.log("Complaints fetched:", complains);
 
     // Periksa apakah data ditemukan
-    if (!complains.length) {
-      return res.status(404).json({ error: "No complaints found" });
-    }
+    // if (!complains.length) {
+    //   return res.status(404).json({ error: "No complaints found" });
+    // }
 
-    // Buat response data
-    const responseData = complains.map((com) => {
-      const statusParts = com.status.split("_");
-      const status1 = statusParts[0];
-      const status2 = statusParts[1];
+    // // Buat response data
+    // const responseData = complains.map((com) => {
+    //   const statusParts = com.status.split("_");
+    //   const status1 = statusParts[0];
+    //   const status2 = statusParts[1];
 
       return {
         complain_id: com.complain_id,
@@ -59,7 +59,8 @@ export default async function handler(req, res) {
     });
 
     // Response dengan data complaints
-    res.status(200).json({ complaints: responseData });
+    res.status(200).json({ complaints: complain });
+
   } catch (error) {
     console.error("Error fetching complaints:", error);
     res.status(500).json({

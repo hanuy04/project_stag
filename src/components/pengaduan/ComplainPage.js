@@ -29,6 +29,7 @@ function ComplainPage() {
     const fetchComplains = async () => {
       try {
         const response = await fetch(`/api/fetchComplains`);
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -43,6 +44,8 @@ function ComplainPage() {
         }
 
         setComplains(data.complaints);
+        
+
       } catch (error) {
         console.error("Failed to fetch complain data:", error);
       }
@@ -91,6 +94,8 @@ function ComplainPage() {
     };
     return new Date(date).toLocaleString("en-US", options);
   };
+
+  
 
   return (
     <div
@@ -189,10 +194,7 @@ function ComplainPage() {
                 <TableCell>{complaint.fasilitas}</TableCell>
                 <TableCell>{complaint.ruangan}</TableCell>
                 <TableCell>{complaint.description}</TableCell>
-                <TableCell>
-                  {complaint.status.status1}{" "}
-                  {complaint.status.status2 && `${complaint.status.status2}`}
-                </TableCell>
+                <TableCell>{complaint.status}</TableCell>
                 <TableCell>
                   <Button
                     variant="outlined"

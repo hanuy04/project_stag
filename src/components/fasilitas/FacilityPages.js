@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+// components/FacilityManagement.js
+
+import React, { useState, useEffect } from "react";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
   Button,
   Card,
   CardHeader,
@@ -13,20 +12,26 @@ import {
   Menu,
   MenuItem,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  FormControl,
+  InputLabel,
+  Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Visibility as VisibilityIcon,
   Lock as LockIcon,
   ArrowDropDown as ArrowDropDownIcon,
+  Person2,
 } from "@mui/icons-material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-
-// interface Room {
-//   id: string
-//   name: string
-//   isLocked: boolean
-// }
 
 const theme = createTheme({
   palette: {
@@ -40,81 +45,116 @@ const theme = createTheme({
 });
 
 export default function FacilityManagement() {
-  const [rooms, setRooms] = useState([
-    { id: "x2", name: "X-2", isLocked: true },
-    { id: "x3", name: "X-3", isLocked: true },
-    { id: "x4", name: "X-4", isLocked: true },
-    { id: "x5", name: "X-5", isLocked: true },
-    { id: "x6", name: "X-6", isLocked: true },
-    { id: "x7", name: "X-7", isLocked: true },
-    { id: "xi1", name: "XI-1", isLocked: true },
-    { id: "xi2", name: "XI-2", isLocked: true },
-    { id: "xi3", name: "XI-3", isLocked: true },
-    { id: "xi4", name: "XI-4", isLocked: true },
-    { id: "xi5", name: "XI-5", isLocked: true },
-    { id: "xi6", name: "XI-6", isLocked: true },
-    { id: "xi7", name: "XI-7", isLocked: true },
-    { id: "xii1", name: "XII-1", isLocked: true },
-    { id: "xii2", name: "XII-2", isLocked: true },
-    { id: "xii3", name: "XII-3", isLocked: true },
-    { id: "xii4", name: "XII-4", isLocked: true },
-    { id: "xii5", name: "XII-5", isLocked: true },
-    { id: "xii6", name: "XII-6", isLocked: true },
-    { id: "xii7", name: "XII-7", isLocked: true },
-    { id: "aud", name: "AUD", isLocked: true },
-    { id: "sbg", name: "SBG", isLocked: true },
-    { id: "laba", name: "LAB-A", isLocked: true },
-    { id: "labb", name: "LAB-B", isLocked: true },
-    { id: "labc", name: "LAB-C", isLocked: true },
-    { id: "labd", name: "LAB-D", isLocked: true },
-    { id: "labe", name: "LAB-E", isLocked: true },
-  ]);
-
+  const [rooms, setRooms] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newRoomName, setNewRoomName] = useState("");
+  const [newRoomCategory, setNewRoomCategory] = useState("");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
+  // Mengambil data rooms saat komponen di-mount
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch("/api/rooms");
+        if (!response.ok) {
+          throw new Error("Failed to fetch rooms");
+        }
+        const data = await response.json();
+        setRooms(data);
+      } catch (error) {
+        console.error(error);
+        setSnackbar({
+          open: true,
+          message: "Gagal mengambil data rooms",
+          severity: "error",
+        });
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  // Menangani perubahan tab
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
+  // Menangani pembukaan menu
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
+  // Menangani penutupan menu
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  // Menangani pembukaan modal tambah room
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // Menangani penutupan modal tambah room
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewRoomName("");
+    setNewRoomCategory("");
+  };
+
+  // Menangani penambahan room baru
+  const handleAddRoom = async () => {
+    if (newRoomName && newRoomCategory) {
+      const isLocked = newRoomCategory === "locked";
+      try {
+        const response = await fetch("/api/rooms", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: newRoomName, isLocked }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to add room");
+        }
+
+        const addedRoom = await response.json();
+        setRooms([addedRoom, ...rooms]); // Menambahkan room baru di awal daftar
+        handleCloseModal();
+        setSnackbar({
+          open: true,
+          message: "Room berhasil ditambahkan!",
+          severity: "success",
+        });
+      } catch (error) {
+        console.error(error);
+        setSnackbar({
+          open: true,
+          message: "Gagal menambah room.",
+          severity: "error",
+        });
+      }
+    }
+  };
+
+  // Menangani penutupan snackbar
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
     <ThemeProvider theme={theme}>
       <>
-        {/* <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Sistem Fasilitas SMAK Santa Agnes
-            </Typography>
-            <Button
-              color="inherit"
-              endIcon={<ArrowDropDownIcon />}
-              onClick={handleMenuOpen}
-            >
-              Tim Sarpras
-            </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
-            </Menu>
-          </Toolbar>
-        </AppBar> */}
-
+        {/* Header dengan Tabs dan Menu */}
         <div className="flex items-center justify-between p-4">
-          <div className="flex rounded-lg border border-[#3f51b5] overflow-hidden">
-            <Tabs valuevalue={tabValue} onChange={handleTabChange} centered>
+          <div className="flex flex-col rounded-lg">
+            <Tabs value={tabValue} onChange={handleTabChange} centered>
               <Tab
                 variant="contained"
                 sx={{
@@ -125,6 +165,7 @@ export default function FacilityManagement() {
                   },
                   flex: 1,
                   minWidth: "200px",
+                  marginX: "10px",
                 }}
                 label="Daftar Kelas"
               />
@@ -138,6 +179,7 @@ export default function FacilityManagement() {
                   },
                   flex: 1,
                   minWidth: "200px",
+                  textDecorationColor: "white",
                 }}
                 label="Daftar Fasilitas"
               />
@@ -158,7 +200,7 @@ export default function FacilityManagement() {
             }}
           >
             <Typography sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              {/* <PersonIcon /> Tim Sarpras */}
+              <Person2 /> Tim Sarpras
             </Typography>
           </Button>
 
@@ -173,9 +215,10 @@ export default function FacilityManagement() {
           </Menu>
         </div>
 
+        {/* Konten Utama dengan Daftar Rooms */}
         <div style={{ padding: "20px" }}>
-
           <Grid container spacing={2} style={{ marginTop: "20px" }}>
+            {/* Tombol Tambah Room */}
             <Grid item xs={6} sm={4} md={3} lg={2}>
               <Card
                 sx={{
@@ -186,10 +229,13 @@ export default function FacilityManagement() {
                   border: "2px dashed #ccc",
                   cursor: "pointer",
                 }}
+                onClick={handleOpenModal}
               >
                 <AddIcon sx={{ fontSize: 40, color: "#ccc" }} />
               </Card>
             </Grid>
+
+            {/* Daftar Rooms */}
             {rooms.map((room) => (
               <Grid item xs={6} sm={4} md={3} lg={2} key={room.id}>
                 <Card sx={{ height: 120 }}>
@@ -212,17 +258,14 @@ export default function FacilityManagement() {
                         backgroundColor: "secondary.main",
                         "&:hover": { backgroundColor: "secondary.dark" },
                       }}
+                      disabled={!room.isLocked} // Disable jika tidak terkunci
+                      title={room.isLocked ? "Terkunci" : "Tidak Terkunci"}
                     >
-                      <LockIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      sx={{
-                        backgroundColor: "secondary.main",
-                        "&:hover": { backgroundColor: "secondary.dark" },
-                      }}
-                    >
-                      <VisibilityIcon fontSize="small" />
+                      {room.isLocked ? (
+                        <LockIcon fontSize="small" />
+                      ) : (
+                        <VisibilityIcon fontSize="small" />
+                      )}
                     </IconButton>
                   </CardContent>
                 </Card>
@@ -230,14 +273,64 @@ export default function FacilityManagement() {
             ))}
           </Grid>
 
+          {/* Footer */}
           <Typography
             variant="body2"
             align="center"
             style={{ marginTop: "20px", color: "gray" }}
           >
-            2020 © Sistem Fasilitas SMAK Santa Agnes
+            2024 © Sistem Fasilitas SMAK Santa Agnes
           </Typography>
         </div>
+
+        {/* Modal Dialog untuk Menambah Room */}
+        <Dialog open={isModalOpen} onClose={handleCloseModal}>
+          <DialogTitle>Tambah Ruangan Baru</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Nama Ruangan"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={newRoomName}
+              onChange={(e) => setNewRoomName(e.target.value)}
+            />
+            <FormControl fullWidth margin="dense" variant="standard">
+              <InputLabel>Kategori</InputLabel>
+              <Select
+                value={newRoomCategory}
+                onChange={(e) => setNewRoomCategory(e.target.value)}
+                label="Kategori"
+              >
+                <MenuItem value="unlocked">Tidak Terkunci</MenuItem>
+                <MenuItem value="locked">Terkunci</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseModal}>Batal</Button>
+            <Button onClick={handleAddRoom} variant="contained">
+              Tambah
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar untuk Notifikasi */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+        >
+          <Alert
+            onClose={handleSnackbarClose}
+            severity={snackbar.severity}
+            sx={{ width: "100%" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </>
     </ThemeProvider>
   );

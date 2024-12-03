@@ -53,6 +53,8 @@ const index = () => {
     fetchComplains();
   }, []);
 
+  console.log(JSON.stringify(complains));
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -231,13 +233,10 @@ const index = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{complaint.complain_id}</TableCell>
                   <TableCell>{formatDate(complaint.date)}</TableCell>
-                  <TableCell>{complaint.fasilitas}</TableCell>
+                  <TableCell>{complaint.room_facilities}</TableCell>
                   <TableCell>{complaint.ruangan}</TableCell>
                   <TableCell>{complaint.description}</TableCell>
-                  <TableCell>
-                    {complaint.status.status1}{" "}
-                    {complaint.status.status2 && `${complaint.status.status2}`}
-                  </TableCell>
+                  <TableCell>{complaint.status}</TableCell>
                   <TableCell>
                     <Button
                       variant="outlined"

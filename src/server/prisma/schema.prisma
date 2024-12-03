@@ -70,6 +70,20 @@ model roles {
   users     users[]
 }
 
+model room_facilities {
+  room_facilities_id String      @id @db.VarChar(5)
+  room_id            String      @db.VarChar(5)
+  facility_id        String      @db.VarChar(5)
+  qty                Int
+  condition          String
+  complains          complains[]
+  facilities         facilities  @relation(fields: [facility_id], references: [facility_id], map: "classroom_facilities_facility_id_fkey")
+  rooms              rooms       @relation(fields: [room_id], references: [room_id], map: "classroom_facilities_room_id_fkey")
+
+  @@index([facility_id], map: "classroom_facilities_facility_id_fkey")
+  @@index([room_id], map: "classroom_facilities_room_id_fkey")
+}
+
 model rooms {
   room_id              String                 @id @db.VarChar(5)
   room_name            String                 @db.VarChar(15)
