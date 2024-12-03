@@ -42,9 +42,8 @@ model reservations {
   purpose           String              @db.VarChar(255)
   status            reservations_status @default(pending)
   teacher_assistant String?             @db.VarChar(255)
-  
-  teacherAssistant  users?              @relation("TeacherAssistant", fields: [teacher_assistant], references: [username], onDelete: Restrict, map: "reservations_teacher_assistant_fkey")
   room              rooms               @relation(fields: [room_id], references: [room_id], onDelete: NoAction, map: "reservations_room_id_fkey")
+  teacherAssistant  users?              @relation("TeacherAssistant", fields: [teacher_assistant], references: [username], onDelete: Restrict, map: "reservations_teacher_assistant_fkey")
   user              users               @relation("UserReservations", fields: [username], references: [username], onDelete: NoAction, map: "reservations_username_fkey")
 
   @@index([username], map: "reservations_username_fkey")

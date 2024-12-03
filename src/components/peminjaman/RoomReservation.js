@@ -388,6 +388,12 @@ const RoomReservation = () => {
                 </Select>
               </FormControl>
             )}
+            <button
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
           </form>
         </DialogContent>
         <DialogActions>
@@ -396,12 +402,6 @@ const RoomReservation = () => {
             onClick={() => setOpenModal(false)}
           >
             Cancel
-          </button>
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-            onClick={handleSubmit}
-          >
-            Submit
           </button>
         </DialogActions>
       </Dialog>
