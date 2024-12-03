@@ -23,8 +23,8 @@ const index = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [complaintsPerPage] = useState(10);
   const [detailForm, setDetailForm] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   useEffect(() => {
     const fetchComplains = async () => {
@@ -35,6 +35,7 @@ const index = () => {
         }
 
         const data = await response.json();
+        // console.log(data.complaints);
         if (!data || data.error) {
           console.error(
             "Error fetching complains:",
@@ -95,7 +96,7 @@ const index = () => {
 
   // update status complain
   const updateComplaintStatus = async () => {
-    if (!selectedComplaint || !selectedStatus) {
+    if (!selectedComplaint) {
       console.error("Invalid complaint or status selected");
       return;
     }
@@ -105,7 +106,7 @@ const index = () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: selectedComplaint.complain_id,
+          complain_id: selectedComplaint.complain_id,
           status: selectedStatus,
         }),
       });
@@ -121,10 +122,11 @@ const index = () => {
 
       // Refresh state
       const updatedComplaints = complains.map((complain) =>
-        complain.id === selectedComplaint.id
+        complain.complain_id === selectedComplaint.complain_id
           ? { ...complain, status: selectedStatus }
           : complain
       );
+
       setComplains(updatedComplaints);
       setDetailForm(false);
     } catch (error) {
@@ -213,6 +215,7 @@ const index = () => {
             <TableHead>
               <TableRow>
                 <TableCell>No</TableCell>
+                <TableCell>Complain ID</TableCell>
                 <TableCell>Tanggal Waktu</TableCell>
                 <TableCell>Fasilitas</TableCell>
                 <TableCell>Ruangan</TableCell>
@@ -224,8 +227,9 @@ const index = () => {
             </TableHead>
             <TableBody>
               {currentComplaints.map((complaint, index) => (
-                <TableRow key={index}>
+                <TableRow key={complaint.complain_id}>
                   <TableCell>{index + 1}</TableCell>
+                  <TableCell>{complaint.complain_id}</TableCell>
                   <TableCell>{formatDate(complaint.date)}</TableCell>
                   <TableCell>{complaint.fasilitas}</TableCell>
                   <TableCell>{complaint.ruangan}</TableCell>
@@ -241,7 +245,6 @@ const index = () => {
                       size="small"
                       onClick={() => {
                         setDetailForm(true);
-                        setSelectedStatus(complaint.status);
                         setSelectedComplaint(complaint);
                       }}
                     >
@@ -308,6 +311,10 @@ const index = () => {
                 Detail Pengaduan
               </Typography>
               <div style={{ marginBottom: "16px" }}>
+                <Typography variant="subtitle1">Complain ID:</Typography>
+                <Typography>{selectedComplaint.complain_id}</Typography>
+              </div>
+              <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Fasilitas:</Typography>
                 <Typography>{selectedComplaint.fasilitas}</Typography>
               </div>
@@ -339,7 +346,7 @@ const index = () => {
                     borderRadius: "4px",
                     border: "1px solid #ccc",
                   }}
-                  value={selectedStatus}
+                  value={selectedComplaint.status}
                   onChange={(e) => setSelectedStatus(e.target.value)}
                 >
                   <option value="still_resolving">Diproses</option>

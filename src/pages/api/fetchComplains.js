@@ -16,6 +16,7 @@ export default async function handler(req, res) {
         },
       },
       select: {
+        complain_id: true,
         created_at: true,
         description: true,
         status: true,
@@ -32,9 +33,9 @@ export default async function handler(req, res) {
         },
       },
     });
-    console.log("asjdalsdnbal");
+    // console.log("asjdalsdnbal");
 
-    console.log("Complaints fetched:", complains);
+    // console.log("Complaints fetched:", complains);
 
     // Periksa apakah data ditemukan
     if (!complains.length) {
@@ -48,6 +49,7 @@ export default async function handler(req, res) {
       const status2 = statusParts[1];
 
       return {
+        complain_id: com.complain_id,
         date: com.created_at,
         fasilitas: com.room_facilities.facilities.facility_name,
         ruangan: com.room_facilities.rooms.room_name,
