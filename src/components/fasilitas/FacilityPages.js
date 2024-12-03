@@ -121,7 +121,8 @@ export default function FacilityManagement() {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to add room");
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to add room");
         }
 
         const addedRoom = await response.json();
@@ -136,7 +137,7 @@ export default function FacilityManagement() {
         console.error(error);
         setSnackbar({
           open: true,
-          message: "Gagal menambah room.",
+          message: error.message || "Gagal menambah room.",
           severity: "error",
         });
       }
@@ -237,10 +238,10 @@ export default function FacilityManagement() {
 
             {/* Daftar Rooms */}
             {rooms.map((room) => (
-              <Grid item xs={6} sm={4} md={3} lg={2} key={room.id}>
+              <Grid item xs={6} sm={4} md={3} lg={2} key={room.room_id}>
                 <Card sx={{ height: 120 }}>
                   <CardHeader
-                    title={room.name}
+                    title={room.room_name}
                     titleTypographyProps={{ align: "center", variant: "h6" }}
                     sx={{ backgroundColor: "#f5f5f5", padding: 1 }}
                   />
@@ -258,10 +259,14 @@ export default function FacilityManagement() {
                         backgroundColor: "secondary.main",
                         "&:hover": { backgroundColor: "secondary.dark" },
                       }}
-                      disabled={!room.isLocked} // Disable jika tidak terkunci
-                      title={room.isLocked ? "Terkunci" : "Tidak Terkunci"}
+                      disabled={room.room_status !== "locked"} // Disable jika tidak terkunci
+                      title={
+                        room.room_status === "locked"
+                          ? "Terkunci"
+                          : "Tidak Terkunci"
+                      }
                     >
-                      {room.isLocked ? (
+                      {room.room_status === "locked" ? (
                         <LockIcon fontSize="small" />
                       ) : (
                         <VisibilityIcon fontSize="small" />
@@ -320,7 +325,7 @@ export default function FacilityManagement() {
         {/* Snackbar untuk Notifikasi */}
         <Snackbar
           open={snackbar.open}
-          autoHideDuration={6000}
+          autoHideDuration={600}
           onClose={handleSnackbarClose}
         >
           <Alert
