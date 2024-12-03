@@ -1,13 +1,13 @@
-import MainLayout from '@/components/layouts/MainLayout'
-import UserProfile from '@/components/profile/userProfile'
-import React from 'react'
+import MainLayout from "@/components/layouts/MainLayout";
+import UserProfile from "@/components/profile/userProfile";
+import React from "react";
 
 const index = () => {
   return (
     <MainLayout>
-        <UserProfile/>
+      <UserProfile />
     </MainLayout>
-  )
-}
+  );
+};
 
-export default index
+export default index;
