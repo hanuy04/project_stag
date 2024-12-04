@@ -6,21 +6,20 @@ export default async function handler(req, res) {
   }
 
   const { kategori } = req.query;
-  console.log("api get the category: ", kategori);
+  console.log("API: Mendapatkan kategori ruangan: ", kategori);
 
   try {
     const today = new Date();
     const dayStart = new Date(today.setHours(0, 0, 0, 0));
     const dayEnd = new Date(today.setHours(23, 59, 59, 999));
-    // console.log(dayStart, " - ", dayEnd);
 
-    // Query the rooms along with their reservations
+    // Query rooms berdasarkan kategori dan status "available"
     const roomsData = await prisma.rooms.findMany({
       where: {
         room_name: {
-          contains: `Ruang ${kategori}`,
+          contains: `Ruang ${kategori}`, // Memungkinkan pencarian berdasarkan kategori ruangan
         },
-        room_status: "available",
+        room_status: "available", // hanya ruangan yang statusnya "available"
       },
       select: {
         room_id: true,
@@ -29,7 +28,7 @@ export default async function handler(req, res) {
           where: {
             start_time: { gte: dayStart },
             end_time: { lte: dayEnd },
-            status: "approved", // Ensure we're only getting approved reservations
+            status: "approved", // Hanya mengambil reservasi yang berstatus "approved"
           },
           select: {
             start_time: true,
@@ -38,31 +37,31 @@ export default async function handler(req, res) {
             users: { select: { username: true, name: true } },
           },
           orderBy: {
-            start_time: "asc", // Sort by start time for reservations
+            start_time: "asc", // Urutkan berdasarkan waktu mulai reservasi
           },
         },
       },
     });
 
+    console.log(roomsData);
+
     if (!roomsData || roomsData.length === 0) {
       return res.status(404).json({ error: "No rooms found" });
     }
 
-    // console.log("roomsData with reservations:", roomsData);
-
-    // Pastikan tidak ada data yang null atau tidak sesuai
+    // Format data untuk dikirimkan ke frontend
     const responseData = roomsData.map((room) => ({
       room_id: room.room_id,
       room_name: room.room_name,
       reservations: room.reservations.map((reservation) => ({
         start_time: reservation.start_time,
         end_time: reservation.end_time,
-        users: reservation.users,
         purpose: reservation.purpose,
+        users: reservation.users,
       })),
     }));
 
-    // Kirimkan data sebagai objek JSON tanpa perlu stringify
+    // Kirimkan response dengan data ruangan dan reservasi
     res.status(200).json({ rooms: responseData });
   } catch (error) {
     console.error("Error in API handler:", error);

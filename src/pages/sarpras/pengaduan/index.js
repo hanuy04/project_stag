@@ -30,12 +30,14 @@ const index = () => {
     const fetchComplains = async () => {
       try {
         const response = await fetch(`/api/fetchComplains`);
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
-        // console.log(data.complaints);
+        console.log(data.complaints);
+
         if (!data || data.error) {
           console.error(
             "Error fetching complains:",
@@ -53,7 +55,7 @@ const index = () => {
     fetchComplains();
   }, []);
 
-  console.log(JSON.stringify(complains));
+  console.log(complains);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -233,10 +235,11 @@ const index = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{complaint.complain_id}</TableCell>
                   <TableCell>{formatDate(complaint.date)}</TableCell>
-                  <TableCell>{complaint.room_facilities}</TableCell>
-                  <TableCell>{complaint.ruangan}</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
                   <TableCell>{complaint.description}</TableCell>
                   <TableCell>{complaint.status}</TableCell>
+
                   <TableCell>
                     <Button
                       variant="outlined"
@@ -325,6 +328,7 @@ const index = () => {
                 <Typography variant="subtitle1">Keluhan:</Typography>
                 <Typography>{selectedComplaint.description}</Typography>
               </div>
+
               <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Lampiran:</Typography>
                 <Typography>
@@ -338,7 +342,7 @@ const index = () => {
               <h3 className="text-lg font-bold">Ubah Status Pengaduan</h3>
               <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Status:</Typography>
-                <select
+                {/* <select
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -351,7 +355,7 @@ const index = () => {
                   <option value="still_resolving">Diproses</option>
                   <option value="resolved">Telah Diperbaiki</option>
                   <option value="unresolved">Tidak bisa diperbaiki</option>
-                </select>
+                </select> */}
               </div>
               <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Deskripsi:</Typography>

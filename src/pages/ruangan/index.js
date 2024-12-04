@@ -18,7 +18,7 @@ const Index = () => {
         }
 
         const data = await response.json();
-        // console.log("data: ", data.rooms);
+        console.log("data: ", data.rooms);
 
         if (!data || data.error) {
           console.error(
@@ -72,6 +72,7 @@ const Index = () => {
     const reservation = room.reservations.find((res) => {
       const resStart = res.start_time.slice(11, 16); // Format HH:mm dari start_time
       const resEnd = res.end_time.slice(11, 16); // Format HH:mm dari end_time
+      console.log(resStart, " - ", resEnd);
 
       // Ambil reservasi yang mulai setelah startSlot dan sebelum endSlot
       return resStart >= startSlot && resEnd <= endSlot;
