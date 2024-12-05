@@ -235,8 +235,8 @@ const index = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{complaint.complain_id}</TableCell>
                   <TableCell>{formatDate(complaint.date)}</TableCell>
-                  <TableCell></TableCell>
-                  <TableCell></TableCell>
+                  <TableCell>{complaint.fasilitas}</TableCell>
+                  <TableCell>{complaint.ruangan}</TableCell>
                   <TableCell>{complaint.description}</TableCell>
                   <TableCell>{complaint.status}</TableCell>
 
@@ -342,7 +342,7 @@ const index = () => {
               <h3 className="text-lg font-bold">Ubah Status Pengaduan</h3>
               <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Status:</Typography>
-                {/* <select
+                <select
                   style={{
                     width: "100%",
                     padding: "8px",
@@ -355,7 +355,7 @@ const index = () => {
                   <option value="still_resolving">Diproses</option>
                   <option value="resolved">Telah Diperbaiki</option>
                   <option value="unresolved">Tidak bisa diperbaiki</option>
-                </select> */}
+                </select>
               </div>
               <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Deskripsi:</Typography>
