@@ -239,39 +239,67 @@ export default function FacilityManagement() {
             {/* Daftar Rooms */}
             {rooms.map((room) => (
               <Grid item xs={6} sm={4} md={3} lg={2} key={room.room_id}>
-                <Card sx={{ height: 120 }}>
+                <Card
+                  sx={{
+                    height: "auto",
+                    backgroundColor: "#f5f5f5",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  }}
+                >
                   <CardHeader
                     title={room.room_name}
-                    titleTypographyProps={{ align: "center", variant: "h6" }}
-                    sx={{ backgroundColor: "#f5f5f5", padding: 1 }}
+                    titleTypographyProps={{
+                      align: "center",
+                      variant: "h6",
+                      sx: {
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        color: "#333",
+                      },
+                    }}
+                    sx={{
+                      backgroundColor: "transparent",
+                      padding: "1rem 1rem 0.5rem",
+                    }}
                   />
                   <CardContent
                     sx={{
                       display: "flex",
                       justifyContent: "center",
                       gap: 1,
-                      padding: 1,
+                      padding: "0.5rem 1rem 1rem",
                     }}
                   >
-                    <IconButton
-                      size="small"
+                    <Button
+                      variant="contained"
+                      startIcon={<LockIcon />}
                       sx={{
-                        backgroundColor: "secondary.main",
-                        "&:hover": { backgroundColor: "secondary.dark" },
+                        backgroundColor: "#ffc107",
+                        color: "#000",
+                        "&:hover": { backgroundColor: "#ffb300" },
+                        textTransform: "none",
+                        borderRadius: "4px",
+                        padding: "6px 16px",
                       }}
-                      disabled={room.room_status !== "locked"} // Disable jika tidak terkunci
-                      title={
-                        room.room_status === "locked"
-                          ? "Terkunci"
-                          : "Tidak Terkunci"
-                      }
                     >
-                      {room.room_status === "locked" ? (
-                        <LockIcon fontSize="small" />
-                      ) : (
-                        <VisibilityIcon fontSize="small" />
-                      )}
-                    </IconButton>
+                      Buka
+                    </Button>
+                    <Button
+                      variant="contained"
+                      startIcon={<VisibilityIcon />}
+                      sx={{
+                        backgroundColor: "#ffc107",
+                        color: "#000",
+                        "&:hover": { backgroundColor: "#ffb300" },
+                        textTransform: "none",
+                        borderRadius: "4px",
+                        padding: "6px 16px",
+                      }}
+                    >
+                      Lihat
+                    </Button>
                   </CardContent>
                 </Card>
               </Grid>
