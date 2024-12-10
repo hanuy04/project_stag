@@ -17,7 +17,7 @@ const MainLayout = ({ children }) => {
     ],
     teacher: [
       { menu: "Beranda", path: "/" },
-      { menu: "Konfirmasi", path: "/ruangan" },
+      { menu: "Konfirmasi", path: "/konfirmasi" },
       { menu: "Ruangan", path: "/ruangan" },
       { menu: "Peminjaman", path: "/peminjaman" },
       { menu: "Pengaduan", path: "/pengaduan" },
