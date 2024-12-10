@@ -123,7 +123,24 @@ const RoomReservation = () => {
   };
 
   const handleSubmit = async () => {
+    event.preventDefault();
+    const { tanggal, waktuMulai, waktuSelesai, ruangan, keperluan, teacher } =
+      formData;
+
+    if (
+      !tanggal ||
+      !waktuMulai ||
+      !waktuSelesai ||
+      !ruangan ||
+      !keperluan ||
+      (showTeacherDropdown && !teacher)
+    ) {
+      setError("Harap isi semua field sebelum mengajukan peminjaman.");
+      return;
+    }
+
     try {
+      setError(null);
       console.log("Form data being submitted:", formData);
       const response = await fetch("/api/reservationsCecil", {
         method: "POST",
@@ -209,8 +226,6 @@ const RoomReservation = () => {
 
             {loading ? (
               <p>Loading...</p>
-            ) : error ? (
-              <p className="text-red-600">{error}</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -388,6 +403,7 @@ const RoomReservation = () => {
                 </Select>
               </FormControl>
             )}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
             <button
               className="bg-blue-600 text-white px-4 py-2 rounded-lg"
               onClick={handleSubmit}
