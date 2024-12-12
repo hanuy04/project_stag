@@ -9,9 +9,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Snackbar,
+  Alert,
+  Button,
 } from "@mui/material";
-import { Menu, X } from "@mui/icons-material";
-import index from "@/pages/pengaduan";
+import { KeyboardArrowRight, Menu, Person } from "@mui/icons-material";
 
 const RoomReservation = () => {
   const [reservations, setReservations] = useState([]);
@@ -20,6 +22,8 @@ const RoomReservation = () => {
   const [error, setError] = useState(null);
   const [teachers, setTeachers] = useState([]);
   const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const [formData, setFormData] = useState({
     tanggal: "",
@@ -29,6 +33,7 @@ const RoomReservation = () => {
     keperluan: "",
     teacher: "",
   });
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -37,6 +42,7 @@ const RoomReservation = () => {
         if (!resResponse.ok) throw new Error("Failed to fetch reservations.");
         const resData = await resResponse.json();
         setReservations(resData);
+        console.log(reservations);
       } catch (err) {
         setError(err.message);
       }
@@ -60,11 +66,8 @@ const RoomReservation = () => {
         const response = await fetch("/api/usersCecil");
         if (!response.ok) throw new Error("Failed to fetch teachers.");
         const data = await response.json();
-        const filteredTeachers = data.filter((teacher) =>
-          teacher.username.startsWith("GR")
-        );
+        const filteredTeachers = data.filter((teacher) => teacher.role_id == 1);
         setTeachers(filteredTeachers);
-        console.log(filteredTeachers);
       } catch (err) {
         setError(err.message);
       }
@@ -141,7 +144,6 @@ const RoomReservation = () => {
 
     try {
       setError(null);
-      console.log("Form data being submitted:", formData);
       const response = await fetch("/api/reservationsCecil", {
         method: "POST",
         headers: {
@@ -154,6 +156,11 @@ const RoomReservation = () => {
         setOpenModal(false);
         const newReservations = await response.json();
         setReservations((prev) => [...prev, newReservations]);
+
+        setSnackbarMessage("Data berhasil dimasukkan!");
+        setSnackbarOpen(true);
+
+        setOpenModal(false);
       } else {
         setError("Failed to submit reservation.");
       }
@@ -188,16 +195,18 @@ const RoomReservation = () => {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Peminjaman Ruangan</h1>
               <div className="relative">
-                <button
+                <Button
+                  variant="contained"
+                  style={{ backgroundColor: "#4338CA" }}
+                  endIcon={<KeyboardArrowRight />}
+                  startIcon={<Person />}
                   onClick={() => setShowLogout(!showLogout)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                 >
                   Agnes [12345]
-                  <Menu size={20} />
-                </button>
+                </Button>
                 {showLogout && (
                   <button
-                    className="absolute right-0 mt-2 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
+                    className="absolute right-0 mt-10 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
                     onClick={() => console.log("Logout clicked")}
                   >
                     Logout
@@ -217,7 +226,7 @@ const RoomReservation = () => {
                 />
               </div>
               <button
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                className="bg-[#4338CA] text-white px-4 py-2 rounded-lg"
                 onClick={() => setOpenModal(true)}
               >
                 + Ajukan Peminjaman
@@ -230,7 +239,7 @@ const RoomReservation = () => {
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
-                    <tr className="bg-blue-600 text-white">
+                    <tr className="bg-[#4338CA] text-white">
                       <th className="border p-2 text-left">No</th>
                       <th className="border p-2 text-left">Tanggal</th>
                       <th className="border p-2 text-left">Waktu</th>
@@ -244,12 +253,20 @@ const RoomReservation = () => {
                   <tbody>
                     {paginatedData.map((item, index) => {
                       const startDate = new Date(item.start_time);
+                      const endDate = new Date(item.end_time);
                       const formattedDate =
                         startDate.toLocaleDateString("id-ID");
-                      const formattedTime = `${startDate
+                      const formattedTimeStart = `${startDate
                         .getHours()
                         .toString()
                         .padStart(2, "0")}:${startDate
+                        .getMinutes()
+                        .toString()
+                        .padStart(2, "0")}`;
+                      const formattedTimeEnd = `${endDate
+                        .getHours()
+                        .toString()
+                        .padStart(2, "0")}:${endDate
                         .getMinutes()
                         .toString()
                         .padStart(2, "0")}`;
@@ -260,29 +277,84 @@ const RoomReservation = () => {
                             {(currentPage - 1) * itemsPerPage + index + 1}
                           </td>
                           <td className="border p-2">{formattedDate}</td>
-                          <td className="border p-2">{formattedTime}</td>
+                          <td className="border p-2">
+                            {formattedTimeStart}-{formattedTimeEnd}
+                          </td>
                           <td className="border p-2">
                             {getRoomName(item.room_id)}
                           </td>
                           <td className="border p-2">{item.purpose}</td>
-                          <td className="border p-2">-</td>
+                          <td className="border p-2">
+                            {item.teacher_assistant
+                              ? teachers.find(
+                                  (teacher) =>
+                                    teacher.username === item.teacher_assistant
+                                )?.name || "Unknown Teacher"
+                              : "-"}
+                          </td>
                           <td className="border p-2">
                             <span
-                              className={`px-2 py-1 rounded-full text-sm ${
-                                item.status === "approved"
-                                  ? "bg-green-100 text-green-800"
-                                  : item.status === "rejected"
-                                  ? "bg-red-100 text-red-800"
-                                  : "bg-yellow-100 text-yellow-800"
-                              }`}
+                              className={`px-2 py-1 rounded-full text-sm ${(() => {
+                                if (
+                                  item.status_guru === "pending" ||
+                                  item.status_sarpras === "pending"
+                                ) {
+                                  return "bg-yellow-100 text-yellow-800";
+                                } else if (
+                                  item.status_guru === "rejected" ||
+                                  item.status_sarpras === "rejected"
+                                ) {
+                                  return "bg-red-100 text-red-800";
+                                } else if (
+                                  (item.status_guru === "approved" &&
+                                    item.status_sarpras === "approved") ||
+                                  (item.status_guru == null &&
+                                    item.status_sarpras == "approved")
+                                ) {
+                                  return "bg-green-100 text-green-800";
+                                } else if (
+                                  item.status_sarpras === "cancelled"
+                                ) {
+                                  return "bg-red-100 text-red-800";
+                                }
+                              })()}`}
                             >
-                              {item.status}
+                              {(() => {
+                                if (
+                                  item.status_guru === "pending" ||
+                                  item.status_sarpras === "pending"
+                                ) {
+                                  return "Pending";
+                                } else if (
+                                  item.status_guru === "rejected" ||
+                                  item.status_sarpras === "rejected"
+                                ) {
+                                  return "Rejected";
+                                } else if (
+                                  (item.status_guru === "approved" &&
+                                    item.status_sarpras === "approved") ||
+                                  (item.status_guru == null &&
+                                    item.status_sarpras == "approved")
+                                ) {
+                                  return "Approved";
+                                } else if (
+                                  item.status_sarpras === "cancelled"
+                                ) {
+                                  return "Cancelled";
+                                }
+                              })()}
                             </span>
                           </td>
                           <td className="border p-2">
-                            {item.status === "pending"
-                              ? "menunggu disetujui oleh tim sarpras"
-                              : ""}
+                            {item.status_guru === "pending" ||
+                            item.status_sarpras === "pending"
+                              ? "Menunggu Persetujuan"
+                              : (item.status_guru === "approved" &&
+                                  item.status_sarpras === "approved") ||
+                                (item.status_sarpras === "approved" &&
+                                  item.status_guru == null)
+                              ? "Peminjaman Disetujui"
+                              : item.description}
                           </td>
                         </tr>
                       );
@@ -307,7 +379,7 @@ const RoomReservation = () => {
                     onClick={() => handlePageChange(page)}
                     className={`px-3 py-1 rounded-lg ${
                       currentPage === page
-                        ? "bg-blue-600 text-white"
+                        ? "bg-[#4338CA] text-white"
                         : "border hover:bg-gray-50"
                     }`}
                   >
@@ -331,7 +403,20 @@ const RoomReservation = () => {
         </div>
       </div>
       {error && <p className="text-red-600">Error: {error}</p>}
-      {/* Modal */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>
         <DialogTitle>Ajukan Peminjaman</DialogTitle>
         <DialogContent>
@@ -387,7 +472,6 @@ const RoomReservation = () => {
               value={formData.keperluan}
               onChange={handleFormChange("keperluan")}
             />
-            {/* Conditionally render the teacher dropdown */}
             {showTeacherDropdown && (
               <FormControl>
                 <InputLabel>Guru Pendamping</InputLabel>

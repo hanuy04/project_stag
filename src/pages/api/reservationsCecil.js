@@ -16,14 +16,12 @@ export default async function handler(req, res) {
       req.body;
     console.log(req.body);
 
-    // Validate required fields
     if (!tanggal || !waktuMulai || !waktuSelesai || !ruangan || !keperluan) {
       return res
         .status(400)
         .json({ error: "All fields are required except teacher." });
     }
 
-    // Find the room by ID
     const room = await prisma.rooms.findFirst({
       where: { room_name: ruangan },
     });
@@ -43,7 +41,6 @@ export default async function handler(req, res) {
     }
     console.log(teacher);
 
-    // Generate next reservation ID
     const latestReservation = await prisma.reservations.findFirst({
       orderBy: { reservation_id: "desc" },
     });
@@ -56,18 +53,34 @@ export default async function handler(req, res) {
     console.log(nextReservationId);
     console.log(room.room_id);
 
-    const newReservationData = {
-      reservation_id: nextReservationId,
-      username: "MR001", // Assuming this is dynamic in production
-      room_id: room.room_id,
-      start_time: new Date(`${tanggal}T${waktuMulai}:00`),
-      end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
-      purpose: keperluan,
-      status: "pending",
-      teacher_assistant: teacher || null,
-    };
-    console.log(teacher);
-    console.log("Payload for Prisma:", newReservationData);
+    let newReservationData;
+    if (teacher) {
+      newReservationData = {
+        reservation_id: nextReservationId,
+        username: "MR001",
+        room_id: room.room_id,
+        start_time: new Date(`${tanggal}T${waktuMulai}:00`),
+        end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
+        purpose: keperluan,
+        status_sarpras: "pending",
+        teacher_assistant: teacher,
+        status_guru: "pending",
+        description: null,
+      };
+    } else {
+      newReservationData = {
+        reservation_id: nextReservationId,
+        username: "MR001",
+        room_id: room.room_id,
+        start_time: new Date(`${tanggal}T${waktuMulai}:00`),
+        end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
+        purpose: keperluan,
+        status_sarpras: "pending",
+        teacher_assistant: null,
+        status_guru: null,
+        description: null,
+      };
+    }
 
     try {
       const newReservation = await prisma.reservations.create({

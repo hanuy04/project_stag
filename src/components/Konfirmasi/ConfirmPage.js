@@ -1,8 +1,5 @@
-import ConfirmationCard from "@/components/konfirmasi/CardLayout/ConfirmationCard";
 import {
   Button,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -16,65 +13,111 @@ import {
   KeyboardArrowLeft,
   Person,
 } from "@mui/icons-material";
+import { useState, useEffect } from "react";
+import ConfirmationCard from "./CardLayout/ConfirmationCard";
 
 export default function ConfirmPage() {
-  const confirmationData = [
-    {
-      id: 1,
-      room: "Ruang XII - 5",
-      date: "Mon, 14 Oct 2024",
-      time: "16:00 - 18:00",
-      description:
-        "Rapat OSIS persiapan acara tahunan, pembagian tugas dan perencanaan anggaran",
-      requester: "Agnes [XII-5/19]",
-    },
-    {
-      id: 2,
-      room: "Ruang XII - 5",
-      date: "Mon, 14 Oct 2024",
-      time: "16:00 - 18:00",
-      description:
-        "Rapat OSIS persiapan acara tahunan, pembagian tugas dan perencanaan anggaran",
-      requester: "Agnes [XII-5/19]",
-    },
-  ];
+  const [showLogout, setShowLogout] = useState(false);
+  const [confirmationData, setConfirmationData] = useState([]);
+  const [historyData, setHistoryData] = useState([]);
+  const [roomsData, setRoomsData] = useState([]);
+  const [usersData, setUsersData] = useState([]);
 
-  const historyData = [
-    {
-      no: 1,
-      date: "12/12/2024",
-      time: "14:00 - 16:00",
-      room: "Ruang XII - 2",
-      purpose: "Kerja kelompok bahasa Inggris",
-      requester: "Agnes [XII-2/17]",
-      status: "MENUNGGU PERSETUJUAN",
-      notes: "Menunggu disetujui Tim Sarpras",
-    },
-    {
-      no: 2,
-      date: "12/12/2024",
-      time: "14:00 - 17:00",
-      room: "Lapangan Upacara",
-      purpose: "Latihan Upacara",
-      requester: "Umi Alisa [XII-2/20]",
-      status: "DISETUJUI",
-      notes: "-",
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/reservationsCecil");
+        const data = await response.json();
+
+        const roomsResponse = await fetch("/api/roomsCecil");
+        const rooms = await roomsResponse.json();
+
+        const usersResponse = await fetch("/api/usersCecil");
+        const users = await usersResponse.json();
+
+        const roomLookup = rooms.reduce((acc, room) => {
+          acc[room.room_id] = room.room_name;
+          return acc;
+        }, {});
+
+        const userLookup = users.reduce((acc, user) => {
+          acc[user.username] = user.name;
+          return acc;
+        }, {});
+        const absenLookup = users.reduce((acc, user) => {
+          acc[user.username] = user.no_absen;
+          return acc;
+        }, {});
+        const kelasLookup = users.reduce((acc, user) => {
+          acc[user.username] = user.kelas;
+          return acc;
+        }, {});
+
+        const waitingConfirmation = data.filter(
+          (item) =>
+            item.teacher_assistant === "GR003" && item.status_guru === "pending"
+        );
+        const history = data.filter(
+          (item) =>
+            item.teacher_assistant === "GR003" &&
+            (item.status_guru === "rejected" || item.status_guru === "approved")
+        );
+
+        const mappedWaitingConfirmation = waitingConfirmation.map((item) => {
+          const room_id = kelasLookup[item.username];
+          const class_name = roomLookup[room_id];
+
+          return {
+            ...item,
+            room_name: roomLookup[item.room_id],
+            user_name: userLookup[item.username],
+            class_name: class_name,
+            no_absen: absenLookup[item.username],
+          };
+        });
+
+        const mappedHistory = history.map((item) => ({
+          ...item,
+          room_name: roomLookup[item.room_id],
+          user_name: userLookup[item.username],
+        }));
+
+        setRoomsData(rooms);
+        setUsersData(users);
+        setConfirmationData(mappedWaitingConfirmation);
+        setHistoryData(mappedHistory);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white p-6">
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Konfirmasi Pendampingan</h1>
-        <Button
-          variant="contained"
-          style={{ backgroundColor: "#4338CA" }}
-          endIcon={<KeyboardArrowRight />}
-          startIcon={<Person />}
-        >
-          Agnes [12345]
-        </Button>
+        <div className="relative">
+          <Button
+            variant="contained"
+            style={{ backgroundColor: "#4338CA" }}
+            endIcon={<KeyboardArrowRight />}
+            startIcon={<Person />}
+            onClick={() => setShowLogout(!showLogout)} // Toggle visibility
+          >
+            Agnes [12345]
+          </Button>
+          {showLogout && (
+            <button
+              className="absolute right-0 mt-10 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
+              onClick={() => console.log("Logout clicked")}
+            >
+              Logout
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Waiting Confirmation Section */}
@@ -82,7 +125,7 @@ export default function ConfirmPage() {
         <h2 className="text-2xl font-bold mb-6">Menunggu Konfirmasi</h2>
         <div className="grid md:grid-cols-2 gap-6">
           {confirmationData.map((item) => (
-            <ConfirmationCard key={item.id} data={item} />
+            <ConfirmationCard key={item.reservation_id} data={item} />
           ))}
         </div>
       </div>
@@ -105,30 +148,66 @@ export default function ConfirmPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {historyData.map((row) => (
-                <TableRow key={row.no}>
-                  <TableCell>{row.no}</TableCell>
-                  <TableCell>{row.date}</TableCell>
-                  <TableCell>{row.time}</TableCell>
-                  <TableCell>{row.room}</TableCell>
-                  <TableCell>{row.purpose}</TableCell>
-                  <TableCell>{row.requester}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded text-sm ${
-                        row.status === "DISETUJUI"
-                          ? "bg-green-100 text-green-800"
-                          : row.status === "DITOLAK"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-blue-100 text-blue-800"
-                      }`}
-                    >
-                      {row.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>{row.notes}</TableCell>
-                </TableRow>
-              ))}
+              {historyData.map((row, index) => {
+                const startDate = new Date(row.start_time);
+                const endDate = new Date(row.end_time);
+                const formattedDate = startDate.toLocaleDateString("id-ID");
+                const formattedTimeStart = `${startDate
+                  .getHours()
+                  .toString()
+                  .padStart(2, "0")}:${startDate
+                  .getMinutes()
+                  .toString()
+                  .padStart(2, "0")}`;
+                const formattedTimeEnd = `${endDate
+                  .getHours()
+                  .toString()
+                  .padStart(2, "0")}:${endDate
+                  .getMinutes()
+                  .toString()
+                  .padStart(2, "0")}`;
+
+                return (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{formattedDate}</TableCell>
+                    <TableCell>
+                      {formattedTimeStart} - {formattedTimeEnd}
+                    </TableCell>
+                    <TableCell>{row.room_name}</TableCell>
+                    <TableCell>{row.purpose}</TableCell>
+                    <TableCell>{row.user_name}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm ${(() => {
+                          if (row.status_guru === "pending") {
+                            return "bg-yellow-100 text-yellow-800";
+                          } else if (row.status_guru === "rejected") {
+                            return "bg-red-100 text-red-800";
+                          } else if (row.status_guru === "approved") {
+                            return "bg-green-100 text-green-800";
+                          }
+                        })()}`}
+                      >
+                        {(() => {
+                          if (row.status_guru === "pending") {
+                            return "Pending";
+                          } else if (row.status_guru === "rejected") {
+                            return "Rejected";
+                          } else if (row.status_guru === "approved") {
+                            return "Approved";
+                          }
+                        })()}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {row.status_guru === "rejected"
+                        ? row.description
+                        : "Peminjaman Disetujui"}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
