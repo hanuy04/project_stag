@@ -107,163 +107,179 @@ export default function ConfirmPage() {
     currentPage * itemsPerPage
   );
   return (
-    <div className="min-h-screen bg-white p-6">
-      {/* Header */}
-      <div className="mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Konfirmasi Pendampingan</h1>
-        <div className="relative">
-          <Button
-            variant="contained"
-            style={{ backgroundColor: "#4338CA" }}
-            endIcon={<KeyboardArrowRight />}
-            startIcon={<Person />}
-            onClick={() => setShowLogout(!showLogout)} // Toggle visibility
-          >
-            Agnes [12345]
-          </Button>
-          {showLogout && (
-            <button
-              className="absolute right-0 mt-10 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
-              onClick={() => console.log("Logout clicked")}
-            >
-              Logout
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Waiting Confirmation Section */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">Menunggu Konfirmasi</h2>
-        {confirmationData.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-6">
-            {confirmationData.map((item) => (
-              <ConfirmationCard key={item.reservation_id} data={item} />
-            ))}
+    <div className="min-h-screen bg-gray-100">
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          {/* Header */}
+          <div className="mb-8 flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Konfirmasi Pendampingan</h1>
+            <div className="relative">
+              <Button
+                variant="contained"
+                style={{ backgroundColor: "#4338CA" }}
+                endIcon={<KeyboardArrowRight />}
+                startIcon={<Person />}
+                onClick={() => setShowLogout(!showLogout)}
+              >
+                Agnes [12345]
+              </Button>
+              {showLogout && (
+                <button
+                  className="absolute right-0 mt-10 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
+                  onClick={() => console.log("Logout clicked")}
+                >
+                  Logout
+                </button>
+              )}
+            </div>
           </div>
-        ) : (
-          <p className="text-black-500">Tidak ada permohonan peminjaman</p>
-        )}
-      </div>
 
-      {/* History Section */}
-      <div>
-        <h2 className="text-2xl font-bold mb-6">Riwayat Pendampingan</h2>
-        <TableContainer component={Paper} className="shadow-md">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ fontWeight: "bold" }}>No</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Tanggal</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Waktu</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Ruangan</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Keperluan</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Pemohon</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Status</TableCell>
-                <TableCell style={{ fontWeight: "bold" }}>Keterangan</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedData.map((row, index) => {
-                const startDate = new Date(row.start_time);
-                const endDate = new Date(row.end_time);
-                const formattedDate = startDate.toLocaleDateString("id-ID");
-                const formattedTimeStart = `${startDate
-                  .getHours()
-                  .toString()
-                  .padStart(2, "0")}:${startDate
-                  .getMinutes()
-                  .toString()
-                  .padStart(2, "0")}`;
-                const formattedTimeEnd = `${endDate
-                  .getHours()
-                  .toString()
-                  .padStart(2, "0")}:${endDate
-                  .getMinutes()
-                  .toString()
-                  .padStart(2, "0")}`;
+          {/* Waiting Confirmation Section */}
+          <div className="mb-12">
+            <h2 className="text-xl font-bold mb-6">Menunggu Konfirmasi</h2>
+            {confirmationData.length > 0 ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                {confirmationData.map((item) => (
+                  <ConfirmationCard key={item.reservation_id} data={item} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-black-500">Tidak ada permohonan peminjaman</p>
+            )}
+          </div>
 
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{formattedDate}</TableCell>
-                    <TableCell>
-                      {formattedTimeStart} - {formattedTimeEnd}
+          {/* History Section */}
+          <div>
+            <h2 className="text-2xl font-bold mb-6">Riwayat Pendampingan</h2>
+            <TableContainer component={Paper} className="shadow-md">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{ fontWeight: "bold" }}>No</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Tanggal
                     </TableCell>
-                    <TableCell>{row.room_name}</TableCell>
-                    <TableCell>{row.purpose}</TableCell>
-                    <TableCell>{row.user_name}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded-full text-sm ${(() => {
-                          if (row.status_guru === "pending") {
-                            return "bg-yellow-100 text-yellow-800";
-                          } else if (row.status_guru === "rejected") {
-                            return "bg-red-100 text-red-800";
-                          } else if (row.status_guru === "approved") {
-                            return "bg-green-100 text-green-800";
-                          }
-                        })()}`}
-                      >
-                        {(() => {
-                          if (row.status_guru === "pending") {
-                            return "Pending";
-                          } else if (row.status_guru === "rejected") {
-                            return "Rejected";
-                          } else if (row.status_guru === "approved") {
-                            return "Approved";
-                          }
-                        })()}
-                      </span>
+                    <TableCell style={{ fontWeight: "bold" }}>Waktu</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Ruangan
                     </TableCell>
-                    <TableCell>
-                      {row.status_guru === "rejected"
-                        ? row.description
-                        : "Peminjaman Disetujui"}
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Keperluan
+                    </TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Pemohon
+                    </TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>Status</TableCell>
+                    <TableCell style={{ fontWeight: "bold" }}>
+                      Keterangan
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {paginatedData.map((row, index) => {
+                    const startDate = new Date(row.start_time);
+                    const endDate = new Date(row.end_time);
+                    const formattedDate = startDate.toLocaleDateString("id-ID");
+                    const formattedTimeStart = `${startDate
+                      .getHours()
+                      .toString()
+                      .padStart(2, "0")}:${startDate
+                      .getMinutes()
+                      .toString()
+                      .padStart(2, "0")}`;
+                    const formattedTimeEnd = `${endDate
+                      .getHours()
+                      .toString()
+                      .padStart(2, "0")}:${endDate
+                      .getMinutes()
+                      .toString()
+                      .padStart(2, "0")}`;
 
-        {/* Pagination */}
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded-lg disabled:opacity-50"
-          >
-            &lt;
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 rounded-lg ${
-                currentPage === page
-                  ? "bg-[#4338CA] text-white"
-                  : "border hover:bg-gray-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded-lg disabled:opacity-50"
-          >
-            &gt;
-          </button>
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{formattedDate}</TableCell>
+                        <TableCell>
+                          {formattedTimeStart} - {formattedTimeEnd}
+                        </TableCell>
+                        <TableCell>{row.room_name}</TableCell>
+                        <TableCell>{row.purpose}</TableCell>
+                        <TableCell>{row.user_name}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-sm ${(() => {
+                              if (row.status_guru === "pending") {
+                                return "bg-yellow-100 text-yellow-800";
+                              } else if (row.status_guru === "rejected") {
+                                return "bg-red-100 text-red-800";
+                              } else if (row.status_guru === "approved") {
+                                return "bg-green-100 text-green-800";
+                              }
+                            })()}`}
+                          >
+                            {(() => {
+                              if (row.status_guru === "pending") {
+                                return "Pending";
+                              } else if (row.status_guru === "rejected") {
+                                return "Rejected";
+                              } else if (row.status_guru === "approved") {
+                                return "Approved";
+                              }
+                            })()}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {row.status_guru === "rejected"
+                            ? row.description
+                            : "Peminjaman Disetujui"}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination */}
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border rounded-lg disabled:opacity-50"
+              >
+                &lt;
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-1 rounded-lg ${
+                      currentPage === page
+                        ? "bg-[#4338CA] text-white"
+                        : "border hover:bg-gray-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border rounded-lg disabled:opacity-50"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <footer className="mt-8 text-center text-sm text-gray-500">
+            2020 © Sistem Fasilitas SMAK Santa Agnes
+          </footer>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="mt-8 text-center text-sm text-gray-500">
-        2020 © Sistem Fasilitas SMAK Santa Agnes
-      </footer>
     </div>
   );
 }
