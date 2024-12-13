@@ -97,7 +97,9 @@ export default async function handler(req, res) {
     }
   } else if (req.method === "PUT") {
     const { role_user, reservation_id } = req.query;
-    const { status_guru } = req.body;
+    const { status_guru, reason } = req.body;
+
+    console.log(reason);
 
     if (role_user !== "1") {
       return res
@@ -112,13 +114,19 @@ export default async function handler(req, res) {
     }
 
     try {
+      const updateData = { status_guru };
+
+      if (status_guru === "rejected" && reason) {
+        updateData.description = reason;
+      }
+
       const updatedReservation = await prisma.reservations.update({
         where: { reservation_id },
-        data: { status_guru },
+        data: updateData,
       });
+
       return res.status(200).json(updatedReservation);
     } catch (error) {
-      console.log("Error updating reservation:", error.message);
       return res
         .status(500)
         .json({ error: "Failed to update data", details: error.message });

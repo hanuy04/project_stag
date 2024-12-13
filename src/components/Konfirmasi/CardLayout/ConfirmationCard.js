@@ -59,7 +59,7 @@ export default function ConfirmationCard({ data }) {
         console.error("Error updating status:", errorData);
         setSnackbarMessage("Gagal mengonfirmasi peminjaman.");
       } else {
-        setSnackbarMessage("Data berhasil dimasukkan!");
+        setSnackbarMessage("Peminjaman berhasil disetujui!");
         setOpenModal(false);
         setTimeout(() => {
           window.location.reload();
@@ -67,7 +67,41 @@ export default function ConfirmationCard({ data }) {
       }
     } catch (error) {
       console.error("Error during confirmation:", error);
-      setSnackbarMessage("Terjadi kesalahan saat mengonfirmasi pemesanan.");
+      setSnackbarMessage("Terjadi kesalahan saat menyetujui peminjaman.");
+    } finally {
+      setIsLoading(false);
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleReject = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/reservationsCecil?reservation_id=${data.reservation_id}&role_user=1`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status_guru: "rejected", reason: reason }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error updating status:", errorData);
+        setSnackbarMessage("Gagal menolak peminjaman.");
+      } else {
+        setSnackbarMessage("Peminjaman berhasil ditolak!");
+        setOpenModal(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error during confirmation:", error);
+      setSnackbarMessage("Terjadi kesalahan saat menolak peminjamam.");
     } finally {
       setIsLoading(false);
       setSnackbarOpen(true);
@@ -191,7 +225,7 @@ export default function ConfirmationCard({ data }) {
             </Button>
             <Button
               onClick={() => {
-                console.log("Penolakan dikirim!");
+                handleReject();
                 handleCloseModal();
               }}
               variant="contained"
