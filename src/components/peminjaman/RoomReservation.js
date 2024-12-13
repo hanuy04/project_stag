@@ -13,7 +13,7 @@ import {
   Alert,
   Button,
 } from "@mui/material";
-import { KeyboardArrowRight, Menu, Person } from "@mui/icons-material";
+import { KeyboardArrowRight, Person } from "@mui/icons-material";
 
 const RoomReservation = () => {
   const [reservations, setReservations] = useState([]);

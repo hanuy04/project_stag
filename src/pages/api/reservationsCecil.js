@@ -95,8 +95,36 @@ export default async function handler(req, res) {
         .status(500)
         .json({ error: "Failed to insert data", details: error.message });
     }
+  } else if (req.method === "PUT") {
+    const { role_user, reservation_id } = req.query;
+    const { status_guru } = req.body;
+
+    if (role_user !== "1") {
+      return res
+        .status(403)
+        .json({ error: "You are not authorized to perform this action." });
+    }
+
+    if (!reservation_id || !status_guru) {
+      return res
+        .status(400)
+        .json({ error: "Reservation ID and status_guru are required." });
+    }
+
+    try {
+      const updatedReservation = await prisma.reservations.update({
+        where: { reservation_id },
+        data: { status_guru },
+      });
+      return res.status(200).json(updatedReservation);
+    } catch (error) {
+      console.log("Error updating reservation:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Failed to update data", details: error.message });
+    }
   } else {
-    res.setHeader("Allow", ["GET", "POST"]);
+    res.setHeader("Allow", ["GET", "POST", "PUT"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

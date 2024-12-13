@@ -8,11 +8,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
-import {
-  KeyboardArrowRight,
-  KeyboardArrowLeft,
-  Person,
-} from "@mui/icons-material";
+import { KeyboardArrowRight, Person } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import ConfirmationCard from "./CardLayout/ConfirmationCard";
 
@@ -22,6 +18,7 @@ export default function ConfirmPage() {
   const [historyData, setHistoryData] = useState([]);
   const [roomsData, setRoomsData] = useState([]);
   const [usersData, setUsersData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,6 +91,21 @@ export default function ConfirmPage() {
     fetchData();
   }, []);
 
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(historyData.length / itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const sortedData = historyData.sort((a, b) => {
+    const numA = parseInt(a.reservation_id.match(/\d+/)[0]);
+    const numB = parseInt(b.reservation_id.match(/\d+/)[0]);
+    return numB - numA;
+  });
+  const paginatedData = sortedData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   return (
     <div className="min-h-screen bg-white p-6">
       {/* Header */}
@@ -123,11 +135,15 @@ export default function ConfirmPage() {
       {/* Waiting Confirmation Section */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold mb-6">Menunggu Konfirmasi</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          {confirmationData.map((item) => (
-            <ConfirmationCard key={item.reservation_id} data={item} />
-          ))}
-        </div>
+        {confirmationData.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-6">
+            {confirmationData.map((item) => (
+              <ConfirmationCard key={item.reservation_id} data={item} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-black-500">Tidak ada permohonan peminjaman</p>
+        )}
       </div>
 
       {/* History Section */}
@@ -148,7 +164,7 @@ export default function ConfirmPage() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {historyData.map((row, index) => {
+              {paginatedData.map((row, index) => {
                 const startDate = new Date(row.start_time);
                 const endDate = new Date(row.end_time);
                 const formattedDate = startDate.toLocaleDateString("id-ID");
@@ -213,27 +229,34 @@ export default function ConfirmPage() {
         </TableContainer>
 
         {/* Pagination */}
-        <div className="flex items-center justify-end space-x-2 mt-4">
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<KeyboardArrowLeft />}
-          />
-          <Button
-            variant="contained"
-            size="small"
-            style={{ backgroundColor: "#4338CA" }}
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded-lg disabled:opacity-50"
           >
-            1
-          </Button>
-          <Button variant="outlined" size="small">
-            2
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            endIcon={<KeyboardArrowRight />}
-          />
+            &lt;
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-3 py-1 rounded-lg ${
+                currentPage === page
+                  ? "bg-[#4338CA] text-white"
+                  : "border hover:bg-gray-50"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded-lg disabled:opacity-50"
+          >
+            &gt;
+          </button>
         </div>
       </div>
 

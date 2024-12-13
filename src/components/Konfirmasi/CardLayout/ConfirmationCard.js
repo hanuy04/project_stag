@@ -5,9 +5,11 @@ import {
   Modal,
   Box,
   TextField,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Person } from "@mui/icons-material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const formatDate = (date) => {
   const d = new Date(date);
@@ -24,13 +26,53 @@ const formatTime = (time) => {
 };
 
 export default function ConfirmationCard({ data }) {
-  console.log(data); // Ensure the data includes no_absen and class_name
-
   const [openModal, setOpenModal] = useState(false);
   const [reason, setReason] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
+  const handleSnackbarClose = (_, reason) => {
+    if (reason !== "clickaway") {
+      setSnackbarOpen(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/reservationsCecil?reservation_id=${data.reservation_id}&role_user=1`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status_guru: "approved" }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error updating status:", errorData);
+        setSnackbarMessage("Gagal mengonfirmasi peminjaman.");
+      } else {
+        setSnackbarMessage("Data berhasil dimasukkan!");
+        setOpenModal(false);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Error during confirmation:", error);
+      setSnackbarMessage("Terjadi kesalahan saat mengonfirmasi pemesanan.");
+    } finally {
+      setIsLoading(false);
+      setSnackbarOpen(true);
+    }
+  };
 
   return (
     <>
@@ -44,15 +86,10 @@ export default function ConfirmationCard({ data }) {
           <p className="text-gray-700 mb-6">{data.purpose}</p>
           <div className="flex items-center gap-4 mb-4">
             <Person />
-            <span>{data.user_name}</span>
+            <span>
+              {data.user_name} [{data.class_name}/{data.no_absen}]
+            </span>
           </div>
-          {/* Display no_absen and class_name */}
-          <p className="text-gray-700 mb-4">
-            <strong>No Absensi:</strong> {data.no_absen}
-          </p>
-          <p className="text-gray-700 mb-4">
-            <strong>Kelas (Ruangan):</strong> {data.class_name}
-          </p>
           <div className="flex gap-4">
             <Button
               variant="contained"
@@ -66,14 +103,29 @@ export default function ConfirmationCard({ data }) {
               variant="contained"
               fullWidth
               style={{ backgroundColor: "#4338CA" }}
+              onClick={handleConfirm}
+              disabled={isLoading}
             >
-              Konfirmasi
+              {isLoading ? "Mengonfirmasi..." : "Konfirmasi"}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Modal */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Modal
         open={openModal}
         onClose={handleCloseModal}
@@ -106,7 +158,7 @@ export default function ConfirmationCard({ data }) {
             </p>
             <p>
               <strong>Waktu:</strong> {formatTime(data.start_time)} -{" "}
-              {formatDate(data.end_time)}
+              {formatTime(data.end_time)}
             </p>
             <p>
               <strong>Keperluan:</strong> {data.purpose}
