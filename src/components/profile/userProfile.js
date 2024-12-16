@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { KeyboardArrowRight, Menu, Person } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 
 const UserProfile = () => {
   const [users, setUsers] = useState([]);
@@ -10,6 +10,7 @@ const UserProfile = () => {
   const [error, setError] = useState(null);
   const [showLogout, setShowLogout] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const itemsPerPage = 10;
   const [roleFilter, setRoleFilter] = useState("siswa");
@@ -105,11 +106,17 @@ const UserProfile = () => {
   });
 
   const filteredData = sortedData.filter((user) => {
-    if (roleFilter === "siswa") {
-      return user.role_id == 2 || user.role_id == 3;
-    } else {
-      return user.role_id == 0 || user.role_id == 1;
-    }
+    const matchesRole =
+      roleFilter === "siswa"
+        ? user.role_id == 2 || user.role_id == 3
+        : user.role_id == 0 || user.role_id == 1;
+
+    const matchesSearch =
+      user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rooms[user.kelas]?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesRole && matchesSearch;
   });
 
   const paginatedData = filteredData.slice(
@@ -146,32 +153,47 @@ const UserProfile = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-6 mt-5">
+            <TextField
+              variant="outlined"
+              placeholder="Username, Nama, Kelas"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                width: "85%", // Atur lebar sesuai kebutuhan
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "15px",
+                  border: "1px solid #E5E7EB",
+                },
+              }}
+            />
             <button className="bg-[#4338CA] text-white px-4 py-2 rounded-lg">
-              Tambah data
+              + Tambah data
             </button>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setRoleFilter("siswa")}
-                className={`px-4 py-2 rounded-lg ${
-                  roleFilter === "siswa"
-                    ? "bg-[#4338CA] text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                Daftar Siswa
-              </button>
-              <button
-                onClick={() => setRoleFilter("guru")}
-                className={`px-4 py-2 rounded-lg ${
-                  roleFilter === "guru"
-                    ? "bg-[#4338CA] text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                Daftar Guru
-              </button>
-            </div>
+          </div>
+          <div className="flex gap-4 mb-5">
+            <button
+              onClick={() => setRoleFilter("siswa")}
+              className={`px-4 py-2 rounded-lg ${
+                roleFilter === "siswa"
+                  ? "bg-[#4338CA] text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              Daftar Siswa
+            </button>
+            <button
+              onClick={() => setRoleFilter("guru")}
+              className={`px-4 py-2 rounded-lg ${
+                roleFilter === "guru"
+                  ? "bg-[#4338CA] text-white"
+                  : "bg-gray-200"
+              }`}
+            >
+              Daftar Guru
+            </button>
           </div>
 
           {loading ? (
@@ -261,7 +283,7 @@ const UserProfile = () => {
                     length: itemsPerPage - paginatedData.length,
                   }).map((_, emptyIndex) => (
                     <tr key={`empty-${emptyIndex}`} className="h-11">
-                      <td className="border p-2" colSpan="6"></td>
+                      <td className="border p-2" colSpan="7"></td>
                     </tr>
                   ))}
                 </tbody>

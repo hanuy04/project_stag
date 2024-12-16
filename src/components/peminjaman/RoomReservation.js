@@ -90,6 +90,10 @@ const RoomReservation = () => {
     const room = rooms.find((r) => r.room_id === roomId);
     return room ? room.room_name : "Unknown Room";
   };
+  const getTeacherName = (teacherId) => {
+    const teacher = teachers.find((t) => t.username === teacherId);
+    return teacher ? teacher.name : "Unknown Teacher";
+  };
 
   const generateTimeOptions = (startHour, endHour) => {
     const times = [];
@@ -175,12 +179,18 @@ const RoomReservation = () => {
     return numB - numA;
   });
 
-  const filteredData = sortedData.filter((item) =>
-    Object.values(item)
-      .join(" ")
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
-  );
+  const filteredData = sortedData.filter((item) => {
+    const searchLower = searchQuery.toLowerCase();
+
+    return (
+      item.purpose.toLowerCase().includes(searchLower) ||
+      getRoomName(item.room_id).toLowerCase().includes(searchLower) ||
+      getTeacherName(item.teacher_assistant)
+        .toLowerCase()
+        .includes(searchLower) ||
+      item.teacher_assistant?.toLowerCase().includes(searchLower)
+    );
+  });
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -216,15 +226,21 @@ const RoomReservation = () => {
             </div>
 
             <div className="flex gap-4 mb-6">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder="Ruangan, keperluan, pendamping, status"
-                  className="w-full px-4 py-2 border rounded-lg"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+              <TextField
+                variant="outlined"
+                placeholder="Username, Nama, Kelas"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: "80%", // Atur lebar sesuai kebutuhan
+                }}
+                InputProps={{
+                  style: {
+                    borderRadius: "15px",
+                    border: "1px solid #E5E7EB",
+                  },
+                }}
+              />
               <button
                 className="bg-[#4338CA] text-white px-4 py-2 rounded-lg"
                 onClick={() => setOpenModal(true)}
