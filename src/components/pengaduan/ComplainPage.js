@@ -12,8 +12,9 @@ import {
   Paper,
   Menu,
   MenuItem,
+  Select,
 } from "@mui/material";
-import { ArrowDropDown, Add, Person } from "@mui/icons-material";
+import { ArrowDropDown, Add, Person, Image } from "@mui/icons-material";
 
 function ComplainPage() {
   const [searchPengaduan, setSearchPengaduan] = useState("");
@@ -24,6 +25,75 @@ function ComplainPage() {
   const [detailForm, setDetailForm] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [rooms, setRooms] = useState([]);
+  const [facilities, setFacilities] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState("");
+  const [selectedFacility, setSelectedFacility] = useState("");
+  const [complaint, setComplaint] = useState("");
+  const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [roomsResponse, facilitiesResponse] = await Promise.all([
+          fetch("/api/rooms"),
+          fetch("/api/facilities"),
+        ]);
+
+        const roomsData = await roomsResponse.json();
+        const facilitiesData = await facilitiesResponse.json();
+
+        // console.log(roomsData.rooms);
+        // console.log(facilitiesData.facilities);
+
+        setRooms(roomsData.rooms);
+        setFacilities(facilitiesData.facilities);
+      } catch (error) {
+        console.error("Error fetching rooms or facilities:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        ruangan: selectedRoom,
+        fasilitas: selectedFacility,
+        keluhan: complaint,
+        deskripsi: description,
+      };
+      console.log("Submitting:", payload);
+
+      const response = await fetch("/api/addComplain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Server error: ${response.status} - ${errorText}`);
+        throw new Error(errorText || "Gagal mengajukan pengaduan");
+      }
+
+      const newComplaint = await response.json();
+      setComplains((prev) => [...prev, newComplaint]);
+
+      setSelectedRoom("");
+      setSelectedFacility("");
+      setComplaint("");
+      setDescription("");
+
+      setOpenModal(false);
+      alert("Pengaduan berhasil diajukan!");
+    } catch (error) {
+      console.error("Error submitting complaint:", error.message);
+      alert("Terjadi kesalahan saat mengajukan pengaduan: " + error.message);
+    }
+  };
 
   useEffect(() => {
     const fetchComplains = async () => {
@@ -44,8 +114,6 @@ function ComplainPage() {
         }
 
         setComplains(data.complaints);
-        
-
       } catch (error) {
         console.error("Failed to fetch complain data:", error);
       }
@@ -53,14 +121,6 @@ function ComplainPage() {
 
     fetchComplains();
   }, []);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const filteredComplaints = complains.filter(
     (complain) =>
@@ -71,7 +131,6 @@ function ComplainPage() {
       complain.description.toLowerCase().includes(searchPengaduan.toLowerCase())
   );
 
-  // Pagination Logic
   const indexOfLastComplaint = currentPage * complaintsPerPage;
   const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
   const currentComplaints = filteredComplaints.slice(
@@ -79,10 +138,8 @@ function ComplainPage() {
     indexOfLastComplaint
   );
 
-  // Handle page changes
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // format tanggal
   const formatDate = (date) => {
     const options = {
       year: "numeric",
@@ -90,12 +147,18 @@ function ComplainPage() {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false, // Use 24-hour format
+      hour12: false,
     };
     return new Date(date).toLocaleString("en-US", options);
   };
 
-  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   return (
     <div
@@ -166,7 +229,8 @@ function ComplainPage() {
         <Button
           variant="contained"
           startIcon={<Add />}
-          style={{ backgroundColor: "#212121", color: "white" }}
+          style={{ backgroundColor: "#212121", color: "white", zIndex: 1100 }}
+          onClick={() => setOpenModal(true)}
         >
           Ajukan Pengaduan
         </Button>
@@ -181,6 +245,7 @@ function ComplainPage() {
               <TableCell>Fasilitas</TableCell>
               <TableCell>Ruangan</TableCell>
               <TableCell>Keluhan</TableCell>
+              <TableCell>Deskripsi</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Keterangan</TableCell>
               <TableCell></TableCell>
@@ -193,6 +258,7 @@ function ComplainPage() {
                 <TableCell>{formatDate(complaint.date)}</TableCell>
                 <TableCell>{complaint.fasilitas}</TableCell>
                 <TableCell>{complaint.ruangan}</TableCell>
+                <TableCell>{complaint.complaint}</TableCell>
                 <TableCell>{complaint.description}</TableCell>
                 <TableCell>{complaint.status}</TableCell>
                 <TableCell>
@@ -234,8 +300,82 @@ function ComplainPage() {
         </Button>
       </div>
 
-      {/* detail form saat ditekan detail */}
-      {detailForm && selectedComplaint && (
+      {/* detail form */}
+      {detailForm && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "8px",
+              padding: "24px",
+              width: "500px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <Typography
+              variant="h4"
+              style={{ marginBottom: "16px", fontWeight: "bold" }}
+            >
+              Detail Pengaduan
+            </Typography>
+            {selectedComplaint && (
+              <div>
+                <Typography>
+                  <strong>Fasilitas:</strong> {selectedComplaint.fasilitas}
+                  {" ("}
+                  {selectedComplaint.ruangan}
+                  {")"}
+                </Typography>
+                <Typography>
+                  <strong>Keluhan:</strong> {selectedComplaint.complaint}
+                </Typography>
+                <Typography>
+                  <strong>Deskripsi:</strong> {selectedComplaint.description}
+                </Typography>
+                <div style={{ marginBottom: "16px" }}>
+                  <Typography variant="subtitle1">
+                    <strong>Lampiran:</strong>
+                  </Typography>
+                  <Typography>
+                    <img
+                      src="https://png.pngtree.com/png-clipart/20190614/original/pngtree-background-material-design-for-lorem-ipsum-logo-png-image_3624650.jpg"
+                      className="w-20 h-20"
+                    ></img>
+                  </Typography>
+                </div>
+                <Typography>
+                  <strong>Status:</strong> {selectedComplaint.status}
+                </Typography>
+              </div>
+            )}
+            <Button
+              variant="contained"
+              style={{ marginTop: "16px" }}
+              onClick={() => setDetailForm(false)}
+            >
+              Tutup
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal to submit complaint */}
+      {openModal && (
         <div
           style={{
             position: "fixed",
@@ -262,36 +402,55 @@ function ComplainPage() {
             }}
           >
             <Typography variant="h6" style={{ marginBottom: "16px" }}>
-              Detail Pengaduan
+              Ajukan Pengaduan
             </Typography>
-            <div style={{ marginBottom: "16px" }}>
-              <Typography variant="subtitle1">Fasilitas:</Typography>
-              <Typography>{selectedComplaint.fasilitas}</Typography>
-            </div>
-            <div style={{ marginBottom: "16px" }}>
-              <Typography variant="subtitle1">Ruangan:</Typography>
-              <Typography>{selectedComplaint.ruangan}</Typography>
-            </div>
-            <div style={{ marginBottom: "16px" }}>
-              <Typography variant="subtitle1">Keluhan:</Typography>
-              <Typography>{selectedComplaint.description}</Typography>
-            </div>
-            <div style={{ marginBottom: "16px" }}>
-              <Typography variant="subtitle1">Lampiran:</Typography>
-              <Typography>
-                <img
-                  src="https://png.pngtree.com/png-clipart/20190614/original/pngtree-background-material-design-for-lorem-ipsum-logo-png-image_3624650.jpg"
-                  className="w-20 h-20"
-                ></img>
-              </Typography>
-            </div>
-            <Button
-              variant="outlined"
-              color="black"
-              onClick={() => setDetailForm(false)}
-            >
-              X
-            </Button>
+            <form className="grid gap-4 mt-2">
+              <Select
+                value={selectedRoom}
+                onChange={(e) => setSelectedRoom(e.target.value)}
+              >
+                {rooms.map((room) => (
+                  <MenuItem key={room.room_id} value={room.room_id}>
+                    {room.room_name}
+                  </MenuItem>
+                ))}
+              </Select>
+
+              <Select
+                value={selectedFacility}
+                onChange={(e) => setSelectedFacility(e.target.value)}
+              >
+                {facilities
+                  .filter((facility) => facility.room_id === selectedRoom)
+                  .map((facility) => (
+                    <MenuItem
+                      key={facility.facility_id}
+                      value={facility.facility_id}
+                    >
+                      {facility.facility_name}
+                    </MenuItem>
+                  ))}
+              </Select>
+
+              <TextField
+                label="Keluhan"
+                placeholder="Tuliskan keluhan"
+                value={complaint}
+                onChange={(e) => setComplaint(e.target.value)}
+              />
+              <TextField
+                label="Deskripsi"
+                placeholder="Ceritakan detail keluhan"
+                multiline
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <Button variant="contained" onClick={handleSubmit}>
+                Submit
+              </Button>
+            </form>
+            <Button onClick={() => setOpenModal(false)}>Cancel</Button>
           </div>
         </div>
       )}

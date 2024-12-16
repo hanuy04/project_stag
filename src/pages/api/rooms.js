@@ -18,7 +18,17 @@ export default async function handler(req, res) {
       const rooms = await prisma.rooms.findMany({
         orderBy: { room_name: "asc" },
       });
-      res.status(200).json(rooms);
+
+      const responseData = rooms.map((room) => ({
+        room_id: room.room_id,
+        room_name: room.room_name,
+        room_capacity: room.room_capacity,
+        room_status: room.room_status,
+      }));
+
+      console.log("rooms: ", responseData);
+
+      res.status(200).json({ rooms: responseData });
     } catch (error) {
       console.error("GET /api/rooms error:", error);
       res.status(500).json({ error: "Failed to fetch data" });

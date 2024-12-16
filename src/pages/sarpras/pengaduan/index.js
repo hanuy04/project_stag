@@ -224,6 +224,7 @@ const index = () => {
                 <TableCell>Fasilitas</TableCell>
                 <TableCell>Ruangan</TableCell>
                 <TableCell>Keluhan</TableCell>
+                <TableCell>Deskripsi</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Keterangan</TableCell>
                 <TableCell></TableCell>
@@ -237,6 +238,7 @@ const index = () => {
                   <TableCell>{formatDate(complaint.date)}</TableCell>
                   <TableCell>{complaint.fasilitas}</TableCell>
                   <TableCell>{complaint.ruangan}</TableCell>
+                  <TableCell>{complaint.complaint}</TableCell>
                   <TableCell>{complaint.description}</TableCell>
                   <TableCell>{complaint.status}</TableCell>
 
@@ -326,6 +328,10 @@ const index = () => {
               </div>
               <div style={{ marginBottom: "16px" }}>
                 <Typography variant="subtitle1">Keluhan:</Typography>
+                <Typography>{selectedComplaint.complaint}</Typography>
+              </div>
+              <div style={{ marginBottom: "16px" }}>
+                <Typography variant="subtitle1">Deskripsi:</Typography>
                 <Typography>{selectedComplaint.description}</Typography>
               </div>
 

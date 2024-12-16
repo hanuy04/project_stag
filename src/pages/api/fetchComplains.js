@@ -12,6 +12,7 @@ export default async function handler(req, res) {
       select: {
         complain_id: true,
         created_at: true,
+        complaint: true,
         description: true,
         status: true,
         room_facilities: {
@@ -31,9 +32,10 @@ export default async function handler(req, res) {
     const responseData = complains.map((com) => ({
       complain_id: com.complain_id,
       date: com.created_at,
+      complaint: com.complaint,
+      description: com.description,
       fasilitas: com.room_facilities.facilities.facility_name,
       ruangan: com.room_facilities.rooms.room_name,
-      description: com.description,
       status: com.status,
     }));
 

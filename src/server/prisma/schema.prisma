@@ -11,11 +11,12 @@ model complains {
   complain_id             String           @id @db.VarChar(5)
   username                String           @db.VarChar(5)
   classroom_facilities_id String           @db.VarChar(5)
+  complaint               String           @db.Text
   description             String           @db.Text
   created_at              DateTime         @default(now())
   status                  complains_status @default(unresolved)
-  room_facilities         room_facilities  @relation(fields: [classroom_facilities_id], references: [room_facilities_id], onDelete: NoAction)
-  users                   users            @relation(fields: [username], references: [username], onDelete: NoAction)
+  room_facilities         room_facilities  @relation(fields: [classroom_facilities_id], references: [room_facilities_id])
+  users                   users            @relation(fields: [username], references: [username])
 
   @@index([classroom_facilities_id], map: "complains_classroom_facilities_id_fkey")
   @@index([username], map: "complains_username_fkey")
@@ -27,7 +28,7 @@ model facilities {
   facility_description String            @db.Text
   facility_qty         Int
   room_id              String            @db.VarChar(5)
-  rooms                rooms             @relation(fields: [room_id], references: [room_id], onDelete: NoAction)
+  rooms                rooms             @relation(fields: [room_id], references: [room_id])
   room_facilities      room_facilities[]
 
   @@index([room_id], map: "facilities_room_id_fkey")
@@ -44,9 +45,9 @@ model reservations {
   teacher_assistant                           String?                     @db.VarChar(255)
   status_guru                                 reservations_status_guru?
   description                                 String?                     @db.Text
-  rooms                                       rooms                       @relation(fields: [room_id], references: [room_id], onDelete: NoAction)
+  rooms                                       rooms                       @relation(fields: [room_id], references: [room_id])
   users_reservations_teacher_assistantTousers users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: Restrict)
-  users                                       users                       @relation(fields: [username], references: [username], onDelete: NoAction)
+  users                                       users                       @relation(fields: [username], references: [username])
 
   @@index([room_id], map: "reservations_room_id_fkey")
   @@index([username], map: "reservations_username_fkey")
@@ -66,8 +67,8 @@ model room_facilities {
   qty                Int
   condition          String
   complains          complains[]
-  facilities         facilities  @relation(fields: [facility_id], references: [facility_id], onDelete: NoAction, map: "classroom_facilities_facility_id_fkey")
-  rooms              rooms       @relation(fields: [room_id], references: [room_id], onDelete: NoAction, map: "classroom_facilities_room_id_fkey")
+  facilities         facilities  @relation(fields: [facility_id], references: [facility_id], map: "classroom_facilities_facility_id_fkey")
+  rooms              rooms       @relation(fields: [room_id], references: [room_id], map: "classroom_facilities_room_id_fkey")
 
   @@index([facility_id], map: "classroom_facilities_facility_id_fkey")
   @@index([room_id], map: "classroom_facilities_room_id_fkey")
@@ -98,8 +99,8 @@ model students {
   username    String @db.VarChar(5)
   room_id     String @db.VarChar(5)
   school_year Int    @db.Year
-  rooms       rooms  @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_student_room")
-  users       users  @relation(fields: [username], references: [username], onDelete: NoAction, onUpdate: NoAction, map: "fk_student_user")
+  rooms       rooms  @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "fk_student_room")
+  users       users  @relation(fields: [username], references: [username], onUpdate: Restrict, map: "fk_student_user")
 
   @@index([room_id], map: "fk_student_room")
   @@index([username], map: "fk_student_user")
@@ -111,14 +112,11 @@ model users {
   name                                               String
   role_id                                            String         @db.Char(1)
   status                                             String         @default("1") @db.Char(1)
-  no_induk                                           String         @db.VarChar(255)
-  kelas                                              String         @db.VarChar(255)
-  no_absen                                           Int
   complains                                          complains[]
   reservations_reservations_teacher_assistantTousers reservations[] @relation("reservations_teacher_assistantTousers")
   reservations                                       reservations[]
   students                                           students[]
-  roles                                              roles          @relation(fields: [role_id], references: [role_id], onDelete: NoAction)
+  roles                                              roles          @relation(fields: [role_id], references: [role_id])
 
   @@index([role_id], map: "users_role_id_fkey")
 }

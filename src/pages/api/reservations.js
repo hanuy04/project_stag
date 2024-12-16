@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const { kategori } = req.query;
-  console.log("API: Mendapatkan kategori ruangan: ", kategori);
+  // console.log("API: Mendapatkan kategori ruangan: ", kategori);
 
   try {
     const today = new Date();
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       },
     });
 
-    console.log(roomsData);
+    // console.log(roomsData);
 
     if (!roomsData || roomsData.length === 0) {
       return res.status(404).json({ error: "No rooms found" });
