@@ -8,6 +8,9 @@ export default {
       where: {
         username: username,
       },
+      include: {
+        roles: true,
+      },
     });
 
     if (user) {

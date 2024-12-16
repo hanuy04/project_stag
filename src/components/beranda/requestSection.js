@@ -1,7 +1,5 @@
 import { Box, Typography } from '@mui/material';
-// import RequestCard from './RequestCard';
 import CardRequest from './CardRequest';
-// import RequestCard from './requestCard';
 
 const RequestSection = ({ title, requests }) => {
     return (

@@ -1,105 +1,29 @@
-import GuideSection from "@/components/beranda/guideSection";
-import RequestSection from "@/components/beranda/requestSection";
-import MainLayout from "@/components/layouts/MainLayout";
-import UserProfile from "@/components/profile/userProfile";
+import LoginPage from "@/components/auth/login/LoginPage";
+import BerandaPage from "@/components/beranda/BerandaPage";
 import { verifyToken } from "@/utils/verifyUser";
-import { Box } from "@mui/material";
-import { red } from "@mui/material/colors";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { redirect, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
-export default function Home() {
-
-  const token = useSelector((state) => state.persist.auth.token);
+const index = () => {
   const router = useRouter();
+  const token = useSelector((state) => state.persist.auth.token);
+  const role = useSelector((state) => state.persist.auth.user?.role);
 
   useEffect(() => {
-
-    if(!token){
-      router.push('/login');
+    if (token) {
+      const verify = async () => {
+        const verified = await verifyToken(token);
+        if (verified.success) {
+          if (role == "sarpras") router.push("/peminjaman");
+          else router.push("/beranda");
+        }
+      };
+      verify();
     }
+  }, [token, router]);
 
-    try{
-      const halo = verifyToken(token);
-      console.log(halo)
+  return <LoginPage />;
+};
 
-    } catch (err) {
-      console.log(err);
-    }
-    
-  });
-
-  const currentRequests = [
-    {
-      title: "Ruang XII - 5",
-      date: "Mon, 14 Oct 2024",
-      time: "16:00 - 18:00",
-      description:
-        "Rapat OSIS persiapan acara tahunan, pembagian tugas dan perencanaan anggaran",
-      status: "pending",
-      type: "pending",
-      supervisor: "Bernardus Totok, S.Psi.",
-    },
-  ];
-
-  const guideSteps = [
-    "Lorem ipsum dolor, sit amet consectetur adipisicing elit.",
-    "Lorem ipsum dolor, sit amet consectetur adipisicing elit.",
-    "Lorem ipsum dolor, sit amet consectetur adipisicing elit.",
-  ];
-
-  const complaints = [
-    {
-      title: "AC [Ruang XII-6]",
-      date: "Mon, 14 Oct 2024",
-      time: "13:05",
-      description:
-        "AC di ruangan ini tidak terasa dingin meskipun sudah dinyalakan cukup lama",
-      status: "processing",
-      type: "processing",
-      files: 2,
-    },
-    // Add more complaints as needed
-  ];
-
-  return (
-    <MainLayout>
-      <div className="bg-yellow-300">
-        <Box className="flex min-h-screen bg-gray-100">
-          <Box className="flex-1 p-8">
-            <Box className="flex justify-between items-start mb-8">
-              <Box>
-                <RequestSection
-                  title="Peminjaman Aktif"
-                  requests={currentRequests}
-                />
-              </Box>
-
-              <Box className="w-96">
-                <UserProfile
-                  user="Agnes [12345]"
-                  time="12:12"
-                  date="14 September 2024 Minggu"
-                  schedule="15:00 - 17:00"
-                />
-
-                <GuideSection
-                  title="Tata Cara Peminjaman Ruangan"
-                  steps={guideSteps}
-                />
-                <GuideSection
-                  title="Tata Cara Pengaduan Fasilitas"
-                  steps={guideSteps}
-                />
-              </Box>
-            </Box>
-
-            <RequestSection title="Pengaduan Aktif" requests={complaints} />
-          </Box>
-        </Box>
-      </div>
-    </MainLayout>
-  );
-}
+export default index;

@@ -77,6 +77,11 @@ const LoginPage = () => {
         router.push("/");
       }
 
+    //   alert(data.token);
+
+    //   console.log("Response data:", data);
+
+
     } catch (error) {
       console.error("Error:", error);
       alert(`Login failed: ${error.message}`);

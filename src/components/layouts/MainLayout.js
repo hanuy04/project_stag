@@ -1,16 +1,20 @@
 import React, { useEffect } from "react";
 import Sidebar from "../navigation/sidebar";
+import { useSelector } from "react-redux";
 
 const MainLayout = ({ children }) => {
+
+  const role = useSelector((state) => state.persist.auth.user?.role);
+
   const menuItemsByRole = {
     student: [
-      { menu: "Beranda", path: "/" },
+      { menu: "Beranda", path: "/beranda" },
       { menu: "Ruangan", path: "/ruangan" },
       { menu: "Peminjaman", path: "/peminjaman" },
       { menu: "Pengaduan", path: "/pengaduan" },
     ],
     osis: [
-      { menu: "Beranda", path: "/" },
+      { menu: "Beranda", path: "/beranda" },
       { menu: "Ruangan", path: "/ruangan" },
       { menu: "Peminjaman", path: "/peminjaman" },
       { menu: "Pengaduan", path: "/pengaduan" },
@@ -31,9 +35,7 @@ const MainLayout = ({ children }) => {
     ],
   };
 
-  const menuItems = menuItemsByRole["sarpras"];
-
-  console.log(menuItems);
+  const menuItems = menuItemsByRole[role];
 
   return (
     <div className="w-full">

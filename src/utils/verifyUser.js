@@ -1,31 +1,48 @@
 import jwt from "jsonwebtoken";
 
-// import dotenv from 'dotenv';
-// dotenv.config();
+const jwtSecret = process.env.JWT_SECRET || "nasiayam";
 
-
-export const verifyToken = (token) => {
+// cek token valid
+// frontend middleware
+export const verifyToken = async (token) => {
   try {
-    const jwtSecret = process.env.JWT_SECRET;
-    console.log(jwtSecret)
-
-    // Pastikan jwtSecret terdefinisi
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET is not defined in environment variables');
-    }
-
-    // Verifikasi token
-    return jwt.verify(token, jwtSecret);
+    const decoded = jwt.verify(token, jwtSecret);
+    return {
+      success: true,
+      message: "Token is valid",
+      user: decoded,
+    };
   } catch (error) {
-    // Tangani error dan beri pesan yang deskriptif
-    console.error('Error verifying token:', error.message);
-    throw new Error('Invalid token or verification failed : ' + error.message);
+    return {
+      success: false,
+      message: "Invalid token: " + error.message,
+    };
   }
 };
 
-export function getTokenFromLocalStorage() {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("token");
-  }
-  return null;
-}
+// backend middleware
+const middleware = (handler, roles = []) => {
+  return async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: "Unauthorized : No token provided" });
+
+    const verified = await verifyToken(token);
+
+    if (verified.success) {
+      // console.log(JSON.stringify(verified.user))
+      if (roles.length > 0 && !roles.includes(verified.user.role)) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      req.user = verified.user;
+      return handler(req, res);
+    } else {
+      return res.status(401).json({ message: "Unauthorized : Invalid token" });
+    }
+  };
+};
+
+export default middleware;

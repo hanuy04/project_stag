@@ -3,12 +3,10 @@ import { styled } from "@mui/material/styles";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import InputAdornment from "@mui/material/InputAdornment";
-// import logo from "../../../public/images/logo_stag.png"
 import Image from "next/image";
 
-import { FormEvent } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { refreshToken } from "@/store/persistSlices/authSlice";
+import { useDispatch } from "react-redux";
+import { login } from "@/store/persistSlices/authSlice";
 import { useRouter } from "next/router";
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -42,8 +40,7 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const LoginPage = () => {
-  const token = useSelector((state) => state.persist.auth.token);
+const AuthLayout = ({ children }) => {
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -66,17 +63,12 @@ const LoginPage = () => {
         }),
       });
 
-      console.log("Response status:", response.status);
-
       if (!response.ok) {
         alert(`HTTP error! Status: ${response.status}`);
-        
       } else {
         const data = await response.json();
-        dispatch(refreshToken(data.token));
-        router.push("/");
+        dispatch(login(data));
       }
-
     } catch (error) {
       console.error("Error:", error);
       alert(`Login failed: ${error.message}`);
@@ -113,11 +105,6 @@ const LoginPage = () => {
           <StyledCard>
             <CardContent className="p-6">
               <div className="hidden md:flex items-center gap-4 mb-8">
-                {/* <Image
-                  src={logo}
-                  alt="School Logo"
-                  width={50}
-                /> */}
                 <div>
                   <h1 className="text-2xl font-bold text-blue">STAGFAST</h1>
                   <p className="text-sm text-gray-600">
@@ -126,58 +113,7 @@ const LoginPage = () => {
                 </div>
               </div>
 
-              <h2 className="text-xl font-semibold text-gray-800 mb-6">
-                Login
-                {token}
-              </h2>
-
-              <form className="space-y-6" onSubmit={handleLogin}>
-                <StyledTextField
-                  fullWidth
-                  placeholder="Nomor Induk"
-                  variant="outlined"
-                  size="medium"
-                  name="username"
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonOutlineIcon className="text-gray-400" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <StyledTextField
-                  fullWidth
-                  placeholder="Password"
-                  type="password"
-                  variant="outlined"
-                  size="medium"
-                  name="password"
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <LockOutlinedIcon className="text-gray-400" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-
-                <StyledButton
-                  fullWidth
-                  variant="contained"
-                  type="submit"
-                  className="bg-blue hover:bg-blue-700 normal-case py-3"
-                >
-                  Log In
-                </StyledButton>
-
-                <p className="text-center text-sm text-gray-600">
-                  Jika terjadi kesalahan, silahkan hubungi tim IT.
-                </p>
-              </form>
+              {children}
             </CardContent>
           </StyledCard>
         </div>
@@ -186,4 +122,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default AuthLayout;

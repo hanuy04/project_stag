@@ -284,7 +284,6 @@ const Sidebar = ({ menuItems = [], children }) => {
       <Box className="flex-1 transition-all duration-300 pt-[72px] md:pt-0 md:ml-[280px]">
 
         <Box>
-          <Topbar/>
           {children}
         </Box>
         
