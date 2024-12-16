@@ -2,18 +2,18 @@ import prisma from "../../server/db/prisma";
 
 export default async function handler(req, res) {
   if (req.method === "PUT") {
-    const { complain_id, status } = req.body;
+    const { complain_id, status, updatedDescription } = req.body;
 
-    console.log("Received data:", { complain_id, status });
+    // console.log("Received data:", { complain_id, status });
 
-    if (!complain_id || !status) {
+    if (!complain_id || !status || !updatedDescription) {
       return res.status(400).json({ success: false, message: "Invalid data" });
     }
 
     try {
       const result = await prisma.complains.update({
         where: { complain_id: complain_id },
-        data: { status },
+        data: { status: status, description: updatedDescription },
       });
 
       res.status(200).json({ success: true, data: result });

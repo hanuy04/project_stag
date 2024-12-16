@@ -25,6 +25,11 @@ const index = () => {
   const [detailForm, setDetailForm] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [updatedDescription, setUpdatedDescription] = useState("");
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
 
   useEffect(() => {
     const fetchComplains = async () => {
@@ -63,6 +68,21 @@ const index = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+
+    const sortedData = [...complains].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    setComplains(sortedData);
   };
 
   const filteredComplaints = complains.filter(
@@ -105,6 +125,11 @@ const index = () => {
       return;
     }
 
+    if (updatedDescription == "") {
+      alert("Deskripsi harus diisi!");
+      return;
+    }
+
     try {
       const response = await fetch(`/api/updateComplainStatus`, {
         method: "PUT",
@@ -112,6 +137,7 @@ const index = () => {
         body: JSON.stringify({
           complain_id: selectedComplaint.complain_id,
           status: selectedStatus,
+          updatedDescription: updatedDescription,
         }),
       });
 
@@ -123,6 +149,8 @@ const index = () => {
 
       const data = await response.json();
       console.log("Status updated successfully:", data);
+
+      alert("Status pengaduan berhasil diperbaharui!");
 
       // Refresh state
       const updatedComplaints = complains.map((complain) =>
@@ -219,15 +247,28 @@ const index = () => {
             <TableHead>
               <TableRow>
                 <TableCell>No</TableCell>
-                <TableCell>Complain ID</TableCell>
-                <TableCell>Tanggal Waktu</TableCell>
-                <TableCell>Fasilitas</TableCell>
-                <TableCell>Ruangan</TableCell>
-                <TableCell>Keluhan</TableCell>
-                <TableCell>Deskripsi</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Keterangan</TableCell>
-                <TableCell></TableCell>
+                <TableCell onClick={() => handleSort("complain_id")}>
+                  Complain ID
+                </TableCell>
+                <TableCell onClick={() => handleSort("date")}>
+                  Tanggal Waktu
+                </TableCell>
+                <TableCell onClick={() => handleSort("fasilitas")}>
+                  Fasilitas
+                </TableCell>
+                <TableCell onClick={() => handleSort("ruangan")}>
+                  Ruangan
+                </TableCell>
+                <TableCell onClick={() => handleSort("complaint")}>
+                  Keluhan
+                </TableCell>
+                <TableCell onClick={() => handleSort("description")}>
+                  Deskripsi
+                </TableCell>
+                <TableCell onClick={() => handleSort("status")}>
+                  Status
+                </TableCell>
+                <TableCell>Aksi</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -364,8 +405,13 @@ const index = () => {
                 </select>
               </div>
               <div style={{ marginBottom: "16px" }}>
-                <Typography variant="subtitle1">Deskripsi:</Typography>
-                <TextField></TextField>
+                {/* <Typography variant="subtitle1">Deskripsi:</Typography> */}
+                <TextField
+                  label="Deskrisi"
+                  placeholder="Tuliskan deskripsi"
+                  value={updatedDescription}
+                  onChange={(e) => setUpdatedDescription(e.target.value)}
+                />
               </div>
               <div className="flex justify-between w-full">
                 <Button

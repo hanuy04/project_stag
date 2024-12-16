@@ -32,6 +32,10 @@ function ComplainPage() {
   const [selectedFacility, setSelectedFacility] = useState("");
   const [complaint, setComplaint] = useState("");
   const [description, setDescription] = useState("");
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "asc",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +63,26 @@ function ComplainPage() {
 
   const handleSubmit = async () => {
     try {
+      if (selectedRoom == "") {
+        alert("Ruangan harus dipilih!");
+        return;
+      }
+
+      if (selectedFacility == "") {
+        alert("Fasilitas harus dipilih!");
+        return;
+      }
+
+      if (complaint == "") {
+        alert("Keluhan harus diisi!");
+        return;
+      }
+
+      if (description == "") {
+        alert("Deskripsi harus diisi!");
+        return;
+      }
+
       const payload = {
         ruangan: selectedRoom,
         fasilitas: selectedFacility,
@@ -121,6 +145,21 @@ function ComplainPage() {
 
     fetchComplains();
   }, []);
+
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+
+    const sortedData = [...complains].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    setComplains(sortedData);
+  };
 
   const filteredComplaints = complains.filter(
     (complain) =>
@@ -241,14 +280,23 @@ function ComplainPage() {
           <TableHead>
             <TableRow>
               <TableCell>No</TableCell>
-              <TableCell>Tanggal Waktu</TableCell>
-              <TableCell>Fasilitas</TableCell>
-              <TableCell>Ruangan</TableCell>
-              <TableCell>Keluhan</TableCell>
-              <TableCell>Deskripsi</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Keterangan</TableCell>
-              <TableCell></TableCell>
+              <TableCell onClick={() => handleSort("date")}>
+                Tanggal Waktu
+              </TableCell>
+              <TableCell onClick={() => handleSort("fasilitas")}>
+                Fasilitas
+              </TableCell>
+              <TableCell onClick={() => handleSort("ruangan")}>
+                Ruangan
+              </TableCell>
+              <TableCell onClick={() => handleSort("complaint")}>
+                Keluhan
+              </TableCell>
+              <TableCell onClick={() => handleSort("description")}>
+                Deskripsi
+              </TableCell>
+              <TableCell onClick={() => handleSort("status")}>Status</TableCell>
+              <TableCell>Aksi</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
