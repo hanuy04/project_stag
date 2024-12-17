@@ -1,4 +1,4 @@
-import LoginPage from "@/components/auth/login/LoginPage";
+import LoginPage from "@/components/auth/LoginPage";
 import BerandaPage from "@/components/beranda/BerandaPage";
 import { verifyToken } from "@/utils/verifyUser";
 import { useEffect, useState } from "react";

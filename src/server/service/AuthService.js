@@ -2,7 +2,7 @@ import prisma from "../db/prisma";
 
 export default {
   login: async (loginData) => {
-    const {username, password} = loginData
+    const { username, password } = loginData;
 
     const user = await prisma.users.findFirst({
       where: {
@@ -31,5 +31,24 @@ export default {
       success: false,
       error: "Username tidak ditemukan",
     };
+  },
+
+  register: async (username) => {
+    const user = await prisma.users.findFirst({
+      where: {
+        username: username,
+      },
+    });
+
+    if(user) return {
+      success : false,
+      status : 500
+    }
+   
+
+
+
+
+
   },
 };

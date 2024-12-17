@@ -1,4 +1,3 @@
-import React from "react";
 import AuthLayout from "../layouts/AuthLayout";
 
 import {
@@ -9,9 +8,13 @@ import {
   FormControlLabel,
   FormLabel,
   Grid2,
+  InputLabel,
+  MenuItem,
   Radio,
   RadioGroup,
+  Select,
   TextField,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -21,7 +24,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/persistSlices/authSlice";
 import { useRouter } from "next/router";
-import { Check, Edit } from "@mui/icons-material";
+import { Check, Class, Edit } from "@mui/icons-material";
+import { useState } from "react";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
@@ -42,22 +46,51 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 const RegisterPage = () => {
+  const router = useRouter();
 
+  const [role, setRole] = useState("student");
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const name = formData.get("name");
+    const username = formData.get("username");
+    const password = formData.get("password");
+    const confirm = formData.get("confirm");
+    const role = formData.get("role");
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          username,
+          password,
+          confirm,
+          role,
+        }),
+      });
+
+      if (!response.ok) {
+        alert(`HTTP error! Status: ${response.status}`);
+      } else {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert(`Register failed: ${error.message}`);
+    }
+  };
 
   return (
     <AuthLayout>
       <h2 className="text-xl font-semibold text-gray-800 mb-6">Register</h2>
-      <div className="h1">Daftar sebagai</div>
 
-      {/* <Container>
-        <Button variant="outlined" className="bg-blue">
-          Guru
-        </Button>
-        <Button variant="outlined">Siswa</Button>
-        <Button variant="outlined">Pengurus OSIS</Button>
-      </Container> */}
-
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={handleRegister}>
         <StyledTextField
           fullWidth
           placeholder="Nama Lengkap"
@@ -113,7 +146,7 @@ const RegisterPage = () => {
           type="password"
           variant="outlined"
           size="medium"
-          name="password"
+          name="confirm"
           required
           InputProps={{
             startAdornment: (
@@ -124,35 +157,18 @@ const RegisterPage = () => {
           }}
         />
 
-        <FormControl>
-          <FormLabel id="demo-radio-buttons-group-label">
-            Daftar sebagai
-          </FormLabel>
+        <FormControl onChange={(e) => setRole(e.target.value)}>
+          <FormLabel>Daftar sebagai</FormLabel>
           <RadioGroup
             aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="student"
-            name="radio-buttons-group"
+            defaultValue={role}
+            name="role"
+            row
           >
             <FormControlLabel
               value="student"
               control={<Radio />}
               label="Siswa"
-            />
-            <StyledTextField
-              fullWidth
-              placeholder="Password"
-              type="password"
-              variant="outlined"
-              size="medium"
-              name="password"
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Check className="text-gray-400" />
-                  </InputAdornment>
-                ),
-              }}
             />
 
             <FormControlLabel
@@ -168,6 +184,33 @@ const RegisterPage = () => {
             />
           </RadioGroup>
         </FormControl>
+        {role == "student" && (
+          <FormControl>
+            <Grid2 container alignContent={"flex"} spacing={1}>
+              <Typography marginY={"auto"}>Kelas</Typography>
+              <Grid2>
+                <Select size="small" defaultValue={"X"}>
+                  <MenuItem defaultChecked value={"X"}>
+                    X
+                  </MenuItem>
+                  <MenuItem value={"XI"}>XI</MenuItem>
+                  <MenuItem value={"XII"}>XII</MenuItem>
+                </Select>
+              </Grid2>
+
+              <Grid2>
+                <Select defaultValue={"1"} size="small">
+                  <MenuItem value={"1"}>1</MenuItem>
+                  <MenuItem value={"2"}>2</MenuItem>
+                  <MenuItem value={"3"}>3</MenuItem>
+                  <MenuItem value={"4"}>4</MenuItem>
+                  <MenuItem value={"5"}>5</MenuItem>
+                  <MenuItem value={"6"}>6</MenuItem>
+                </Select>
+              </Grid2>
+            </Grid2>
+          </FormControl>
+        )}
 
         <StyledButton
           fullWidth
