@@ -35,7 +35,7 @@ const MainLayout = ({ children }) => {
     ],
   };
 
-  const menuItems = menuItemsByRole[role];
+  const menuItems = menuItemsByRole[role] || [];
 
   return (
     <div className="w-full">

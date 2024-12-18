@@ -3,7 +3,13 @@ import RequestSection from "@/components/beranda/requestSection";
 import MainLayout from "@/components/layouts/MainLayout";
 import UserProfile from "@/components/profile/userProfile";
 import { verifyToken } from "@/utils/verifyUser";
-import { Box, Grid2 } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Container,
+  Grid2,
+} from "@mui/material";
 import { red } from "@mui/material/colors";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -11,6 +17,7 @@ import { useSelector } from "react-redux";
 import Profile from "../profile/Profile";
 import PeminjamanSection from "./peminjaman/PeminjamanSection";
 import ClockDisplay from "./ClockDisplay";
+import LoadingPage from "../LoadingPage";
 
 export default function BerandaPage() {
   const token = useSelector((state) => state.persist.auth.token);
@@ -52,7 +59,7 @@ export default function BerandaPage() {
     };
 
     fetchPeminjaman();
-  }, [router, token]);
+  }, [token]);
 
   const currentRequests = [
     {
@@ -99,7 +106,7 @@ export default function BerandaPage() {
 
   return (
     <>
-      {loading && <div>sek laod</div>}
+      {loading && <LoadingPage />}
 
       {!loading && (
         <MainLayout>
@@ -111,7 +118,7 @@ export default function BerandaPage() {
               />
             </Grid2>
             <Grid2 size={4} padding={3} paddingRight={0}>
-            <PeminjamanSection
+              <PeminjamanSection
                 title="Peminjaman Aktif"
                 requests={currentRequests}
               />

@@ -27,6 +27,7 @@ import {
   Widgets,
 } from "@mui/icons-material";
 import Topbar from "./topbar";
+import { useSelector } from "react-redux";
 
 const getIcon = (name, active) => {
   const color = active ? "text-blue" : "text-white";
@@ -245,6 +246,8 @@ const MobileSidebar = ({ menuItems, pathname }) => {
     </Box>
   );
 
+
+
   return (
     <>
       <Box className="md:hidden fixed top-0 left-0 right-0 bg-[#0C21C1] z-50">
@@ -275,6 +278,9 @@ const MobileSidebar = ({ menuItems, pathname }) => {
 
 const Sidebar = ({ menuItems = [], children }) => {
   const pathname = usePathname();
+
+  const isAuthenticated = useSelector((state) => state.persist.auth.isAuthenticated);
+  if (!isAuthenticated) return null;
 
   return (
     <Box className="flex">

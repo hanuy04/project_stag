@@ -38,7 +38,7 @@ const Profile = () => {
 
       {showModal && (
         <button
-          className="absolute right-0 mt-2 bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50 z-50"
+          className="absolute right-0 mt-2 bg-white border shadow-lg py-2 px-4 rounded-lg text-blue hover:bg-blue z-50"
           onClick={handleLogout}
         >
           Logout
