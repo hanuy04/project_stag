@@ -13,6 +13,7 @@ import {
   Menu,
   MenuItem,
   Select,
+  Box,
 } from "@mui/material";
 import { ArrowDropDown, Add, Person, Image } from "@mui/icons-material";
 
@@ -36,6 +37,11 @@ function ComplainPage() {
     key: null,
     direction: "asc",
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,18 +89,16 @@ function ComplainPage() {
         return;
       }
 
-      const payload = {
-        ruangan: selectedRoom,
-        fasilitas: selectedFacility,
-        keluhan: complaint,
-        deskripsi: description,
-      };
-      console.log("Submitting:", payload);
+      const formData = new FormData();
+      formData.append("ruangan", selectedRoom);
+      formData.append("fasilitas", selectedFacility);
+      formData.append("keluhan", complaint);
+      formData.append("deskripsi", description);
+      formData.append("photo", selectedFile);
 
       const response = await fetch("/api/addComplain", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -281,7 +285,7 @@ function ComplainPage() {
             <TableRow>
               <TableCell>No</TableCell>
               <TableCell onClick={() => handleSort("date")}>
-                Tanggal Waktu
+                Tanggal, Waktu
               </TableCell>
               <TableCell onClick={() => handleSort("fasilitas")}>
                 Fasilitas
@@ -400,10 +404,20 @@ function ComplainPage() {
                     <strong>Lampiran:</strong>
                   </Typography>
                   <Typography>
-                    <img
-                      src="https://png.pngtree.com/png-clipart/20190614/original/pngtree-background-material-design-for-lorem-ipsum-logo-png-image_3624650.jpg"
-                      className="w-20 h-20"
-                    ></img>
+                    {selectedComplaint.lampiran ? (
+                      <img
+                        src={selectedComplaint.lampiran}
+                        alt="Lampiran"
+                        style={{
+                          width: "100%",
+                          maxHeight: "200px",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    ) : (
+                      <Typography>Tidak ada lampiran</Typography>
+                    )}
                   </Typography>
                 </div>
                 <Typography>
@@ -494,6 +508,28 @@ function ComplainPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload">
+                  <Button
+                    variant="contained"
+                    component="span"
+                    startIcon={<Image />}
+                  >
+                    Upload File
+                  </Button>
+                </label>
+                <Typography variant="body2">
+                  {selectedFile ? selectedFile.name : "No file selected"}
+                </Typography>
+              </Box>
+
               <Button variant="contained" onClick={handleSubmit}>
                 Submit
               </Button>

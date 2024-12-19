@@ -248,10 +248,10 @@ const index = () => {
               <TableRow>
                 <TableCell>No</TableCell>
                 <TableCell onClick={() => handleSort("complain_id")}>
-                  Complain ID
+                  ID Pengaduan
                 </TableCell>
                 <TableCell onClick={() => handleSort("date")}>
-                  Tanggal Waktu
+                  Tanggal, Waktu
                 </TableCell>
                 <TableCell onClick={() => handleSort("fasilitas")}>
                   Fasilitas
@@ -356,7 +356,7 @@ const index = () => {
                 Detail Pengaduan
               </Typography>
               <div style={{ marginBottom: "16px" }}>
-                <Typography variant="subtitle1">Complain ID:</Typography>
+                <Typography variant="subtitle1">ID Pengaduan:</Typography>
                 <Typography>{selectedComplaint.complain_id}</Typography>
               </div>
               <div style={{ marginBottom: "16px" }}>
@@ -377,12 +377,24 @@ const index = () => {
               </div>
 
               <div style={{ marginBottom: "16px" }}>
-                <Typography variant="subtitle1">Lampiran:</Typography>
+                <Typography variant="subtitle1">
+                  <strong>Lampiran:</strong>
+                </Typography>
                 <Typography>
-                  <img
-                    src="https://png.pngtree.com/png-clipart/20190614/original/pngtree-background-material-design-for-lorem-ipsum-logo-png-image_3624650.jpg"
-                    className="w-20 h-20"
-                  ></img>
+                  {selectedComplaint.lampiran ? (
+                    <img
+                      src={selectedComplaint.lampiran}
+                      alt="Lampiran"
+                      style={{
+                        width: "100%",
+                        maxHeight: "200px",
+                        objectFit: "contain",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  ) : (
+                    <Typography>Tidak ada lampiran</Typography>
+                  )}
                 </Typography>
               </div>
               <hr />

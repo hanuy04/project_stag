@@ -15,6 +15,7 @@ export default async function handler(req, res) {
         complaint: true,
         description: true,
         status: true,
+        lampiran: true,
         room_facilities: {
           select: {
             facilities: { select: { facility_name: true } },
@@ -37,7 +38,10 @@ export default async function handler(req, res) {
       fasilitas: com.room_facilities.facilities.facility_name,
       ruangan: com.room_facilities.rooms.room_name,
       status: com.status,
+      lampiran: com.lampiran,
     }));
+
+    // console.log(responseData);
 
     res.status(200).json({ complaints: responseData });
   } catch (error) {
