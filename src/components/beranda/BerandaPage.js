@@ -16,12 +16,12 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Profile from "../profile/Profile";
 import PeminjamanSection from "./peminjaman/PeminjamanSection";
-import ClockDisplay from "./ClockDisplay";
-import LoadingPage from "../LoadingPage";
+import LoadingPage from "../general/LoadingPage";
+import ClockDisplay from "../general/ClockDisplay";
 
 export default function BerandaPage() {
   const token = useSelector((state) => state.persist.auth.token);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
@@ -42,6 +42,8 @@ export default function BerandaPage() {
             Authorization: `Bearer ${token}`,
           },
         });
+
+        console.log(response);
 
         if (!response.ok) {
           router.push("/");
@@ -106,7 +108,7 @@ export default function BerandaPage() {
 
   return (
     <>
-      {loading && <LoadingPage />}
+      {/* {loading && <LoadingPage />} */}
 
       {!loading && (
         <MainLayout>

@@ -22,7 +22,7 @@ export default {
       // bikin token
       const jwtSecret = process.env.JWT_SECRET;
       const payload = {
-        usename: result.user.username,
+        username: result.user.username,
         name: result.user.name,
         role: result.user.roles.role_name,
         status: result.user.status,

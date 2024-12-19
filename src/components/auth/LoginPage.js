@@ -56,6 +56,8 @@ const LoginPage = () => {
       } else {
         const data = await response.json();
         dispatch(login(data));
+
+        
       }
     } catch (error) {
       console.error("Error:", error);

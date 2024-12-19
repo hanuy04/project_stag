@@ -11,7 +11,6 @@ model complains {
   complain_id             String           @id @db.VarChar(5)
   username                String           @db.VarChar(5)
   classroom_facilities_id String           @db.VarChar(5)
-  complaint               String           @db.Text
   description             String           @db.Text
   created_at              DateTime         @default(now())
   status                  complains_status @default(unresolved)
@@ -35,23 +34,19 @@ model facilities {
 }
 
 model reservations {
-  reservation_id                              String                      @id @db.VarChar(255)
-  username                                    String                      @db.VarChar(255)
-  room_id                                     String                      @db.VarChar(5)
-  start_time                                  DateTime
-  end_time                                    DateTime
-  purpose                                     String                      @db.VarChar(255)
-  status_sarpras                              reservations_status_sarpras @default(pending)
-  teacher_assistant                           String?                     @db.VarChar(255)
-  status_guru                                 reservations_status_guru?
-  description                                 String?                     @db.Text
-  rooms                                       rooms                       @relation(fields: [room_id], references: [room_id])
-  users_reservations_teacher_assistantTousers users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: Restrict)
-  users                                       users                       @relation(fields: [username], references: [username])
+  reservation_id               String              @id @db.VarChar(5)
+  username                     String              @db.VarChar(255)
+  room_id                      String              @db.VarChar(5)
+  start_time                   DateTime
+  end_time                     DateTime
+  purpose                      String              @db.VarChar(255)
+  status                       reservations_status @default(pending)
+  is_need_accompanying_teacher Boolean
+  rooms                        rooms               @relation(fields: [room_id], references: [room_id])
+  users                        users               @relation(fields: [username], references: [username])
 
   @@index([room_id], map: "reservations_room_id_fkey")
   @@index([username], map: "reservations_username_fkey")
-  @@index([teacher_assistant], map: "reservations_teacher_assistant_fkey")
 }
 
 model roles {
@@ -86,12 +81,14 @@ model rooms {
 }
 
 model settings {
-  day               String   @id @db.VarChar(10)
+  id                Int      @id @default(autoincrement()) @db.TinyInt
+  day               String   @db.VarChar(10)
   booking_start     DateTime @db.Time(0)
   booking_end       DateTime @db.Time(0)
   reservation_start DateTime @db.Time(0)
   conditional_time  DateTime @db.Time(0)
   reservation_end   DateTime @db.Time(0)
+  active            Boolean  @default(true)
 }
 
 model students {
@@ -107,16 +104,15 @@ model students {
 }
 
 model users {
-  username                                           String         @id @db.VarChar(255)
-  password                                           String
-  name                                               String
-  role_id                                            String         @db.Char(1)
-  status                                             String         @default("1") @db.Char(1)
-  complains                                          complains[]
-  reservations_reservations_teacher_assistantTousers reservations[] @relation("reservations_teacher_assistantTousers")
-  reservations                                       reservations[]
-  students                                           students[]
-  roles                                              roles          @relation(fields: [role_id], references: [role_id])
+  username     String         @id @db.VarChar(255)
+  password     String
+  name         String
+  role_id      String         @db.Char(1)
+  status       String         @default("1") @db.Char(1)
+  complains    complains[]
+  reservations reservations[]
+  students     students[]
+  roles        roles          @relation(fields: [role_id], references: [role_id])
 
   @@index([role_id], map: "users_role_id_fkey")
 }
@@ -127,15 +123,9 @@ enum complains_status {
   unresolved
 }
 
-enum reservations_status_sarpras {
+enum reservations_status {
   pending
   approved
   rejected
   cancelled
-}
-
-enum reservations_status_guru {
-  pending
-  rejected
-  approved
 }

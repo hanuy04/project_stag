@@ -101,6 +101,7 @@ model settings {
   reservation_start DateTime @db.Time(0)
   conditional_time  DateTime @db.Time(0)
   reservation_end   DateTime @db.Time(0)
+  active            Boolean  @default(true)
 }
 
 model students {

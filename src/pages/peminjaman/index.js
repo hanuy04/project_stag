@@ -1,14 +1,27 @@
 import MainLayout from "@/components/layouts/MainLayout";
 import RoomReservation from "@/components/peminjaman/RoomReservation";
 import Sidebar from "@/components/navigation/sidebar";
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
+import SarprasReservationPage from "@/components/sarpras/peminjaman/SarprasReservationPage";
+import { useSelector } from "react-redux";
 
-const index = () => {
+const Peminjaman = () => {
+  const role = useSelector((state) => state.persist.auth.user?.role);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!role) {
+      router.push("/");
+    }
+  }, [router, role]);
+
   return (
     <MainLayout>
-      <RoomReservation />
+      {role == "sarpras" && <SarprasReservationPage />}
+      {role != "sarpras" && <RoomReservation />}
     </MainLayout>
   );
 };
 
-export default index;
+export default Peminjaman;

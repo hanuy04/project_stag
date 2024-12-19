@@ -1,4 +1,4 @@
-import ClockDisplay from "@/components/beranda/ClockDisplay";
+import ClockDisplay from "@/components/general/ClockDisplay";
 import GuideSection from "@/components/beranda/guideSection";
 import MainLayout from "@/components/layouts/MainLayout";
 import Navbar from "@/components/navigation/navbar";

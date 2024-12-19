@@ -27,7 +27,7 @@ const MainLayout = ({ children }) => {
       { menu: "Pengaduan", path: "/pengaduan" },
     ],
     sarpras: [
-      { menu: "Peminjaman", path: "/sarpras/peminjaman" },
+      { menu: "Peminjaman", path: "/peminjaman" },
       { menu: "Pengaduan", path: "/sarpras/pengaduan" },
       { menu: "Jadwal", path: "/sarpras/jadwal" },
       { menu: "Fasilitas", path: "/sarpras/fasilitas" },

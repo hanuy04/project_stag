@@ -4,12 +4,14 @@ import { Box, Button } from "@mui/material";
 import { useRouter } from "next/router";
 import { Container } from "postcss";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const Profile = () => {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
+
+  const user = useSelector((state) => state.persist.auth.user);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -32,7 +34,7 @@ const Profile = () => {
       >
         <Box gap={3} display={"flex"}>
           <Person />
-          Agnes [12345]
+          {user.name} [{user.username}]
         </Box>
       </Button>
 

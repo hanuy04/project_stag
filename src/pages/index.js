@@ -9,6 +9,7 @@ const index = () => {
   const router = useRouter();
   const token = useSelector((state) => state.persist.auth.token);
   const role = useSelector((state) => state.persist.auth.user?.role);
+  // const [loading, isLoading] = useState(true);
 
   useEffect(() => {
     if (token) {

@@ -7,8 +7,8 @@ import {
   ThemeProvider,
   createTheme,
 } from "@mui/material";
+import Loading from "./Loading";
 
-// Create a custom theme (optional)
 const theme = createTheme({
   palette: {
     primary: {
@@ -47,10 +47,7 @@ const LoadingPage = ({ message = "Loading..." }) => {
           }}
         >
           <Box display={"flex"} gap={3}>
-            <CircularProgress size={60} thickness={4} color="primary" />
-            <Typography variant="h6" color="text.secondary" margin={"auto"}>
-              {message}
-            </Typography>
+            <Loading message={message} />
           </Box>
         </Box>
       </Box>
