@@ -22,7 +22,7 @@ const SarprasReservationPage = () => {
       <Grid2 size={4} padding={3}>
         <Profile />
         <ClockDisplay />
-        {/* <JadwalPeminjaman /> */}
+        
       </Grid2>
     </Grid2>
   );

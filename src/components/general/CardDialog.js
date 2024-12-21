@@ -7,7 +7,7 @@ const CardDialog = ({ title, open, setOpen, children, maxWidth }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth={maxWidth}>
+    <Dialog open={open} fullWidth maxWidth={maxWidth}>
       {/* Tombol Silang */}
       <IconButton
         onClick={handleClose}

@@ -1,11 +1,10 @@
-import { Alert, Backdrop, Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import JadwalPeminjaman from "../sarpras/peminjaman/JadwalPeminjaman";
-import CardDialog from "./CardDialog";
-import { formatTime } from "@/utils/DateTime";
-import LoadingPage from "./LoadingPage";
+import { formatTimeHHMM } from "@/utils/DateTime";
 import Loading from "./Loading";
+import JadwalLayanan from "../sarpras/peminjaman/JadwalLayanan";
 
 const ClockDisplay = () => {
   const [currentTime, setCurrentTime] = useState(null);
@@ -13,6 +12,7 @@ const ClockDisplay = () => {
   const token = useSelector((state) => state.persist.auth.token);
   const [scheduleToday, setScheduleToday] = useState();
   const [openSchedule, setOpenSchedule] = useState(false);
+  const [openService, setOpenService] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const ClockDisplay = () => {
       const today = new Date();
       let dayOrder = today.getDay();
       dayOrder = dayOrder === 0 ? 7 : dayOrder;
-      const response = await fetch(`/api/setting/reserve?id=${dayOrder}`, {
+      const response = await fetch(`/api/settings?id=${dayOrder}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -109,6 +109,7 @@ const ClockDisplay = () => {
               "&:hover": {
                 backgroundColor: "#f0f0f0", // Warna saat hover
               },
+              marginBottom: "10px",
             }}
             onClick={() => role == "sarpras" && setOpenSchedule(true)}
           >
@@ -120,14 +121,18 @@ const ClockDisplay = () => {
               >
                 Peminjaman ruangan hari ini
               </Typography>
-              <Typography variant="body1" className="text-gray-800">
-                {scheduleToday && scheduleToday.active
-                  ? `${formatTime(
+              <Typography variant="body2" className="text-gray-800">
+                {scheduleToday?.active
+                  ? `${formatTimeHHMM(
                       scheduleToday.reservation_start
-                    )} - ${formatTime(
-                      scheduleToday.conditional_time
-                    )} - ${formatTime(scheduleToday.reservation_end)}`
+                    )} - ${formatTimeHHMM(scheduleToday.reservation_end)}`
                   : "Tidak ada jadwal"}
+
+                {scheduleToday?.active && scheduleToday?.accompanying_teacher
+                  ? ` - ${formatTimeHHMM(
+                      scheduleToday.conditional_time
+                    )} (dengan pendamping)`
+                  : ""}
               </Typography>
             </Box>
           </Button>
@@ -135,6 +140,44 @@ const ClockDisplay = () => {
             <JadwalPeminjaman
               open={openSchedule}
               setOpen={setOpenSchedule}
+              title="Jadwal Peminjaman Ruangan"
+              fetchSchedule={fetchSchedule}
+            />
+          )}
+          {/* Layanan */}
+          <Button
+            variant="outline"
+            sx={{
+              backgroundColor: "#ffffff",
+              width: "100%",
+              color: "black",
+              "&:hover": {
+                backgroundColor: "#f0f0f0", // Warna saat hover
+              },
+            }}
+            onClick={() => role == "sarpras" && setOpenService(true)}
+          >
+            <Box>
+              <Typography
+                variant="body1"
+                style={{ fontWeight: "bolder" }}
+                className="text-gray-800 font-extrabold "
+              >
+                Layanan sarpras hari ini
+              </Typography>
+              <Typography variant="body2" className="text-gray-800">
+                {scheduleToday?.booking
+                  ? `${formatTimeHHMM(
+                      scheduleToday.booking_start
+                    )} - ${formatTimeHHMM(scheduleToday.booking_end)}`
+                  : "Tidak ada jadwal"}
+              </Typography>
+            </Box>
+          </Button>
+          {openService && (
+            <JadwalLayanan
+              open={openService}
+              setOpen={setOpenService}
               title="Jadwal Peminjaman Ruangan"
               fetchSchedule={fetchSchedule}
             />

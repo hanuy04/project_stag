@@ -11,11 +11,9 @@ model complains {
   complain_id             String           @id @db.VarChar(5)
   username                String           @db.VarChar(5)
   classroom_facilities_id String           @db.VarChar(5)
-  complaint               String           @db.Text
   description             String           @db.Text
   created_at              DateTime         @default(now())
   status                  complains_status @default(unresolved)
-  lampiran                String           @db.VarChar(255)
   room_facilities         room_facilities  @relation(fields: [classroom_facilities_id], references: [room_facilities_id])
   users                   users            @relation(fields: [username], references: [username])
 
@@ -73,7 +71,7 @@ model room_facilities {
 
 model rooms {
   room_id         String            @id @db.VarChar(5)
-  room_name       String            @db.VarChar(11)
+  room_name       String            @db.VarChar(10)
   room_capacity   Int
   room_status     String            @default("available")
   facilities      facilities[]
@@ -83,14 +81,16 @@ model rooms {
 }
 
 model settings {
-  id                Int      @id @default(autoincrement()) @db.TinyInt
-  day               String   @db.VarChar(10)
-  booking_start     DateTime @db.Time(0)
-  booking_end       DateTime @db.Time(0)
-  reservation_start DateTime @db.Time(0)
-  conditional_time  DateTime @db.Time(0)
-  reservation_end   DateTime @db.Time(0)
-  active            Boolean  @default(true)
+  id                   Int      @id @default(autoincrement()) @db.TinyInt
+  day                  String   @db.VarChar(10)
+  booking              Boolean
+  booking_start        DateTime @db.Time(0)
+  booking_end          DateTime @db.Time(0)
+  reservation_start    DateTime @db.Time(0)
+  conditional_time     DateTime @db.Time(0)
+  reservation_end      DateTime @db.Time(0)
+  active               Boolean  @default(true)
+  accompanying_teacher Boolean  @default(true)
 }
 
 model students {

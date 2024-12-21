@@ -1,4 +1,8 @@
-import { formatTime, formatTimeToISO } from "@/utils/DateTime";
+import {
+  formatTimeHHMM,
+  formatTimeHHMMSS,
+  formatTimeToISO,
+} from "@/utils/DateTime";
 import prisma from "../db/prisma";
 
 export default {
@@ -8,11 +12,11 @@ export default {
     const formattedSettings = settings.map((setting) => {
       return {
         ...setting,
-        reservation_start: formatTime(setting.reservation_start),
-        reservation_end: formatTime(setting.reservation_end),
-        conditional_time: formatTime(setting.conditional_time),
-        booking_start: formatTime(setting.booking_start),
-        booking_end: formatTime(setting.booking_end),
+        reservation_start: formatTimeHHMM(setting.reservation_start),
+        reservation_end: formatTimeHHMM(setting.reservation_end),
+        conditional_time: formatTimeHHMM(setting.conditional_time),
+        booking_start: formatTimeHHMM(setting.booking_start),
+        booking_end: formatTimeHHMM(setting.booking_end),
       };
     });
     return formattedSettings;
@@ -48,10 +52,14 @@ export default {
           return await prisma.settings.update({
             where: { id: parseInt(schedule.id) },
             data: {
+              active: schedule.active,
               reservation_start: formatTimeToISO(schedule.reservation_start),
               reservation_end: formatTimeToISO(schedule.reservation_end),
+              accompanying_teacher: schedule.accompanying_teacher,
               conditional_time: formatTimeToISO(schedule.conditional_time),
-              active: schedule.active,
+              booking: schedule.booking,
+              booking_end: formatTimeToISO(schedule.booking_end),
+              booking_start: formatTimeToISO(schedule.booking_start),
             },
           });
         })

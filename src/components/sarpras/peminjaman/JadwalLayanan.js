@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
+const JadwalLayanan = ({ open, setOpen, fetchSchedule }) => {
   const [jadwalPeminjaman, setJadwalPeminjaman] = useState([]);
   const token = useSelector((state) => state.persist.auth.token);
 
@@ -36,48 +36,21 @@ const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
 
   const handleSwitchChange = (index) => {
     const updatedJadwal = jadwalPeminjaman.map((item, i) =>
-      i === index ? { ...item, active: !item.active } : item
-    );
-    setJadwalPeminjaman(updatedJadwal);
-  };
-
-  const handleSwitchChangeAccompany = (index) => {
-    const updatedJadwal = jadwalPeminjaman.map((item, i) =>
-      i === index
-        ? { ...item, accompanying_teacher: !item.accompanying_teacher }
-        : item
+      i === index ? { ...item, booking: !item.booking } : item
     );
     setJadwalPeminjaman(updatedJadwal);
   };
 
   const handleTimeChange = (index, field, value) => {
     if (field === "reservation_end") {
-      if (
-        jadwalPeminjaman[index].reservation_start >= value ||
-        (jadwalPeminjaman[index].accompanying_teacher &&
-          jadwalPeminjaman[index].conditional_time <= value)
-      ) {
+      if (jadwalPeminjaman[index].booking_start >= value) {
         alert("Jam akhir invalid");
         return;
       }
     }
 
-    if (field === "conditional_time") {
-      if (
-        jadwalPeminjaman[index].reservation_end >= value ||
-        jadwalPeminjaman[index].reservation_start >= value
-      ) {
-        alert("Waktu tambahan invalid");
-        return;
-      }
-    }
-
     if (field === "reservation_start") {
-      if (
-        (jadwalPeminjaman[index].accompanying_teacher &&
-          jadwalPeminjaman[index].conditional_time <= value) ||
-        jadwalPeminjaman[index].reservation_end <= value
-      ) {
+      if (jadwalPeminjaman[index].booking_end <= value) {
         alert("Waktu mulai invalid");
         return;
       }
@@ -112,10 +85,10 @@ const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
 
   return (
     <CardDialog
-      title="Jadwal Peminjaman"
+      title="Jadwal Layanan"
       open={open}
       setOpen={setOpen}
-      maxWidth="md"
+      maxWidth="sm"
     >
       {jadwalPeminjaman.map((item, index) => (
         <Grid2
@@ -128,23 +101,23 @@ const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
           borderBottom={"solid 1px lightgrey"}
           paddingBottom={2}
           alignContent={"center"}
-          columns={24}
+          columns={12}
         >
           <Grid2 item size={4} container paddingRight={3}>
             <Grid2 item size={"grow"} alignContent={"center"}>
               <Typography fontWeight="bold">{item.day}</Typography>
             </Grid2>
             <Switch
-              checked={item.active}
+              checked={item.booking}
               onChange={() => handleSwitchChange(index)}
             />
           </Grid2>
 
-          {item.active && (
+          {item.booking && (
             <>
               <Grid2
                 item
-                size={9}
+                size={8}
                 container
                 spacing={1}
                 paddingRight={4}
@@ -153,13 +126,9 @@ const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
                 <Grid2 item size={"auto"}>
                   <TextField
                     type="time"
-                    value={item.reservation_start || "00:00:00"}
+                    value={item.booking_start || "00:00:00"}
                     onChange={(e) =>
-                      handleTimeChange(
-                        index,
-                        "reservation_start",
-                        e.target.value
-                      )
+                      handleTimeChange(index, "booking_start", e.target.value)
                     }
                     size="small"
                     fullWidth
@@ -177,45 +146,14 @@ const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
                 <Grid2 item size={"auto"} alignContent={"center"}>
                   <TextField
                     type="time"
-                    value={item.reservation_end || "00:00:00"}
+                    value={item.booking_end || "00:00:00"}
                     size="small"
                     fullWidth
                     onChange={(e) =>
-                      handleTimeChange(index, "reservation_end", e.target.value)
+                      handleTimeChange(index, "booking_end", e.target.value)
                     }
                   />
                 </Grid2>
-              </Grid2>
-
-              <Grid2 item size={"grow"} container>
-                <Grid2 item size={"auto"} alignContent={"center"}>
-                  <Typography variant="body2" align="end" paddingRight={3}>
-                    Dengan guru pendamping
-                  </Typography>
-                </Grid2>
-                <Grid2 item size={"auto"}>
-                  <Switch
-                    checked={item.accompanying_teacher}
-                    onChange={() => handleSwitchChangeAccompany(index)}
-                  />
-                </Grid2>
-                {item.accompanying_teacher && (
-                  <Grid2 item size={"auto"}>
-                    <TextField
-                      type="time"
-                      value={item.conditional_time || "00:00:00"}
-                      size="small"
-                      fullWidth
-                      onChange={(e) =>
-                        handleTimeChange(
-                          index,
-                          "conditional_time",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </Grid2>
-                )}
               </Grid2>
             </>
           )}
@@ -239,4 +177,4 @@ const JadwalPeminjaman = ({ open, setOpen, fetchSchedule }) => {
   );
 };
 
-export default JadwalPeminjaman;
+export default JadwalLayanan;

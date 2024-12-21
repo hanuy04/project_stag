@@ -22,18 +22,18 @@ export const getFormattedDay = (date) => {
   return date.toLocaleDateString("en-GB", { weekday: "long" });
 };
 
-// export const formatTime = (isoString) => {
-//   const date = new Date(isoString);
-//   const hours = String(date.getUTCHours()).padStart(2, "0"); // Ambil jam (UTC) dan pastikan 2 digit
-//   const minutes = String(date.getUTCMinutes()).padStart(2, "0"); // Ambil menit (UTC) dan pastikan 2 digit
-//   return `${hours}:${minutes}`; // Gabungkan format HH:MM
-// };
-
-export const formatTime = (time) => {
+export const formatTimeHHMM = (time) => {
   const date = new Date(time);
   const hours = String(date.getUTCHours()).padStart(2, "0");
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-  const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
+export const formatTimeHHMMSS = (time) => {
+  const date = new Date(time);
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  const seconds = String(date.getUTCSeconds).padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
 };
 
