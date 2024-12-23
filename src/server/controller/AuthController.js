@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 export default {
   login: async (req, res) => {
     const loginData = req.body;
+    // return res.json(data)
 
     // JOI VALIDATION
     try {
@@ -26,7 +27,7 @@ export default {
         name: result.user.name,
         role: result.user.roles.role_name,
         status: result.user.status,
-        
+
         // kelas:result.
       };
       const token = jwt.sign(payload, jwtSecret, { expiresIn: "3h" });
@@ -44,33 +45,47 @@ export default {
   },
 
   register: async (req, res) => {
-    const data = req.body;
-
-    //JOI VALIDATION
     try {
-      await validateRegister(data);
+      const data = req.body
+
+      // Validate input
+      try {
+        await validateRegister(data);
+      } catch (error) {
+        return res.status(400).json({
+          success: false,
+          message: "Validasi gagal",
+          error: error.message,
+        });
+      }
+
+      // Register user
+      const result = await AuthService.register(data);
+
+      if (result.success) {
+        return res.status(result.status).json({
+          success: true,
+          message: result.message,
+          user: {
+            username: result.user.username,
+            name: result.user.name,
+            role: result.user.roles.role_name,
+            status: result.user.status,
+          },
+        });
+      } else {
+        return res.status(result.status).json({
+          success: false,
+          message: result.message,
+          error: result.error,
+        });
+      }
     } catch (error) {
+      console.error("Controller error:", error);
       return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan pada server",
         error: error.message,
-      });
-    }
-
-    const result = await AuthService.register(data);
-
-    if (result.success) {
-      return res.status(200).json({
-        message: "Register berhasil",
-        user: {
-          usename: result.user.username,
-          name: result.user.name,
-          role: result.user.roles.role_name,
-          status: result.user.status,
-        },
-      });
-
-    } else {
-      return res.status(result.status).json({
-        error: result.error,
       });
     }
   },

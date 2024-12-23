@@ -52,7 +52,10 @@ const LoginPage = () => {
       });
 
       if (!response.ok) {
-        alert(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        alert(
+          `HTTP error! Status: ${response.status} ${data.error || data.message}`
+        );
       } else {
         const data = await response.json();
         dispatch(login(data));

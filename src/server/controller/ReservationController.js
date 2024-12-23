@@ -1,4 +1,6 @@
+import { formatTimeHHMM } from "@/utils/DateTime";
 import ReservationService from "../service/ReservationService";
+import reservations from "@/pages/api/rooms/reservations";
 
 export default {
   getUserReservations: async (req, res) => {
@@ -9,7 +11,29 @@ export default {
   },
 
   getReservationGroupByRoom: async (req, res) => {
-    const peminjaman = await ReservationService.getReservationGroupByRoom();
-    return res.json(peminjaman);
+    try {
+      const ruangan = await ReservationService.getReservationGroupByRoom();
+
+      const formatedPeminjaman = ruangan.map((room) => ({
+        ...room,
+        reservations: room.reservations.map((reservation) => ({
+          ...reservation,
+          start_time: formatTimeHHMM(reservation.start_time),
+          end_time: formatTimeHHMM(reservation.end_time),
+        })),
+      }));
+
+      return res.status(200).json({
+        success: true,
+        data: formatedPeminjaman,
+      });
+    } catch (error) {
+      console.error("Error in getReservationGroupByRoom:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Terjadi kesalahan saat mengambil data reservasi",
+        error: error.message,
+      });
+    }
   },
 };

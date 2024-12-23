@@ -37,8 +37,29 @@ export const validateRegister = async (data) => {
       "any.required": "Konfirmasi password tidak boleh kosong",
       "any.only": "Konfirmasi password harus sama dengan password",
     }),
-    kelas: Joi.optional(),
-    no_absen: Joi.optional(),
+    role_id: Joi.number().min(0).max(3).required().messages({
+      "number.base": "Role ID must be a number.",
+      "number.min": "Role ID must be at least {#limit}.",
+      "number.max": "Role ID must not exceed {#limit}.",
+      "any.required": "Role ID is required.",
+    }),
+    kelas: Joi.string().when("role_id", {
+      is: 3,
+      then: Joi.string().required().messages({
+        "any.required": "Kelas tidak boleh kosong untuk siswa",
+        "string.base": "Kelas harus berupa teks",
+      }),
+      otherwise: Joi.optional(),
+    }),
+    no_absen: Joi.number().when("role_id", {
+      is: 3,
+      then: Joi.number().required().positive().messages({
+        "any.required": "No absen tidak boleh kosong untuk siswa",
+        "number.base": "No absen harus berupa angka",
+        "number.positive": "No absen harus lebih dari 0",
+      }),
+      otherwise: Joi.optional(),
+    }),
   });
 
   try {

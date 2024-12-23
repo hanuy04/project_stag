@@ -12,30 +12,31 @@ export default {
   },
 
   getReservationGroupByRoom: async () => {
-    const peminjaman = await prisma.rooms.findMany({
-      where: {
-        reservations: {
-          some: {
-            status: "pending",
+    try {
+      const peminjaman = await prisma.rooms.findMany({
+        where: {
+          reservations: {
+            some: {
+              status_sarpras: "pending",
+            },
           },
         },
-      },
-      include: {
-        reservations: {
-          where: {
-            status: "pending",
+        include: {
+          reservations: {
+            where: {
+              status_sarpras: "pending",
+            },
+            include: {
+              users: true
+            },
           },
-          include:{
-            users: {
-              include :{
-                students : true
-              }
-            }
-          }
         },
-      },
-    });
+      });
 
-    return peminjaman;
+      return peminjaman;
+    } catch (error) {
+      console.log(error.message);
+      
+    }
   },
 };

@@ -10,30 +10,6 @@ const SarprasReservationPage = () => {
   const [peminjaman, setPeminjaman] = useState([]);
   const token = useSelector((state) => state.persist.auth.token);
 
-  //   const data = [
-  //     {
-  //       nama: "Agnes",
-  //       kelas: "XII - 5",
-  //       pukul: "14:00 - 17:00",
-  //       keperluan: "Kerja kelompok Bahasa Inggris",
-  //       pendamping: "Bernardus Totok, S.Psi.",
-  //     },
-  //     {
-  //       nama: "Agnes",
-  //       kelas: "XII - 5",
-  //       pukul: "14:00 - 17:00",
-  //       keperluan: "Kerja kelompok Bahasa Inggris",
-  //       pendamping: "Bernardus Totok, S.Psi.",
-  //     },
-  //     {
-  //       nama: "Agnes",
-  //       kelas: "XII - 5",
-  //       pukul: "14:00 - 17:00",
-  //       keperluan: "Kerja kelompok Bahasa Inggris",
-  //       pendamping: "Bernardus Totok, S.Psi.",
-  //     },
-  //   ];
-
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch("/api/rooms/reservations", {
@@ -44,11 +20,11 @@ const SarprasReservationPage = () => {
         },
       });
 
+      const data = await response.json();
       if (response.ok) {
-        const data = await response.json();
-        setPeminjaman(data);
+        setPeminjaman(data.data);
       } else {
-        alert(response.status);
+        alert(`${response.status} ${data.error || data.message}`);
       }
     };
     fetchData();

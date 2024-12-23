@@ -67,11 +67,12 @@ const ReservationCard = ({ data }) => {
                   <TableRow
                     key={index}
                     sx={{
-                      backgroundColor: index === 0 ? "#e3f2fd" : "inherit",
+                      backgroundColor:
+                        data.room_id === item.room_id ? "#e3f2fd" : "inherit",
                     }}
                   >
                     <TableCell>{item.users.name}</TableCell>
-                    <TableCell>{item.users.students?.kelas}</TableCell>
+                    <TableCell>{item.users.kelas || "-"}</TableCell>
                     <TableCell>{item.start_time}</TableCell>
                     <TableCell>{item.purpose}</TableCell>
                     <TableCell>{item.pendamping}</TableCell>

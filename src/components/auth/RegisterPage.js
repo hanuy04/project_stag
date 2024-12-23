@@ -87,8 +87,9 @@ const RegisterPage = () => {
     const username = formData.get("username");
     const password = formData.get("password");
     const confirm = formData.get("confirm");
-    const role = formData.get("role");
+    const role_id = formData.get("role");
     const kelas = formData.get("kelas");
+    const no_absen = formData.get("no_absen");
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -101,15 +102,18 @@ const RegisterPage = () => {
           username,
           password,
           confirm,
-          role,
+          role_id,
           kelas,
+          no_absen,
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        alert(`HTTP error! Status: ${response.status}`);
+        alert(`HTTP error! Status: ${response.status} - ${data.error || data.message} `);
       } else {
-        router.push("/register");
+        router.push("/");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -208,27 +212,19 @@ const RegisterPage = () => {
             name="role"
             row
           >
-            <FormControlLabel
-              value="student"
-              control={<Radio />}
-              label="Siswa"
-            />
+            <FormControlLabel value="3" control={<Radio />} label="Siswa" />
+
+            <FormControlLabel value="1" control={<Radio />} label="Guru" />
 
             <FormControlLabel
-              value="teacher"
-              control={<Radio />}
-              label="Guru"
-            />
-
-            <FormControlLabel
-              value="osis"
+              value="2"
               control={<Radio />}
               label="Pengurus OSIS"
             />
           </RadioGroup>
         </FormControl>
         <Box>
-          {role == "student" && (
+          {role == "3" && (
             <FormControl>
               <Grid2 container alignContent={"flex"} spacing={1}>
                 <Typography marginY={"auto"}>Kelas</Typography>
