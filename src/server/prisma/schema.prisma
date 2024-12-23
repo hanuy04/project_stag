@@ -1,145 +1,145 @@
-generator client {
-  provider = "prisma-client-js"
-}
+  generator client {
+    provider = "prisma-client-js"
+  }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+  }
 
-model complains {
-  complain_id             String           @id @db.VarChar(5)
-  username                String           @db.VarChar(5)
-  classroom_facilities_id String           @db.VarChar(5)
-  complaint               String           @db.Text
-  description             String           @db.Text
-  created_at              DateTime         @default(now())
-  status                  complains_status @default(unresolved)
-  lampiran                String           @db.VarChar(255)
-  room_facilities         room_facilities  @relation(fields: [classroom_facilities_id], references: [room_facilities_id])
-  users                   users            @relation(fields: [username], references: [username])
+  model complains {
+    complain_id             String           @id @db.VarChar(5)
+    username                String           @db.VarChar(5)
+    classroom_facilities_id String           @db.VarChar(5)
+    complaint               String           @db.Text
+    description             String           @db.Text
+    created_at              DateTime         @default(now())
+    status                  complains_status @default(unresolved)
+    lampiran                String           @db.VarChar(255)
+    room_facilities         room_facilities  @relation(fields: [classroom_facilities_id], references: [room_facilities_id])
+    users                   users            @relation(fields: [username], references: [username])
 
-  @@index([classroom_facilities_id], map: "complains_classroom_facilities_id_fkey")
-  @@index([username], map: "complains_username_fkey")
-}
+    @@index([classroom_facilities_id], map: "complains_classroom_facilities_id_fkey")
+    @@index([username], map: "complains_username_fkey")
+  }
 
-model facilities {
-  facility_id          String            @id @db.VarChar(5)
-  facility_name        String            @db.VarChar(100)
-  facility_description String            @db.Text
-  facility_qty         Int
-  room_id              String            @db.VarChar(5)
-  rooms                rooms             @relation(fields: [room_id], references: [room_id])
-  room_facilities      room_facilities[]
+  model facilities {
+    facility_id          String            @id @db.VarChar(5)
+    facility_name        String            @db.VarChar(100)
+    facility_description String            @db.Text
+    facility_qty         Int
+    room_id              String            @db.VarChar(5)
+    rooms                rooms             @relation(fields: [room_id], references: [room_id])
+    room_facilities      room_facilities[]
 
-  @@index([room_id], map: "facilities_room_id_fkey")
-}
+    @@index([room_id], map: "facilities_room_id_fkey")
+  }
 
-model reservations {
-  reservation_id    String                      @id @db.VarChar(5)
-  username          String                      @db.VarChar(255)
-  room_id           String                      @db.VarChar(5)
-  start_time        DateTime
-  end_time          DateTime
-  purpose           String                      @db.VarChar(255)
-  status_sarpras    reservations_status_sarpras @default(pending)
-  teacher_assistant String?                     @db.VarChar(255)
-  status_guru       reservations_status_guru?
-  description       String?                     @db.Text
-  rooms             rooms                       @relation(fields: [room_id], references: [room_id])
-  users             users                       @relation(fields: [username], references: [username])
+  model reservations {
+    reservation_id    String                      @id @db.VarChar(5)
+    username          String                      @db.VarChar(255)
+    room_id           String                      @db.VarChar(5)
+    start_time        DateTime
+    end_time          DateTime
+    purpose           String                      @db.VarChar(255)
+    status_sarpras    reservations_status_sarpras @default(pending)
+    teacher_assistant String?                     @db.VarChar(255)
+    status_guru       reservations_status_guru?
+    description       String?                     @db.Text
+    rooms             rooms                       @relation(fields: [room_id], references: [room_id])
+    users             users                       @relation(fields: [username], references: [username])
 
-  @@index([room_id], map: "reservations_room_id_fkey")
-  @@index([username], map: "reservations_username_fkey")
-}
+    @@index([room_id], map: "reservations_room_id_fkey")
+    @@index([username], map: "reservations_username_fkey")
+  }
 
-model roles {
-  role_id   String  @id @db.Char(1)
-  role_name String
-  users     users[]
-}
+  model roles {
+    role_id   String  @id @db.Char(1)
+    role_name String
+    users     users[]
+  }
 
-model room_facilities {
-  room_facilities_id String      @id @db.VarChar(5)
-  room_id            String      @db.VarChar(5)
-  facility_id        String      @db.VarChar(5)
-  qty                Int
-  condition          String
-  complains          complains[]
-  facilities         facilities  @relation(fields: [facility_id], references: [facility_id], map: "classroom_facilities_facility_id_fkey")
-  rooms              rooms       @relation(fields: [room_id], references: [room_id], map: "classroom_facilities_room_id_fkey")
+  model room_facilities {
+    room_facilities_id String      @id @db.VarChar(5)
+    room_id            String      @db.VarChar(5)
+    facility_id        String      @db.VarChar(5)
+    qty                Int
+    condition          String
+    complains          complains[]
+    facilities         facilities  @relation(fields: [facility_id], references: [facility_id], map: "classroom_facilities_facility_id_fkey")
+    rooms              rooms       @relation(fields: [room_id], references: [room_id], map: "classroom_facilities_room_id_fkey")
 
-  @@index([facility_id], map: "classroom_facilities_facility_id_fkey")
-  @@index([room_id], map: "classroom_facilities_room_id_fkey")
-}
+    @@index([facility_id], map: "classroom_facilities_facility_id_fkey")
+    @@index([room_id], map: "classroom_facilities_room_id_fkey")
+  }
 
-model rooms {
-  room_id         String               @id @db.VarChar(5)
-  room_name       String               @db.VarChar(11)
-  room_capacity   Int
-  room_category   rooms_room_category?
-  room_status     String               @default("available")
-  is_class        Boolean
-  facilities      facilities[]
-  reservations    reservations[]
-  room_facilities room_facilities[]
-  users           users[]
-}
+  model rooms {
+    room_id         String               @id @db.VarChar(5)
+    room_name       String               @db.VarChar(11)
+    room_capacity   Int
+    room_category   rooms_room_category?
+    room_status     String               @default("available")
+    is_class        Boolean
+    facilities      facilities[]
+    reservations    reservations[]
+    room_facilities room_facilities[]
+    users           users[]
+  }
 
-model settings {
-  id                   Int      @id @default(autoincrement()) @db.TinyInt
-  day                  String   @db.VarChar(10)
-  booking              Boolean  @default(true)
-  booking_start        DateTime @db.Time(0)
-  booking_end          DateTime @db.Time(0)
-  active               Boolean  @default(true)
-  reservation_start    DateTime @db.Time(0)
-  reservation_end      DateTime @db.Time(0)
-  conditional_time     DateTime @db.Time(0)
-  accompanying_teacher Boolean  @default(true)
-}
+  model settings {
+    id                   Int      @id @default(autoincrement()) @db.TinyInt
+    day                  String   @db.VarChar(10)
+    booking              Boolean  @default(true)
+    booking_start        DateTime @db.Time(0)
+    booking_end          DateTime @db.Time(0)
+    active               Boolean  @default(true)
+    reservation_start    DateTime @db.Time(0)
+    reservation_end      DateTime @db.Time(0)
+    conditional_time     DateTime @db.Time(0)
+    accompanying_teacher Boolean  @default(true)
+  }
 
-model users {
-  username     String         @id @db.VarChar(255)
-  password     String
-  name         String
-  role_id      String         @db.Char(1)
-  status       String         @default("1") @db.Char(1)
-  kelas        String?        @db.VarChar(5)
-  no_absen     Int?
-  complains    complains[]
-  reservations reservations[]
-  roles        roles          @relation(fields: [role_id], references: [role_id])
-  rooms        rooms?         @relation(fields: [kelas], references: [room_id], onDelete: Restrict, onUpdate: Restrict, map: "users_rooms")
+  model users {
+    username     String         @id @db.VarChar(255)
+    password     String
+    name         String
+    role_id      String         @db.Char(1)
+    status       String         @default("1") @db.Char(1)
+    kelas        String?        @db.VarChar(5)
+    no_absen     Int?
+    complains    complains[]
+    reservations reservations[]
+    roles        roles          @relation(fields: [role_id], references: [role_id])
+    rooms        rooms?         @relation(fields: [kelas], references: [room_id], onDelete: Restrict, onUpdate: Restrict, map: "users_rooms")
 
-  @@index([role_id], map: "users_role_id_fkey")
-  @@index([kelas], map: "users_rooms")
-}
+    @@index([role_id], map: "users_role_id_fkey")
+    @@index([kelas], map: "users_rooms")
+  }
 
-enum complains_status {
-  resolved
-  still_resolving @map("still resolving")
-  unresolved
-}
+  enum complains_status {
+    resolved
+    still_resolving @map("still resolving")
+    unresolved
+  }
 
-enum reservations_status_sarpras {
-  pending
-  approved
-  rejected
-  cancelled
-}
+  enum reservations_status_sarpras {
+    pending
+    approved
+    rejected
+    cancelled
+  }
 
-enum reservations_status_guru {
-  pending
-  rejected
-  approved
-  EMPTY_ENUM_VALUE @map("")
-}
+  enum reservations_status_guru {
+    pending
+    rejected
+    approved
+    EMPTY_ENUM_VALUE @map("")
+  }
 
-enum rooms_room_category {
-  kelas_10     @map("kelas 10")
-  kelas_11     @map("kelas 11")
-  kelas_12     @map("kelas 12")
-  laboraturium
-  aula
-}
+  enum rooms_room_category {
+    kelas_10     @map("kelas 10")
+    kelas_11     @map("kelas 11")
+    kelas_12     @map("kelas 12")
+    laboraturium
+    aula
+  }
