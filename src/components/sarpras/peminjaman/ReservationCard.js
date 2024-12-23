@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Card,
@@ -11,9 +11,16 @@ import {
   TableHead,
   TableRow,
   Button,
+  DialogActions,
 } from "@mui/material";
+import DetailPeminjaman from "./DetailPeminjaman";
+
+
 
 const ReservationCard = ({ data }) => {
+  const [openDetail, setOpenDetail] = useState();
+  const [selectedIndex, setSelectedIndex] = useState();
+
   return (
     <Box sx={{ position: "relative", pt: 3, mt: 2 }}>
       {/* Elevated Header */}
@@ -68,11 +75,13 @@ const ReservationCard = ({ data }) => {
                     key={index}
                     sx={{
                       backgroundColor:
-                        data.room_id === item.room_id ? "#e3f2fd" : "inherit",
+                        item.users.kelas === item.room_id
+                          ? "#e3f2fd"
+                          : "inherit",
                     }}
                   >
                     <TableCell>{item.users.name}</TableCell>
-                    <TableCell>{item.users.kelas || "-"}</TableCell>
+                    <TableCell>{item.users.rooms?.room_name || "-"}</TableCell>
                     <TableCell>{item.start_time}</TableCell>
                     <TableCell>{item.purpose}</TableCell>
                     <TableCell>{item.pendamping}</TableCell>
@@ -87,6 +96,10 @@ const ReservationCard = ({ data }) => {
                             backgroundColor: "#002984",
                           },
                         }}
+                        onClick={() => {
+                          setOpenDetail(true);
+                          setSelectedIndex(index);
+                        }}
                       >
                         Tinjau
                       </Button>
@@ -98,6 +111,15 @@ const ReservationCard = ({ data }) => {
           </TableContainer>
         </CardContent>
       </Card>
+
+      {openDetail && (
+        <DetailPeminjaman
+          open={openDetail}
+          setOpen={setOpenDetail}
+          data={data}
+          selectedIndex={selectedIndex}
+        />
+      )}
     </Box>
   );
 };

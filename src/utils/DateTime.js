@@ -22,6 +22,35 @@ export const getFormattedDay = (date) => {
   return date.toLocaleDateString("en-GB", { weekday: "long" });
 };
 
+export const formatFullDate = (utcDateString) => {
+  const date = new Date(utcDateString);
+
+  // Array hari dalam Bahasa Indonesia
+  const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  // Array bulan dalam Bahasa Indonesia
+  const months = [
+    "Januari",
+    "Februari",
+    "Maret",
+    "April",
+    "Mei",
+    "Juni",
+    "Juli",
+    "Agustus",
+    "September",
+    "Oktober",
+    "November",
+    "Desember",
+  ];
+
+  const dayName = days[date.getUTCDay()];
+  const day = date.getUTCDate();
+  const month = months[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+
+  return `${dayName}, ${day} ${month} ${year}`;
+}
+
 export const formatTimeHHMM = (time) => {
   const date = new Date(time);
   const hours = String(date.getUTCHours()).padStart(2, "0");

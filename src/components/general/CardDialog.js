@@ -21,7 +21,7 @@ const CardDialog = ({ title, open, setOpen, children, maxWidth }) => {
         <Close />
       </IconButton>
 
-      <DialogTitle sx={{ fontWeight: "bold" }}>{title}</DialogTitle>
+      <DialogTitle fontSize={"lg"} sx={{ fontWeight: "bold" }}>{title}</DialogTitle>
       <DialogContent>{children}</DialogContent>
     </Dialog>
   );

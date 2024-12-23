@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Grid2, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import JadwalPeminjaman from "../sarpras/peminjaman/JadwalPeminjaman";
@@ -77,27 +77,64 @@ const ClockDisplay = () => {
       {!loading && (
         <Box className="bg-blue p-4 rounded-xl shadow-md my-2">
           {currentTime && (
-            <Box className="w-full flex">
-              <Box className="">
+            <Grid2
+              container
+              gap={2}
+              style={{ height: "100%", alignItems: "stretch" }}
+              paddingBottom={2}
+            >
+              {/* Bagian Jam */}
+              <Grid2
+                xs="auto"
+                style={{ display: "flex", alignItems: "center" }}
+                
+              >
                 <Typography
                   variant="h3"
                   align="end"
-                  style={{ fontWeight: "bold" }}
+                  style={{
+                    fontWeight: "bold",
+                    lineHeight: 1.2,
+                  }}
                   className="text-white"
                 >
                   {formattedTime}
                 </Typography>
-              </Box>
+              </Grid2>
 
-              <Box className="ms-auto ">
-                <Typography variant="h6" className="text-white p-0 m-0">
+              {/* Bagian Tanggal dan Hari */}
+              <Grid2
+                xs="auto"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  className="text-white"
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    lineHeight: 1.15,
+                  }}
+                >
                   {formattedDate}
                 </Typography>
-                <Typography variant="h6" className="text-white">
+                <Typography
+                  variant="h6"
+                  className="text-white"
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    lineHeight: 1.15,
+                  }}
+                >
                   {formattedDay}
                 </Typography>
-              </Box>
-            </Box>
+              </Grid2>
+            </Grid2>
           )}
 
           <Button

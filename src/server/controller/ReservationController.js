@@ -1,4 +1,4 @@
-import { formatTimeHHMM } from "@/utils/DateTime";
+import { formatFullDate, formatTimeHHMM } from "@/utils/DateTime";
 import ReservationService from "../service/ReservationService";
 import reservations from "@/pages/api/rooms/reservations";
 
@@ -18,6 +18,7 @@ export default {
         ...room,
         reservations: room.reservations.map((reservation) => ({
           ...reservation,
+          tanggal: formatFullDate(reservation.start_time),
           start_time: formatTimeHHMM(reservation.start_time),
           end_time: formatTimeHHMM(reservation.end_time),
         })),

@@ -27,7 +27,11 @@ export default {
               status_sarpras: "pending",
             },
             include: {
-              users: true
+              users: {
+                include: {
+                  rooms: true,
+                },
+              },
             },
           },
         },
@@ -36,7 +40,6 @@ export default {
       return peminjaman;
     } catch (error) {
       console.log(error.message);
-      
     }
   },
 };
