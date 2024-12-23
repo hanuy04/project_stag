@@ -56,8 +56,6 @@ const LoginPage = () => {
       } else {
         const data = await response.json();
         dispatch(login(data));
-
-        
       }
     } catch (error) {
       console.error("Error:", error);
@@ -112,7 +110,10 @@ const LoginPage = () => {
           Log In
         </StyledButton>
         <p className="text-center text-sm text-gray-600">
-          Belum punya akun? Daftar <a href="/register">disini</a>
+          Belum punya akun? Daftar{" "}
+          <a href="/register" className="text-blue">
+            <u>disini</u>
+          </a>
         </p>
 
         <p className="text-center text-sm text-gray-600">

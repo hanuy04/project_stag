@@ -14,10 +14,11 @@ import { red } from "@mui/material/colors";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Profile from "../profile/Profile";
+// import Profile from "../general/Profile";
 import PeminjamanSection from "./peminjaman/PeminjamanSection";
 import LoadingPage from "../general/LoadingPage";
 import ClockDisplay from "../general/ClockDisplay";
+import Profile from "../general/Profile";
 
 export default function BerandaPage() {
   const token = useSelector((state) => state.persist.auth.token);
@@ -46,7 +47,7 @@ export default function BerandaPage() {
         console.log(response);
 
         if (!response.ok) {
-          router.push("/");
+          // router.push("/");
         } else {
           const data = await response.json();
           // alert(JSON.stringify(data));
@@ -108,7 +109,7 @@ export default function BerandaPage() {
 
   return (
     <>
-      {/* {loading && <LoadingPage />} */}
+      {loading && <LoadingPage />}
 
       {!loading && (
         <MainLayout>

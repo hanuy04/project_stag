@@ -12,8 +12,8 @@ import { useRouter } from "next/router";
 const StyledCard = styled(Card)(({ theme }) => ({
   boxShadow: "none",
   border: "none",
-  width: "100%",
-  maxWidth: "28rem",
+  width: "80%",
+  
   [theme.breakpoints.down("md")]: {
     borderRadius: "30px 30px 0 0",
     maxWidth: "100%",
@@ -101,9 +101,9 @@ const AuthLayout = ({ children }) => {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-4">
+        <div className="flex-1 flex items-center justify-center ">
           <StyledCard>
-            <CardContent className="p-6">
+            <CardContent>
               <div className="hidden md:flex items-center gap-4 mb-8">
                 <div>
                   <h1 className="text-2xl font-bold text-blue">STAGFAST</h1>

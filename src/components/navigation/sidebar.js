@@ -102,10 +102,12 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
       layout
     >
       <Box className="h-full bg-blue text-white relative">
-        <Box className="bg-white">
+        <Box className="bg-gray-100">
           <Box
             className={`hidden md:flex items-center bg-blue p-4 ${
-              menuItems[0].path === pathname ? "rounded-ee-3xl" : ""
+              pathname.startsWith(`${menuItems[0].path}`)
+                ? "rounded-ee-3xl"
+                : ""
             }`}
           >
             <Box className="w-20 h-20 flex items-center justify-center">
@@ -123,12 +125,16 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
 
         <List className="m-0 p-0" disablePadding>
           {menuItems.map((item, index) => {
-            const isActive = pathname === item.path;
+            const isActive =
+              pathname === item.path || pathname.startsWith(`${item.path}`);
             const prevItemActive =
-              index > 0 && pathname === menuItems[index - 1].path;
+              index > 0 &&
+              (pathname === menuItems[index - 1].path ||
+                pathname.startsWith(`${menuItems[index - 1].path}`));
             const nextItemActive =
               index < menuItems.length - 1 &&
-              pathname === menuItems[index + 1].path;
+              (pathname === menuItems[index + 1].path ||
+                pathname.startsWith(`${menuItems[index + 1].path}`));
 
             return (
               <ListItem key={item.menu} className="p-0 ps-5 m-0" disablePadding>
@@ -214,13 +220,16 @@ const MobileSidebar = ({ menuItems, pathname }) => {
 
       <List className="m-0 p-0" disablePadding>
         {menuItems.map((item, index) => {
-          const isActive = pathname === item.path;
-
+          const isActive =
+            pathname === item.path || pathname.startsWith(`${item.path}`);
           const prevItemActive =
-            index > 0 && pathname === menuItems[index - 1].path;
+            index > 0 &&
+            (pathname === menuItems[index - 1].path ||
+              pathname.startsWith(`${menuItems[index - 1].path}`));
           const nextItemActive =
             index < menuItems.length - 1 &&
-            pathname === menuItems[index + 1].path;
+            (pathname === menuItems[index + 1].path ||
+              pathname.startsWith(`${menuItems[index + 1].path}`));
 
           return (
             <ListItem key={item.menu} className="p-0 ps-5 m-0" disablePadding>
@@ -246,17 +255,13 @@ const MobileSidebar = ({ menuItems, pathname }) => {
     </Box>
   );
 
-
-
   return (
     <>
       <Box className="md:hidden fixed top-0 left-0 right-0 bg-[#0C21C1] z-50">
         <MobileTopBar />
       </Box>
 
-      <Box
-        inert={!mobileOpen ? true : undefined}
-      >
+      <Box inert={!mobileOpen ? true : undefined}>
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -279,7 +284,9 @@ const MobileSidebar = ({ menuItems, pathname }) => {
 const Sidebar = ({ menuItems = [], children }) => {
   const pathname = usePathname();
 
-  const isAuthenticated = useSelector((state) => state.persist.auth.isAuthenticated);
+  const isAuthenticated = useSelector(
+    (state) => state.persist.auth.isAuthenticated
+  );
   if (!isAuthenticated) return null;
 
   return (
@@ -288,12 +295,7 @@ const Sidebar = ({ menuItems = [], children }) => {
       <MobileSidebar menuItems={menuItems} pathname={pathname} />
 
       <Box className="flex-1 transition-all duration-300 pt-[72px] md:pt-0 md:ml-[280px]">
-
-        <Box>
-          {children}
-        </Box>
-        
-        
+        <Box>{children}</Box>
       </Box>
     </Box>
   );

@@ -26,6 +26,8 @@ export default {
         name: result.user.name,
         role: result.user.roles.role_name,
         status: result.user.status,
+        
+        // kelas:result.
       };
       const token = jwt.sign(payload, jwtSecret, { expiresIn: "3h" });
 
@@ -58,12 +60,12 @@ export default {
     if (result.success) {
       return res.status(200).json({
         message: "Register berhasil",
-        // user: {
-        //   usename: result.user.username,
-        //   name: result.user.name,
-        //   role: result.user.roles.role_name,
-        //   status: result.user.status,
-        // },
+        user: {
+          usename: result.user.username,
+          name: result.user.name,
+          role: result.user.roles.role_name,
+          status: result.user.status,
+        },
       });
 
     } else {

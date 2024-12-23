@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import Sidebar from "../navigation/sidebar";
 import { useSelector } from "react-redux";
+import { Box, Container } from "@mui/material";
 
 const MainLayout = ({ children }) => {
-
   const role = useSelector((state) => state.persist.auth.user?.role);
 
   const menuItemsByRole = {
@@ -40,11 +40,9 @@ const MainLayout = ({ children }) => {
   return (
     <div className="w-full">
       <Sidebar menuItems={menuItems}>
-        <div className="w-full min-h-full bg-gray-100">
-          <div className="w-full transition-all duration-300 bg-gray-100">
-            {children}
-          </div>
-        </div>
+        <Box padding={3} sx={{ minHeight: "100vh", backgroundColor:"#f0f0f0" }}>
+          {children}
+        </Box>
       </Sidebar>
     </div>
   );

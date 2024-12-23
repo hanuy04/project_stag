@@ -14,6 +14,7 @@ import {
   Button,
 } from "@mui/material";
 import { KeyboardArrowRight, Person } from "@mui/icons-material";
+import Topbar from "../navigation/topbar";
 
 const RoomReservation = () => {
   const [reservations, setReservations] = useState([]);
@@ -198,32 +199,12 @@ const RoomReservation = () => {
   );
 
   return (
-    <>
+    <>  
+      <Topbar title="Peminjaman Ruangan" />
       <div className="min-h-screen bg-gray-100">
         <div className="container mx-auto px-4 py-8">
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Peminjaman Ruangan</h1>
-              <div className="relative">
-                <Button
-                  variant="contained"
-                  style={{ backgroundColor: "#4338CA" }}
-                  endIcon={<KeyboardArrowRight />}
-                  startIcon={<Person />}
-                  onClick={() => setShowLogout(!showLogout)}
-                >
-                  Agnes [12345]
-                </Button>
-                {showLogout && (
-                  <button
-                    className="absolute right-0 mt-10 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
-                    onClick={() => console.log("Logout clicked")}
-                  >
-                    Logout
-                  </button>
-                )}
-              </div>
-            </div>
+            <div className="flex justify-between items-center mb-6"></div>
 
             <div className="flex gap-4 mb-6">
               <TextField

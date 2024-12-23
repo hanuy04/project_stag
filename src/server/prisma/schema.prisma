@@ -39,8 +39,8 @@ model reservations {
   reservation_id    String                      @id @db.VarChar(5)
   username          String                      @db.VarChar(255)
   room_id           String                      @db.VarChar(5)
-  start_time        DateTime                    @db.DateTime(0)
-  end_time          DateTime                    @db.DateTime(0)
+  start_time        DateTime
+  end_time          DateTime
   purpose           String                      @db.VarChar(255)
   status_sarpras    reservations_status_sarpras @default(pending)
   teacher_assistant String?                     @db.VarChar(255)

@@ -15,22 +15,23 @@ function generateRoomId() {
 export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
+      const { room_category, is_class } = req.query;
+
+      const whereCondition = {};
+      if (is_class) whereCondition.is_class = is_class === "true";
+
       const rooms = await prisma.rooms.findMany({
+        where: whereCondition,
         orderBy: { room_name: "asc" },
       });
+      // return res.json(whereCondition)
 
-      const responseData = rooms.map((room) => ({
-        room_id: room.room_id,
-        room_name: room.room_name,
-        room_capacity: room.room_capacity,
-        room_status: room.room_status,
-      }));
 
-      console.log("rooms: ", responseData);
+      console.log("rooms: ", rooms);
 
-      res.status(200).json({ rooms: responseData });
+      res.status(200).json({ rooms: rooms });
     } catch (error) {
-      console.error("GET /api/rooms error:", error);
+      console.error("GET /api/rooms error:", error?.message);
       res.status(500).json({ error: "Failed to fetch data" });
     }
   } else if (req.method === "POST") {

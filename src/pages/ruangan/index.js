@@ -1,4 +1,6 @@
+import LoadingPage from "@/components/general/LoadingPage";
 import MainLayout from "@/components/layouts/MainLayout";
+import Topbar from "@/components/navigation/topbar";
 import React, { useEffect, useState } from "react";
 
 const Index = () => {
@@ -102,21 +104,16 @@ const Index = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingPage />;
   }
 
   return (
     <MainLayout>
+      <Topbar title="Ketersediaan Ruangan" />
       <div className="bg-white w-full h-screen">
         <div className="p-4 w-full">
-          <div className="flex">
-            <h1 className="font-semibold text-4xl text-black">
-              Informasi Ketersediaan Kelas
-            </h1>
-          </div>
-
           <div className="flex w-1/2 mt-10">
-            <label>Kategori</label>
+            <label>Kategori</label> 
             <select
               className="form-control border border-black rounded p-1 mx-3 w-full"
               value={selectedCategory}

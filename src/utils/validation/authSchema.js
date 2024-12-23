@@ -37,6 +37,8 @@ export const validateRegister = async (data) => {
       "any.required": "Konfirmasi password tidak boleh kosong",
       "any.only": "Konfirmasi password harus sama dengan password",
     }),
+    kelas: Joi.optional(),
+    no_absen: Joi.optional(),
   });
 
   try {

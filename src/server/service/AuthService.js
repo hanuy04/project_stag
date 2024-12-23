@@ -3,6 +3,7 @@ import prisma from "../db/prisma";
 export default {
   login: async (loginData) => {
     const { username, password } = loginData;
+    console.log(loginData);
 
     const user = await prisma.users.findFirst({
       where: {
@@ -12,6 +13,8 @@ export default {
         roles: true,
       },
     });
+
+    console.log(user);
 
     if (user) {
       if (user.password != password) {
@@ -33,17 +36,27 @@ export default {
     };
   },
 
-  register: async (username) => {
+  register: async (data) => {
     const user = await prisma.users.findFirst({
       where: {
-        username: username,
+        username: data.username,
       },
     });
 
-    if(user) return {
-      success : false,
-      status : 500
+    if (user)
+      return {
+        success: false,
+        status: 500,
+        message: "Username telah terdaftar, harap login",
+      };
+    else {
+      await prisma.users.create({
+        name: data.name,
+        username: data.username,
+        password: data.password,
+        role_id: data.role_id,
+        status: 0,
+      });
     }
-   
   },
 };
