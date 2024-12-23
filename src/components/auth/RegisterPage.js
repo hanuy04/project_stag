@@ -1,6 +1,7 @@
 import AuthLayout from "../layouts/AuthLayout";
 
 import {
+  Box,
   Button,
   ButtonGroup,
   Container,
@@ -25,7 +26,7 @@ import { useDispatch } from "react-redux";
 import { login } from "@/store/persistSlices/authSlice";
 import { useRouter } from "next/router";
 import { Check, Class, Edit } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
@@ -47,8 +48,38 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 
 const RegisterPage = () => {
   const router = useRouter();
-
+  const [rooms, setRooms] = useState([]);
   const [role, setRole] = useState("student");
+  const [kelas, setKelas] = useState();
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await fetch("/api/rooms?is_class=true", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch rooms.");
+        const data = await response.json();
+        console.log("Fetched data:", data);
+
+        if (data.rooms) {
+          setRooms(data.rooms);
+        } else {
+          console.error("Rooms property missing in data");
+        }
+      } catch (err) {
+        console.error("Error fetching rooms:", err);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -59,6 +90,7 @@ const RegisterPage = () => {
     const password = formData.get("password");
     const confirm = formData.get("confirm");
     const role = formData.get("role");
+    const kelas = formData.get("kelas");
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -72,13 +104,14 @@ const RegisterPage = () => {
           password,
           confirm,
           role,
+          kelas,
         }),
       });
 
       if (!response.ok) {
         alert(`HTTP error! Status: ${response.status}`);
       } else {
-        router.push("/");
+        router.push("/register");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -91,71 +124,83 @@ const RegisterPage = () => {
       <h2 className="text-xl font-semibold text-gray-800 mb-6">Register</h2>
 
       <form className="space-y-6" onSubmit={handleRegister}>
-        <StyledTextField
-          fullWidth
-          placeholder="Nama Lengkap"
-          variant="outlined"
-          size="medium"
-          name="name"
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Edit className="text-gray-400" />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Grid2 container>
+          <Grid2 size={6}>
+            <StyledTextField
+              fullWidth
+              placeholder="Nama Lengkap"
+              variant="outlined"
+              size="medium"
+              name="name"
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Edit className="text-gray-400" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid2>
 
-        <StyledTextField
-          fullWidth
-          placeholder="Username/Nomor Induk"
-          variant="outlined"
-          size="medium"
-          name="username"
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <PersonOutlineIcon className="text-gray-400" />
-              </InputAdornment>
-            ),
-          }}
-        />
+          <Grid2 size={6} paddingLeft={2}>
+            <StyledTextField
+              fullWidth
+              placeholder="Username/Nomor Induk"
+              variant="outlined"
+              size="medium"
+              name="username"
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonOutlineIcon className="text-gray-400" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid2>
+        </Grid2>
 
-        <StyledTextField
-          fullWidth
-          placeholder="Password"
-          type="password"
-          variant="outlined"
-          size="medium"
-          name="password"
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <LockOutlinedIcon className="text-gray-400" />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <Grid2 container>
+          <Grid2 size={6}>
+            <StyledTextField
+              fullWidth
+              placeholder="Password"
+              type="password"
+              variant="outlined"
+              size="medium"
+              name="password"
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlinedIcon className="text-gray-400" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid2>
 
-        <StyledTextField
-          fullWidth
-          placeholder="Password"
-          type="password"
-          variant="outlined"
-          size="medium"
-          name="confirm"
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Check className="text-gray-400" />
-              </InputAdornment>
-            ),
-          }}
-        />
+          <Grid2 size={6} paddingLeft={2}>
+            <StyledTextField
+              fullWidth
+              placeholder="Password"
+              type="password"
+              variant="outlined"
+              size="medium"
+              name="confirm"
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Check className="text-gray-400" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid2>
+        </Grid2>
 
         <FormControl onChange={(e) => setRole(e.target.value)}>
           <FormLabel>Daftar sebagai</FormLabel>
@@ -184,33 +229,48 @@ const RegisterPage = () => {
             />
           </RadioGroup>
         </FormControl>
-        {role == "student" && (
-          <FormControl>
-            <Grid2 container alignContent={"flex"} spacing={1}>
-              <Typography marginY={"auto"}>Kelas</Typography>
-              <Grid2>
-                <Select size="small" defaultValue={"X"}>
-                  <MenuItem defaultChecked value={"X"}>
-                    X
-                  </MenuItem>
-                  <MenuItem value={"XI"}>XI</MenuItem>
-                  <MenuItem value={"XII"}>XII</MenuItem>
-                </Select>
+        <Box>
+          {role == "student" && (
+            <FormControl>
+              <Grid2 container alignContent={"flex"} spacing={1}>
+                <Typography marginY={"auto"}>Kelas</Typography>
+                <Grid2>
+                  <Select
+                    size="small"
+                    name="kelas"
+                    value={
+                      kelas ? kelas : rooms.length > 0 ? rooms[0].room_id : ""
+                    }
+                    onChange={(e) => setKelas(e.target.value)}
+                  >
+                    {rooms.map((item) => {
+                      return (
+                        <MenuItem value={item.room_id}>
+                          {item.room_name}
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </Grid2>
+                <Grid2>
+                  <StyledTextField
+                    fullWidth
+                    placeholder="No absen"
+                    type="number"
+                    size="small"
+                    name="no_absen"
+                    required
+                    onInput={(e) => {
+                      if (e.target.value < 1) {
+                        e.target.value = 1;
+                      }
+                    }}
+                  />
+                </Grid2>
               </Grid2>
-
-              <Grid2>
-                <Select defaultValue={"1"} size="small">
-                  <MenuItem value={"1"}>1</MenuItem>
-                  <MenuItem value={"2"}>2</MenuItem>
-                  <MenuItem value={"3"}>3</MenuItem>
-                  <MenuItem value={"4"}>4</MenuItem>
-                  <MenuItem value={"5"}>5</MenuItem>
-                  <MenuItem value={"6"}>6</MenuItem>
-                </Select>
-              </Grid2>
-            </Grid2>
-          </FormControl>
-        )}
+            </FormControl>
+          )}
+        </Box>
 
         <StyledButton
           fullWidth
@@ -222,7 +282,10 @@ const RegisterPage = () => {
         </StyledButton>
 
         <p className="text-center text-sm text-gray-600">
-          Sudah punya akun? Login <a href="/">disini</a>
+          Sudah punya akun? Login
+          <a className="text-blue" href="/">
+            <u>disini</u>
+          </a>
         </p>
 
         <p className="text-center text-sm text-gray-600">
