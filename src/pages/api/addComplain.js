@@ -54,8 +54,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    console.log("a");
-
     try {
       // Ensure room_facility exists
       const classroomFacility = await prisma.room_facilities.findFirst({
@@ -65,8 +63,6 @@ export default async function handler(req, res) {
       if (!classroomFacility) {
         return res.status(404).json({ error: "Room facility not found." });
       }
-
-      console.log("b");
 
       // Generate the next complain ID
       const latestComplaint = await prisma.complains.findFirst({
@@ -83,8 +79,6 @@ export default async function handler(req, res) {
       );
 
       fs.renameSync(oldPath, newPath); // Move the file to the new path
-
-      console.log("c");
 
       // Save complaint data
       const lampiran = `/uploads/complaints/${path.basename(

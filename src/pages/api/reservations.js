@@ -6,20 +6,27 @@ export default async function handler(req, res) {
   }
 
   const { kategori } = req.query;
-  // console.log("API: Mendapatkan kategori ruangan: ", kategori);
+  console.log("API: Mendapatkan kategori ruangan: ", kategori);
 
   try {
     const today = new Date();
     const dayStart = new Date(today.setHours(0, 0, 0, 0));
     const dayEnd = new Date(today.setHours(23, 59, 59, 999));
+    console.log("Date range:", dayStart, dayEnd);
+
+    // console.log("sini");
+
+    // console.log("Kategori:", kategori);
+    // console.log("Querying rooms with conditions:", {
+    //   room_name: `Ruang ${kategori}`,
+    //   room_status: "available",
+    // });
 
     // Query rooms berdasarkan kategori dan status "available"
     const roomsData = await prisma.rooms.findMany({
       where: {
-        room_name: {
-          contains: `Ruang ${kategori}`, // Memungkinkan pencarian berdasarkan kategori ruangan
-        },
-        room_status: "available", // hanya ruangan yang statusnya "available"
+        room_name: { contains: `Ruang ${kategori}` },
+        room_status: "available",
       },
       select: {
         room_id: true,
@@ -28,7 +35,7 @@ export default async function handler(req, res) {
           where: {
             start_time: { gte: dayStart },
             end_time: { lte: dayEnd },
-            status: "approved", // Hanya mengambil reservasi yang berstatus "approved"
+            status_sarpras: "approved",
           },
           select: {
             start_time: true,
@@ -36,14 +43,11 @@ export default async function handler(req, res) {
             purpose: true,
             users: { select: { username: true, name: true } },
           },
-          orderBy: {
-            start_time: "asc", // Urutkan berdasarkan waktu mulai reservasi
-          },
         },
       },
     });
 
-    // console.log(roomsData);
+    console.log(roomsData);
 
     if (!roomsData || roomsData.length === 0) {
       return res.status(404).json({ error: "No rooms found" });

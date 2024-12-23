@@ -114,6 +114,7 @@ function ComplainPage() {
       setSelectedFacility("");
       setComplaint("");
       setDescription("");
+      setSelectedFile(null);
 
       setOpenModal(false);
       alert("Pengaduan berhasil diajukan!");

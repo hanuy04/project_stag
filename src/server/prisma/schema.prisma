@@ -36,16 +36,18 @@ model facilities {
 }
 
 model reservations {
-  reservation_id               String              @id @db.VarChar(5)
-  username                     String              @db.VarChar(255)
-  room_id                      String              @db.VarChar(5)
-  start_time                   DateTime
-  end_time                     DateTime
-  purpose                      String              @db.VarChar(255)
-  status                       reservations_status @default(pending)
-  is_need_accompanying_teacher Boolean
-  rooms                        rooms               @relation(fields: [room_id], references: [room_id])
-  users                        users               @relation(fields: [username], references: [username])
+  reservation_id    String                      @id @db.VarChar(5)
+  username          String                      @db.VarChar(255)
+  room_id           String                      @db.VarChar(5)
+  start_time        DateTime                    @db.DateTime(0)
+  end_time          DateTime                    @db.DateTime(0)
+  purpose           String                      @db.VarChar(255)
+  status_sarpras    reservations_status_sarpras @default(pending)
+  teacher_assistant String?                     @db.VarChar(255)
+  status_guru       reservations_status_guru?
+  description       String?                     @db.Text
+  rooms             rooms                       @relation(fields: [room_id], references: [room_id])
+  users             users                       @relation(fields: [username], references: [username])
 
   @@index([room_id], map: "reservations_room_id_fkey")
   @@index([username], map: "reservations_username_fkey")
@@ -72,14 +74,16 @@ model room_facilities {
 }
 
 model rooms {
-  room_id         String            @id @db.VarChar(5)
-  room_name       String            @db.VarChar(11)
+  room_id         String               @id @db.VarChar(5)
+  room_name       String               @db.VarChar(11)
   room_capacity   Int
-  room_status     String            @default("available")
+  room_category   rooms_room_category?
+  room_status     String               @default("available")
+  is_class        Boolean
   facilities      facilities[]
   reservations    reservations[]
   room_facilities room_facilities[]
-  students        students[]
+  users           users[]
 }
 
 model settings {
@@ -95,30 +99,21 @@ model settings {
   accompanying_teacher Boolean  @default(true)
 }
 
-model students {
-  student_id  Int    @id @default(autoincrement())
-  username    String @db.VarChar(5)
-  room_id     String @db.VarChar(5)
-  school_year Int    @db.Year
-  rooms       rooms  @relation(fields: [room_id], references: [room_id], onUpdate: Restrict, map: "fk_student_room")
-  users       users  @relation(fields: [username], references: [username], onUpdate: Restrict, map: "fk_student_user")
-
-  @@index([room_id], map: "fk_student_room")
-  @@index([username], map: "fk_student_user")
-}
-
 model users {
   username     String         @id @db.VarChar(255)
   password     String
   name         String
   role_id      String         @db.Char(1)
   status       String         @default("1") @db.Char(1)
+  kelas        String?        @db.VarChar(5)
+  no_absen     Int?
   complains    complains[]
   reservations reservations[]
-  students     students[]
   roles        roles          @relation(fields: [role_id], references: [role_id])
+  rooms        rooms?         @relation(fields: [kelas], references: [room_id], onDelete: Restrict, onUpdate: Restrict, map: "users_rooms")
 
   @@index([role_id], map: "users_role_id_fkey")
+  @@index([kelas], map: "users_rooms")
 }
 
 enum complains_status {
@@ -127,9 +122,24 @@ enum complains_status {
   unresolved
 }
 
-enum reservations_status {
+enum reservations_status_sarpras {
   pending
   approved
   rejected
   cancelled
+}
+
+enum reservations_status_guru {
+  pending
+  rejected
+  approved
+  EMPTY_ENUM_VALUE @map("")
+}
+
+enum rooms_room_category {
+  kelas_10     @map("kelas 10")
+  kelas_11     @map("kelas 11")
+  kelas_12     @map("kelas 12")
+  laboraturium
+  aula
 }

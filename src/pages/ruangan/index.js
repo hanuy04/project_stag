@@ -86,10 +86,7 @@ const Index = () => {
     if (reservation) {
       return (
         <td className="border border-blue-700 bg-orange-500 text-left p-1">
-          <b>
-            {reservation.users.name} {"("} {room.room_name}
-            {")"}
-          </b>
+          <b>{reservation.users.name}</b>
           <br />
           {reservation.purpose}
           <br />
