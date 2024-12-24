@@ -81,4 +81,42 @@ export default async function handler(req, res) {
   //     res.setHeader("Allow", ["GET", "POST"]);
   //     res.status(405).end(`Method ${req.method} Not Allowed`);
   //   }
+
+  //ini bagian jopi
+
+  const { method } = req;
+
+  switch (method) {
+    case 'GET':
+      try {
+        const facilities = await prisma.facility.findMany({
+          orderBy: { createdAt: 'desc' },
+        });
+        res.status(200).json({ success: true, data: facilities });
+      } catch (error) {
+        console.error('Error fetching facilities:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
+      break;
+    case 'POST':
+      try {
+        const { name, category } = req.body;
+        if (!name || !category) {
+          return res.status(400).json({ success: false, error: 'Name and category are required.' });
+        }
+
+        const newFacility = await prisma.facility.create({
+          data: { name, category },
+        });
+
+        res.status(201).json({ success: true, data: newFacility });
+      } catch (error) {
+        console.error('Error adding facility:', error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
+      break;
+    default:
+      res.setHeader('Allow', ['GET', 'POST']);
+      res.status(405).end(`Method ${method} Not Allowed`);
+  }
 }

@@ -1,4 +1,4 @@
-// components/FacilityManagement.js
+// src/components/FacilityManagement.js
 
 import React, { useState, useEffect } from "react";
 import {
@@ -11,7 +11,6 @@ import {
   Tabs,
   Menu,
   MenuItem,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,6 +22,7 @@ import {
   Typography,
   Snackbar,
   Alert,
+  IconButton,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -30,6 +30,7 @@ import {
   Lock as LockIcon,
   ArrowDropDown as ArrowDropDownIcon,
   Person2,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 
@@ -45,33 +46,71 @@ const theme = createTheme({
 });
 
 export default function FacilityManagement() {
+  // Existing States
   const [rooms, setRooms] = useState([]);
   const [tabValue, setTabValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState("");
   const [newRoomCategory, setNewRoomCategory] = useState("");
+
+  // State for Edit Room Modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [editRoomName, setEditRoomName] = useState("");
+  const [editRoomCategory, setEditRoomCategory] = useState("");
+
+  // Snackbar for Rooms
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
-  // Mengambil data rooms saat komponen di-mount
+  // New States for Facilities
+  const [facilities, setFacilities] = useState([]);
+  const [isFacilitiesModalOpen, setIsFacilitiesModalOpen] = useState(false);
+  const [newFacilityName, setNewFacilityName] = useState("");
+  const [newFacilityCategory, setNewFacilityCategory] = useState("");
+
+  // State for Edit Facility Modal
+  const [isEditFacilityModalOpen, setIsEditFacilityModalOpen] = useState(false);
+  const [selectedFacility, setSelectedFacility] = useState(null);
+  const [editFacilityName, setEditFacilityName] = useState("");
+  const [editFacilityCategory, setEditFacilityCategory] = useState("");
+
+  // Snackbar for Facilities
+  const [facilitiesSnackbar, setFacilitiesSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  // Fetch Rooms on Mount
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const response = await fetch("/api/rooms");
-        if (!response.ok) {
-          throw new Error("Failed to fetch rooms");
+        const response = await fetch("/api/rooms"); // Gunakan endpoint yang benar
+        const contentType = response.headers.get("content-type");
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          console.error("Non-JSON response:", text);
+          throw new Error("Server returned an invalid response.");
         }
-        const data = await response.json();
-        setRooms(data);
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch rooms");
+        }
+
+        setRooms(data.rooms || []); // Sesuaikan dengan struktur respon backend
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching rooms:", error);
         setSnackbar({
           open: true,
-          message: "Gagal mengambil data rooms",
+          message: "Failed to fetch rooms data",
           severity: "error",
         });
       }
@@ -80,36 +119,41 @@ export default function FacilityManagement() {
     fetchRooms();
   }, []);
 
-  // Menangani perubahan tab
+  // Handle Tab Change
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    if (newValue === 1) {
+      handleOpenFacilitiesModal();
+      // Reset tabValue jika diperlukan
+      setTabValue(0);
+    }
   };
 
-  // Menangani pembukaan menu
+  // Handle Menu Open
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  // Menangani penutupan menu
+  // Handle Menu Close
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  // Menangani pembukaan modal tambah room
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
+  // Handle Add Room Modal Open
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
   };
 
-  // Menangani penutupan modal tambah room
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  // Handle Add Room Modal Close
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
     setNewRoomName("");
     setNewRoomCategory("");
   };
 
-  // Menangani penambahan room baru
+  // Handle Add Room
   const handleAddRoom = async () => {
-    if (newRoomName && newRoomCategory) {
+    if (newRoomName.trim() && newRoomCategory) {
       const isLocked = newRoomCategory === "locked";
       try {
         const response = await fetch("/api/rooms", {
@@ -117,42 +161,312 @@ export default function FacilityManagement() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name: newRoomName, isLocked }),
+          body: JSON.stringify({ name: newRoomName.trim(), isLocked }),
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to add room");
+        const contentType = response.headers.get("content-type");
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          console.error("Non-JSON response:", text);
+          throw new Error("Server returned an invalid response.");
         }
 
-        const addedRoom = await response.json();
-        setRooms([addedRoom, ...rooms]); // Menambahkan room baru di awal daftar
-        handleCloseModal();
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to add room");
+        }
+
+        // Tambahkan ruangan baru ke state
+        setRooms([data, ...rooms]); // Karena backend mengembalikan objek ruangan langsung
+
+        handleCloseAddModal();
         setSnackbar({
           open: true,
-          message: "Room berhasil ditambahkan!",
+          message: "Room added successfully!",
           severity: "success",
         });
       } catch (error) {
-        console.error(error);
+        console.error("Error adding room:", error);
         setSnackbar({
           open: true,
-          message: error.message || "Gagal menambah room.",
+          message: error.message || "Failed to add room.",
           severity: "error",
         });
       }
+    } else {
+      setSnackbar({
+        open: true,
+        message: "Room name and category are required.",
+        severity: "warning",
+      });
     }
   };
 
-  // Menangani penutupan snackbar
+  // Handle Edit Room Modal Open
+  const handleOpenEditModal = (room) => {
+    setSelectedRoom(room);
+    setEditRoomName(room.room_name);
+    setEditRoomCategory(room.room_status === "locked" ? "locked" : "unlocked");
+    setIsEditModalOpen(true);
+  };
+
+  // Handle Edit Room Modal Close
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedRoom(null);
+    setEditRoomName("");
+    setEditRoomCategory("");
+  };
+
+  // Handle Edit Room
+  const handleEditRoom = async () => {
+    if (!editRoomName.trim()) {
+      setSnackbar({
+        open: true,
+        message: "Room name cannot be empty.",
+        severity: "warning",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/rooms/${selectedRoom.room_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editRoomName.trim(),
+          isLocked: editRoomCategory === "locked",
+        }),
+      });
+
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error("Non-JSON response:", text);
+        throw new Error("Server returned an invalid response.");
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update room");
+      }
+
+      // Update the rooms state
+      setRooms((prevRooms) =>
+        prevRooms.map((room) => (room.room_id === data.room_id ? data : room))
+      );
+
+      handleCloseEditModal();
+      setSnackbar({
+        open: true,
+        message: "Room updated successfully!",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("Error updating room:", error);
+      setSnackbar({
+        open: true,
+        message: error.message || "Failed to update room.",
+        severity: "error",
+      });
+    }
+  };
+
+  // Handle Snackbar Close
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  // Facilities Modal Handlers
+  const handleOpenFacilitiesModal = () => {
+    setIsFacilitiesModalOpen(true);
+    fetchFacilities();
+  };
+
+  const handleCloseFacilitiesModal = () => {
+    setIsFacilitiesModalOpen(false);
+    setFacilities([]);
+    setNewFacilityName("");
+    setNewFacilityCategory("");
+  };
+
+  // Fetch Facilities Data
+  const fetchFacilities = async () => {
+    try {
+      const response = await fetch("/api/facilities"); // Pastikan endpoint benar
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error("Non-JSON response:", text);
+        throw new Error("Server returned an invalid response.");
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch facilities");
+      }
+
+      setFacilities(data.data || []); // Sesuaikan dengan struktur respon backend
+    } catch (error) {
+      console.error("Error fetching facilities:", error);
+      setFacilitiesSnackbar({
+        open: true,
+        message: "Failed to fetch facilities data",
+        severity: "error",
+      });
+      // Tidak menutup modal agar pengguna bisa mencoba lagi atau melihat error
+    }
+  };
+
+  // Handle Add Facility
+  const handleAddFacility = async () => {
+    if (newFacilityName.trim() && newFacilityCategory) {
+      try {
+        const response = await fetch("/api/facilities", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: newFacilityName.trim(),
+            category: newFacilityCategory,
+          }),
+        });
+
+        const contentType = response.headers.get("content-type");
+        let data;
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          console.error("Non-JSON response:", text);
+          throw new Error("Server returned an invalid response.");
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to add facility");
+        }
+
+        // Add new facility to state
+        setFacilities([data.data, ...facilities]); // Karena backend mengembalikan objek fasilitas dalam data.data
+
+        setNewFacilityName("");
+        setNewFacilityCategory("");
+        setFacilitiesSnackbar({
+          open: true,
+          message: "Facility added successfully!",
+          severity: "success",
+        });
+      } catch (error) {
+        console.error("Error adding facility:", error);
+        setFacilitiesSnackbar({
+          open: true,
+          message: error.message || "Failed to add facility.",
+          severity: "error",
+        });
+      }
+    } else {
+      setFacilitiesSnackbar({
+        open: true,
+        message: "Facility name and category are required.",
+        severity: "warning",
+      });
+    }
+  };
+
+  // Handle Edit Facility Modal Open
+  const handleOpenEditFacilityModal = (facility) => {
+    setSelectedFacility(facility);
+    setEditFacilityName(facility.name);
+    setEditFacilityCategory(facility.category);
+    setIsEditFacilityModalOpen(true);
+  };
+
+  // Handle Edit Facility Modal Close
+  const handleCloseEditFacilityModal = () => {
+    setIsEditFacilityModalOpen(false);
+    setSelectedFacility(null);
+    setEditFacilityName("");
+    setEditFacilityCategory("");
+  };
+
+  // Handle Edit Facility
+  const handleEditFacility = async () => {
+    if (!editFacilityName.trim()) {
+      setFacilitiesSnackbar({
+        open: true,
+        message: "Facility name cannot be empty.",
+        severity: "warning",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/facilities/${selectedFacility.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: editFacilityName.trim(),
+          category: editFacilityCategory,
+        }),
+      });
+
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error("Non-JSON response:", text);
+        throw new Error("Server returned an invalid response.");
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update facility");
+      }
+
+      // Update the facilities state
+      setFacilities((prevFacilities) =>
+        prevFacilities.map((facility) =>
+          facility.id === data.data.id ? data.data : facility
+        )
+      );
+
+      handleCloseEditFacilityModal();
+      setFacilitiesSnackbar({
+        open: true,
+        message: "Facility updated successfully!",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error("Error updating facility:", error);
+      setFacilitiesSnackbar({
+        open: true,
+        message: error.message || "Failed to update facility.",
+        severity: "error",
+      });
+    }
+  };
+
+  // Handle Facilities Snackbar Close
+  const handleFacilitiesSnackbarClose = () => {
+    setFacilitiesSnackbar({ ...facilitiesSnackbar, open: false });
   };
 
   return (
     <ThemeProvider theme={theme}>
       <>
-        {/* Header dengan Tabs dan Menu */}
+        {/* Header with Tabs and Menu */}
         <div className="flex items-center justify-between p-4">
           <div className="flex flex-col rounded-lg">
             <Tabs value={tabValue} onChange={handleTabChange} centered>
@@ -174,13 +488,12 @@ export default function FacilityManagement() {
                 variant="contained"
                 sx={{
                   bgcolor: "#3f51b5",
-                  borderRadius: "8px 0 0 8px",
+                  borderRadius: "0 8px 8px 0",
                   "&:hover": {
                     bgcolor: "#32408f",
                   },
                   flex: 1,
                   minWidth: "200px",
-                  textDecorationColor: "white",
                 }}
                 label="Daftar Fasilitas"
               />
@@ -216,10 +529,10 @@ export default function FacilityManagement() {
           </Menu>
         </div>
 
-        {/* Konten Utama dengan Daftar Rooms */}
+        {/* Main Content with Rooms List */}
         <div style={{ padding: "20px" }}>
           <Grid container spacing={2} style={{ marginTop: "20px" }}>
-            {/* Tombol Tambah Room */}
+            {/* Add Room Button */}
             <Grid item xs={6} sm={4} md={3} lg={2}>
               <Card
                 sx={{
@@ -230,80 +543,82 @@ export default function FacilityManagement() {
                   border: "2px dashed #ccc",
                   cursor: "pointer",
                 }}
-                onClick={handleOpenModal}
+                onClick={handleOpenAddModal}
               >
                 <AddIcon sx={{ fontSize: 40, color: "#ccc" }} />
               </Card>
             </Grid>
 
-            {/* Daftar Rooms */}
-            {rooms.map((room) => (
-              <Grid item xs={6} sm={4} md={3} lg={2} key={room.room_id}>
-                <Card
-                  sx={{
-                    height: "auto",
-                    backgroundColor: "#f5f5f5",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  }}
-                >
-                  <CardHeader
-                    title={room.room_name}
-                    titleTypographyProps={{
-                      align: "center",
-                      variant: "h6",
-                      sx: {
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        color: "#333",
-                      },
-                    }}
+            {/* Rooms List */}
+            {Array.isArray(rooms) &&
+              rooms.map((room) => (
+                <Grid item xs={6} sm={4} md={3} lg={2} key={room.room_id}>
+                  <Card
                     sx={{
-                      backgroundColor: "transparent",
-                      padding: "1rem 1rem 0.5rem",
-                    }}
-                  />
-                  <CardContent
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      gap: 1,
-                      padding: "0.5rem 1rem 1rem",
+                      height: "auto",
+                      backgroundColor: "#f5f5f5",
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "8px",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                     }}
                   >
-                    <Button
-                      variant="contained"
-                      startIcon={<LockIcon />}
+                    <CardHeader
+                      title={room.room_name}
+                      titleTypographyProps={{
+                        align: "center",
+                        variant: "h6",
+                        sx: {
+                          fontSize: "1.25rem",
+                          fontWeight: "bold",
+                          color: "#333",
+                        },
+                      }}
                       sx={{
-                        backgroundColor: "#ffc107",
-                        color: "#000",
-                        "&:hover": { backgroundColor: "#ffb300" },
-                        textTransform: "none",
-                        borderRadius: "4px",
-                        padding: "6px 16px",
+                        backgroundColor: "transparent",
+                        padding: "1rem 1rem 0.5rem",
+                      }}
+                    />
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: 1,
+                        padding: "0.5rem 1rem 1rem",
                       }}
                     >
-                      Buka
-                    </Button>
-                    <Button
-                      variant="contained"
-                      startIcon={<VisibilityIcon />}
-                      sx={{
-                        backgroundColor: "#ffc107",
-                        color: "#000",
-                        "&:hover": { backgroundColor: "#ffb300" },
-                        textTransform: "none",
-                        borderRadius: "4px",
-                        padding: "6px 16px",
-                      }}
-                    >
-                      Lihat
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+                      <Button
+                        variant="contained"
+                        startIcon={<LockIcon />}
+                        sx={{
+                          backgroundColor: "#ffc107",
+                          color: "#000",
+                          "&:hover": { backgroundColor: "#ffb300" },
+                          textTransform: "none",
+                          borderRadius: "4px",
+                          padding: "6px 16px",
+                        }}
+                      >
+                        Buka
+                      </Button>
+                      <Button
+                        variant="contained"
+                        startIcon={<VisibilityIcon />}
+                        onClick={() => handleOpenEditModal(room)}
+                        sx={{
+                          backgroundColor: "#ffc107",
+                          color: "#000",
+                          "&:hover": { backgroundColor: "#ffb300" },
+                          textTransform: "none",
+                          borderRadius: "4px",
+                          padding: "6px 16px",
+                        }}
+                      >
+                        Lihat
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
           </Grid>
 
           {/* Footer */}
@@ -316,8 +631,8 @@ export default function FacilityManagement() {
           </Typography>
         </div>
 
-        {/* Modal Dialog untuk Menambah Room */}
-        <Dialog open={isModalOpen} onClose={handleCloseModal}>
+        {/* Modal Dialog for Adding Room */}
+        <Dialog open={isAddModalOpen} onClose={handleCloseAddModal}>
           <DialogTitle>Tambah Ruangan Baru</DialogTitle>
           <DialogContent>
             <TextField
@@ -343,17 +658,193 @@ export default function FacilityManagement() {
             </FormControl>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseModal}>Batal</Button>
+            <Button onClick={handleCloseAddModal}>Batal</Button>
             <Button onClick={handleAddRoom} variant="contained">
               Tambah
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar untuk Notifikasi */}
+        {/* Modal Dialog for Editing Room */}
+        <Dialog open={isEditModalOpen} onClose={handleCloseEditModal}>
+          <DialogTitle>Detail & Edit Ruangan</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Nama Ruangan"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={editRoomName}
+              onChange={(e) => setEditRoomName(e.target.value)}
+              required
+              error={!editRoomName.trim()}
+              helperText={
+                !editRoomName.trim() ? "Nama ruangan tidak boleh kosong" : ""
+              }
+            />
+            <FormControl fullWidth margin="dense" variant="standard">
+              <InputLabel>Kategori</InputLabel>
+              <Select
+                value={editRoomCategory}
+                onChange={(e) => setEditRoomCategory(e.target.value)}
+                label="Kategori"
+              >
+                <MenuItem value="unlocked">Tidak Terkunci</MenuItem>
+                <MenuItem value="locked">Terkunci</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseEditModal}>Batal</Button>
+            <Button onClick={handleEditRoom} variant="contained">
+              Simpan
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Facilities Modal Dialog */}
+        <Dialog
+          open={isFacilitiesModalOpen}
+          onClose={handleCloseFacilitiesModal}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>Daftar Fasilitas</DialogTitle>
+          <DialogContent>
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              style={{ marginBottom: 16 }}
+            >
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Nama Fasilitas"
+                  variant="standard"
+                  fullWidth
+                  value={newFacilityName}
+                  onChange={(e) => setNewFacilityName(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <FormControl fullWidth variant="standard">
+                  <InputLabel>Kategori</InputLabel>
+                  <Select
+                    value={newFacilityCategory}
+                    onChange={(e) => setNewFacilityCategory(e.target.value)}
+                    label="Kategori"
+                  >
+                    <MenuItem value="peralatan">Peralatan</MenuItem>
+                    <MenuItem value="non-peralatan">Non-Peralatan</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddFacility}
+                  fullWidth
+                >
+                  Tambah
+                </Button>
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2}>
+              {Array.isArray(facilities) && facilities.length > 0 ? (
+                facilities.map((facility) => (
+                  <Grid item xs={12} sm={6} key={facility.id}>
+                    <Card
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "16px",
+                        borderRadius: "8px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      <div>
+                        <Typography variant="h6">{facility.name}</Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {facility.category}
+                        </Typography>
+                      </div>
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleOpenEditFacilityModal(facility)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Card>
+                  </Grid>
+                ))
+              ) : (
+                <Grid item xs={12}>
+                  <Typography variant="body1" align="center">
+                    Tidak ada fasilitas yang tersedia.
+                  </Typography>
+                </Grid>
+              )}
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseFacilitiesModal}>Tutup</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Modal Dialog for Editing Facility */}
+        <Dialog
+          open={isEditFacilityModalOpen}
+          onClose={handleCloseEditFacilityModal}
+        >
+          <DialogTitle>Edit Fasilitas</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Nama Fasilitas"
+              type="text"
+              fullWidth
+              variant="standard"
+              value={editFacilityName}
+              onChange={(e) => setEditFacilityName(e.target.value)}
+              required
+              error={!editFacilityName.trim()}
+              helperText={
+                !editFacilityName.trim()
+                  ? "Nama fasilitas tidak boleh kosong"
+                  : ""
+              }
+            />
+            <FormControl fullWidth margin="dense" variant="standard">
+              <InputLabel>Kategori</InputLabel>
+              <Select
+                value={editFacilityCategory}
+                onChange={(e) => setEditFacilityCategory(e.target.value)}
+                label="Kategori"
+              >
+                <MenuItem value="peralatan">Peralatan</MenuItem>
+                <MenuItem value="non-peralatan">Non-Peralatan</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseEditFacilityModal}>Batal</Button>
+            <Button onClick={handleEditFacility} variant="contained">
+              Simpan
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Snackbar for Rooms */}
         <Snackbar
           open={snackbar.open}
-          autoHideDuration={600}
+          autoHideDuration={6000}
           onClose={handleSnackbarClose}
         >
           <Alert
@@ -362,6 +853,22 @@ export default function FacilityManagement() {
             sx={{ width: "100%" }}
           >
             {snackbar.message}
+          </Alert>
+        </Snackbar>
+
+        {/* Snackbar for Facilities */}
+        <Snackbar
+          open={facilitiesSnackbar.open}
+          autoHideDuration={6000}
+          onClose={handleFacilitiesSnackbarClose}
+        >
+          <Alert
+            onClose={handleFacilitiesSnackbarClose}
+            severity={facilitiesSnackbar.severity}
+            sx={{ width: "100%" }}
+          >
+            {facilitiesSnackbar.message}
+
           </Alert>
         </Snackbar>
       </>
