@@ -12,11 +12,25 @@ export default async function handler(req, res) {
         .json({ error: "Failed to fetch data", details: error.message });
     }
   } else if (req.method === "POST") {
-    const { tanggal, waktuMulai, waktuSelesai, ruangan, keperluan, teacher } =
-      req.body;
+    const {
+      username,
+      tanggal,
+      waktuMulai,
+      waktuSelesai,
+      ruangan,
+      keperluan,
+      teacher,
+    } = req.body;
     console.log(req.body);
 
-    if (!tanggal || !waktuMulai || !waktuSelesai || !ruangan || !keperluan) {
+    if (
+      !username ||
+      !tanggal ||
+      !waktuMulai ||
+      !waktuSelesai ||
+      !ruangan ||
+      !keperluan
+    ) {
       return res
         .status(400)
         .json({ error: "All fields are required except teacher." });
@@ -39,19 +53,22 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Teacher not found" });
       }
     }
-    console.log(teacher);
+    const reservation = await prisma.reservations.findMany();
+    console.log(`reservatons : ${reservation}`);
 
     const latestReservation = await prisma.reservations.findFirst({
       orderBy: { reservation_id: "desc" },
     });
+
+    console.log(latestReservation?.reservation_id);
+
     const nextReservationId = latestReservation
-      ? `RE${(parseInt(latestReservation.reservation_id.replace("RE", "")) + 1)
+      ? `R${(parseInt(latestReservation.reservation_id.replace(/^R/, "")) + 1)
           .toString()
-          .padStart(3, "0")}`
-      : "RE001";
+          .padStart(4, "0")}`
+      : "R0001";
 
     console.log(nextReservationId);
-    console.log(room.room_id);
 
     let newReservationData;
     if (teacher) {

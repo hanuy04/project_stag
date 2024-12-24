@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { KeyboardArrowRight, Person } from "@mui/icons-material";
 import Topbar from "../navigation/topbar";
+import { useSelector } from "react-redux";
 
 const RoomReservation = () => {
   const [reservations, setReservations] = useState([]);
@@ -25,8 +26,10 @@ const RoomReservation = () => {
   const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const user = useSelector((state) => state.persist.auth.user);
 
   const [formData, setFormData] = useState({
+    username: user.username,
     tanggal: "",
     waktuMulai: "",
     waktuSelesai: "",
@@ -42,8 +45,11 @@ const RoomReservation = () => {
         const resResponse = await fetch("/api/reservationsCecil");
         if (!resResponse.ok) throw new Error("Failed to fetch reservations.");
         const resData = await resResponse.json();
-        setReservations(resData);
-        console.log(reservations);
+        const userReservations = resData.filter(
+          (reservation) => reservation.username === user.username
+        );
+        setReservations(userReservations);
+        console.log(userReservations);
       } catch (err) {
         setError(err.message);
       }
@@ -199,7 +205,7 @@ const RoomReservation = () => {
   );
 
   return (
-    <>  
+    <>
       <Topbar title="Peminjaman Ruangan" />
       <div className="min-h-screen bg-gray-100">
         <div className="container mx-auto px-4 py-8">
@@ -213,7 +219,7 @@ const RoomReservation = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  width: "80%", // Atur lebar sesuai kebutuhan
+                  width: "80%",
                 }}
                 InputProps={{
                   style: {
