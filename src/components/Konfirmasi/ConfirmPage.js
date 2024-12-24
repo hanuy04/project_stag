@@ -52,11 +52,11 @@ export default function ConfirmPage() {
 
         const waitingConfirmation = data.filter(
           (item) =>
-            item.teacher_assistant === "GR003" && item.status_guru === "pending"
+            item.teacher_assistant === "GR001" && item.status_guru === "pending"
         );
         const history = data.filter(
           (item) =>
-            item.teacher_assistant === "GR003" &&
+            item.teacher_assistant === "GR001" &&
             (item.status_guru === "rejected" || item.status_guru === "approved")
         );
 
