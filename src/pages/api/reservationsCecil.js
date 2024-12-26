@@ -60,13 +60,13 @@ export default async function handler(req, res) {
       orderBy: { reservation_id: "desc" },
     });
 
-    console.log(latestReservation?.reservation_id);
+    console.log(latestReservation.reservation_id);
 
     const nextReservationId = latestReservation
-      ? `R${(parseInt(latestReservation.reservation_id.replace(/^R/, "")) + 1)
+      ? `RE${(parseInt(latestReservation.reservation_id.replace("RE", "")) + 1)
           .toString()
-          .padStart(4, "0")}`
-      : "R0001";
+          .padStart(3, "0")}`
+      : "RE001";
 
     console.log(nextReservationId);
 
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     if (teacher) {
       newReservationData = {
         reservation_id: nextReservationId,
-        username: "MR001",
+        username: username,
         room_id: room.room_id,
         start_time: new Date(`${tanggal}T${waktuMulai}:00`),
         end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     } else {
       newReservationData = {
         reservation_id: nextReservationId,
-        username: "MR001",
+        username: username,
         room_id: room.room_id,
         start_time: new Date(`${tanggal}T${waktuMulai}:00`),
         end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
