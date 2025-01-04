@@ -374,70 +374,171 @@ function ComplainPage() {
               backgroundColor: "white",
               borderRadius: "8px",
               padding: "24px",
-              width: "500px",
+              width: "800px",
               maxHeight: "80vh",
               overflowY: "auto",
               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+              display: "flex",
+              flexDirection: "row",
+              gap: "16px",
             }}
           >
-            <Typography
-              variant="h4"
-              style={{ marginBottom: "16px", fontWeight: "bold" }}
-            >
-              Detail Pengaduan
-            </Typography>
-            {selectedComplaint && (
-              <div>
-                <Typography>
-                  <strong>Fasilitas:</strong> {selectedComplaint.fasilitas}
-                  {" ("}
-                  {selectedComplaint.ruangan}
-                  {")"}
-                </Typography>
-                <Typography>
-                  <strong>Keluhan:</strong> {selectedComplaint.complaint}
-                </Typography>
-                <Typography>
-                  <strong>Deskripsi:</strong> {selectedComplaint.description}
-                </Typography>
-                <div style={{ marginBottom: "16px" }}>
-                  <Typography variant="subtitle1">
-                    <strong>Lampiran:</strong>
+            <div style={{ flex: 2 }}>
+              <Typography
+                variant="h4"
+                style={{ marginBottom: "16px", fontWeight: "bold" }}
+              >
+                Detail Pengaduan
+              </Typography>
+              {selectedComplaint && (
+                <div>
+                  <Typography>
+                    <strong>Fasilitas:</strong> {selectedComplaint.fasilitas}
+                    {" ("}
+                    {selectedComplaint.ruangan}
+                    {")"}
                   </Typography>
                   <Typography>
-                    {selectedComplaint.lampiran ? (
-                      <img
-                        src={selectedComplaint.lampiran}
-                        alt="Lampiran"
-                        style={{
-                          width: "100%",
-                          maxHeight: "200px",
-                          objectFit: "contain",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    ) : (
-                      <Typography>Tidak ada lampiran</Typography>
-                    )}
+                    <strong>Keluhan:</strong> {selectedComplaint.complaint}
+                  </Typography>
+                  <Typography>
+                    <strong>Deskripsi:</strong> {selectedComplaint.description}
+                  </Typography>
+                  <div style={{ marginBottom: "16px" }}>
+                    <Typography variant="subtitle1">
+                      <strong>Lampiran:</strong>
+                    </Typography>
+                    <Typography>
+                      {selectedComplaint.lampiran ? (
+                        <img
+                          src={selectedComplaint.lampiran}
+                          alt="Lampiran"
+                          style={{
+                            width: "100%",
+                            maxHeight: "200px",
+                            objectFit: "contain",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      ) : (
+                        <Typography>Tidak ada lampiran</Typography>
+                      )}
+                    </Typography>
+                  </div>
+                  <Typography>
+                    <strong>Status:</strong> {selectedComplaint.status}
                   </Typography>
                 </div>
-                <Typography>
-                  <strong>Status:</strong> {selectedComplaint.status}
+              )}
+              <Button
+                variant="contained"
+                style={{ marginTop: "16px" }}
+                onClick={() => setDetailForm(false)}
+              >
+                Tutup
+              </Button>
+            </div>
+
+            {selectedComplaint.status === "unresolved" && (
+              <div
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f8f9fa",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  style={{
+                    marginBottom: "16px",
+                    fontWeight: "bold",
+                    color: "red",
+                  }}
+                >
+                  - Laporan Terkirim
                 </Typography>
               </div>
             )}
-            <Button
-              variant="contained"
-              style={{ marginTop: "16px" }}
-              onClick={() => setDetailForm(false)}
-            >
-              Tutup
-            </Button>
+            {selectedComplaint.status === "still_resolving" && (
+              <div
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f8f9fa",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  style={{
+                    marginBottom: "16px",
+                    fontWeight: "bold",
+                    color: "red",
+                  }}
+                >
+                  - Laporan Terkirim
+                </Typography>
+                <Typography
+                  variant="h5"
+                  style={{
+                    marginBottom: "16px",
+                    fontWeight: "bold",
+                    color: "orange",
+                  }}
+                >
+                  - Fasilitas sedang diperbaiki
+                </Typography>
+              </div>
+            )}
+            {selectedComplaint.status === "resolved" && (
+              <div
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f8f9fa",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  style={{
+                    marginBottom: "16px",
+                    fontWeight: "bold",
+                    color: "red",
+                  }}
+                >
+                  - Laporan Terkirim
+                </Typography>
+                <Typography
+                  variant="h5"
+                  style={{
+                    marginBottom: "16px",
+                    fontWeight: "bold",
+                    color: "orange",
+                  }}
+                >
+                  - Fasilitas sedang diperbaiki
+                </Typography>
+                <Typography
+                  variant="h5"
+                  style={{
+                    marginBottom: "16px",
+                    fontWeight: "bold",
+                    color: "green",
+                  }}
+                >
+                  - Fasilitas telah diperbaiki
+                </Typography>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Modal to submit complaint */}
       {openModal && (
         <div
           style={{
@@ -458,7 +559,6 @@ function ComplainPage() {
               backgroundColor: "white",
               borderRadius: "8px",
               padding: "24px",
-              width: "500px",
               maxHeight: "80vh",
               overflowY: "auto",
               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",

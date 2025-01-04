@@ -6,9 +6,9 @@ export default async function handler(req, res) {
 
   try {
     const complains = await prisma.complains.findMany({
-      where: {
-        status: { in: ["unresolved", "still_resolving"] },
-      },
+      // where: {
+      //   status: { in: ["unresolved", "still_resolving"] },
+      // },
       select: {
         complain_id: true,
         created_at: true,

@@ -152,7 +152,7 @@ const index = () => {
 
       alert("Status pengaduan berhasil diperbaharui!");
 
-      // Refresh state
+      // update status complain
       const updatedComplaints = complains.map((complain) =>
         complain.complain_id === selectedComplaint.complain_id
           ? { ...complain, status: selectedStatus }
@@ -233,13 +233,6 @@ const index = () => {
             }}
             onChange={(e) => setSearchPengaduan(e.target.value)}
           />
-          <Button
-            variant="contained"
-            startIcon={<Add />}
-            style={{ backgroundColor: "#212121", color: "white" }}
-          >
-            Ajukan Pengaduan
-          </Button>
         </div>
 
         <TableContainer component={Paper}>
