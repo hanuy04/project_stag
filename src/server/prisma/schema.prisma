@@ -36,21 +36,31 @@ model facilities {
 }
 
 model reservations {
-  reservation_id    String                      @id @db.VarChar(255)
-  username          String                      @db.VarChar(255)
-  room_id           String                      @db.VarChar(255)
-  start_time        DateTime
-  end_time          DateTime
-  purpose           String                      @db.VarChar(255)
-  status_sarpras    reservations_status_sarpras @default(pending)
-  teacher_assistant String?                     @db.VarChar(255)
-  status_guru       reservations_status_guru?
-  description       String?                     @db.Text
-  rooms             rooms                       @relation(fields: [room_id], references: [room_id])
-  users             users                       @relation(fields: [username], references: [username])
+  reservation_id                                     String                      @id @db.VarChar(255)
+  username                                           String                      @db.VarChar(255)
+  room_id                                            String                      @db.VarChar(255)
+  start_time                                         DateTime
+  end_time                                           DateTime
+  purpose                                            String                      @db.VarChar(255)
+  status_sarpras                                     reservations_status_sarpras @default(pending)
+  teacher_assistant                                  String?                     @db.VarChar(255)
+  status_guru                                        reservations_status_guru?
+  description                                        String?                     @db.Text
+  next                                               String?                     @db.VarChar(255)
+  prev                                               String?                     @db.VarChar(255)
+  next_reservation                                   reservations?               @relation("reservations_nextToreservations", fields: [next], references: [reservation_id], map: "next_fkey")
+  other_reservations_reservations_nextToreservations reservations[]              @relation("reservations_nextToreservations")
+  prev_reservation                                   reservations?               @relation("reservations_prevToreservations", fields: [prev], references: [reservation_id], map: "prev_fkey")
+  other_reservations_reservations_prevToreservations reservations[]              @relation("reservations_prevToreservations")
+  rooms                                              rooms                       @relation(fields: [room_id], references: [room_id], onDelete: NoAction)
+  reservation_teacher                                users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: NoAction, map: "reservations_teacher_fkey")
+  users                                              users                       @relation(fields: [username], references: [username], onDelete: NoAction)
 
   @@index([room_id], map: "reservations_room_id_fkey")
   @@index([username], map: "reservations_username_fkey")
+  @@index([next], map: "next_fkey")
+  @@index([prev], map: "prev_fkey")
+  @@index([teacher_assistant], map: "reservations_teacher_fkey")
 }
 
 model roles {
@@ -74,16 +84,19 @@ model room_facilities {
 }
 
 model rooms {
-  room_id         String               @id @db.VarChar(255)
-  room_name       String               @db.VarChar(11)
+  room_id         String            @id @db.VarChar(255)
+  room_name       String            @db.VarChar(11)
   room_capacity   Int
-  room_category   rooms_room_category?
-  room_status     String               @default("available")
+  room_category   String            @db.VarChar(255)
+  room_status     String            @default("available")
   is_class        Boolean
   facilities      facilities[]
   reservations    reservations[]
   room_facilities room_facilities[]
+  room_categories room_categories   @relation(fields: [room_category], references: [room_category], onDelete: Cascade, map: "fk_room_categories")
   users           users[]
+
+  @@index([room_category], map: "fk_room_categories")
 }
 
 model settings {
@@ -100,20 +113,26 @@ model settings {
 }
 
 model users {
-  username     String         @id @db.VarChar(255)
-  password     String
-  name         String
-  role_id      String         @db.Char(1)
-  status       String         @default("1") @db.Char(1)
-  kelas        String?        @db.VarChar(255)
-  no_absen     Int?
-  complains    complains[]
-  reservations reservations[]
-  roles        roles          @relation(fields: [role_id], references: [role_id])
-  rooms        rooms?         @relation(fields: [kelas], references: [room_id], onDelete: Restrict, onUpdate: Restrict, map: "users_rooms")
+  username                                           String         @id @db.VarChar(255)
+  password                                           String
+  name                                               String
+  role_id                                            String         @db.Char(1)
+  status                                             String         @default("1") @db.Char(1)
+  kelas                                              String?        @db.VarChar(255)
+  no_absen                                           Int?
+  complains                                          complains[]
+  reservations_reservations_teacher_assistantTousers reservations[] @relation("reservations_teacher_assistantTousers")
+  reservations                                       reservations[]
+  roles                                              roles          @relation(fields: [role_id], references: [role_id])
+  rooms                                              rooms?         @relation(fields: [kelas], references: [room_id], onDelete: Restrict, onUpdate: Restrict, map: "users_rooms")
 
   @@index([role_id], map: "users_role_id_fkey")
   @@index([kelas], map: "users_rooms")
+}
+
+model room_categories {
+  room_category String  @id @db.VarChar(255)
+  rooms         rooms[]
 }
 
 enum complains_status {
@@ -134,12 +153,4 @@ enum reservations_status_guru {
   rejected
   approved
   EMPTY_ENUM_VALUE @map("")
-}
-
-enum rooms_room_category {
-  kelas_10     @map("kelas 10")
-  kelas_11     @map("kelas 11")
-  kelas_12     @map("kelas 12")
-  laboraturium
-  aula
 }

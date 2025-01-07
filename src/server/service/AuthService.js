@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 export default {
   login: async (loginData) => {
     const { username, password } = loginData;
-    console.log(loginData);
+    // console.log(loginData);
 
     const user = await prisma.users.findFirst({
       where: {
@@ -15,7 +15,7 @@ export default {
       },
     });
 
-    console.log(user);
+    // console.log(user);
 
     if (user) {
       if (user.password != password) {
@@ -96,7 +96,6 @@ export default {
         message: "Berhasil register",
         user: user,
       };
-
     } catch (error) {
       console.error("Registration error:", error.message);
       return {

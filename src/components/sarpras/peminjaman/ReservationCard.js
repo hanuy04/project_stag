@@ -14,10 +14,9 @@ import {
   DialogActions,
 } from "@mui/material";
 import DetailPeminjaman from "./DetailPeminjaman";
+import { formatFullDate } from "@/utils/DateTime";
 
-
-
-const ReservationCard = ({ data }) => {
+const ReservationCard = ({ data, setRefreshData }) => {
   const [openDetail, setOpenDetail] = useState();
   const [selectedIndex, setSelectedIndex] = useState();
 
@@ -42,7 +41,12 @@ const ReservationCard = ({ data }) => {
       </Typography>
 
       {/* Main Card */}
-      <Card sx={{ borderRadius: "16px", boxShadow: 3 }}>
+      <Card
+        style={{
+          backgroundColor: "whitesmoke",
+        }}
+        sx={{ borderRadius: "16px", boxShadow: 2 }}
+      >
         <CardContent>
           {/* Table Content */}
           <TableContainer>
@@ -53,10 +57,7 @@ const ReservationCard = ({ data }) => {
                     <b>Nama</b>
                   </TableCell>
                   <TableCell>
-                    <b>Kelas</b>
-                  </TableCell>
-                  <TableCell>
-                    <b>Pukul</b>
+                    <b>Waktu</b>
                   </TableCell>
                   <TableCell>
                     <b>Keperluan</b>
@@ -80,12 +81,28 @@ const ReservationCard = ({ data }) => {
                           : "inherit",
                     }}
                   >
-                    <TableCell>{item.users.name}</TableCell>
-                    <TableCell>{item.users.rooms?.room_name || "-"}</TableCell>
-                    <TableCell>{item.start_time}</TableCell>
-                    <TableCell>{item.purpose}</TableCell>
-                    <TableCell>{item.pendamping}</TableCell>
-                    <TableCell>
+                    <TableCell width={"15%"}>
+                      <Typography variant="body2">{item.users.name}</Typography>
+                      <Typography variant="body2">
+                        {item.users.rooms &&
+                          " [" +
+                            item.users.rooms.room_name +
+                            (item.users.no_absen && "/" + item.users.no_absen) +
+                            "]"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell width={"30%"}>
+                      <Typography variant="body2">{item.tanggal} </Typography>
+                      <Typography variant="body2">
+                        {item.start_time} {" - "}
+                        {item.end_time}
+                      </Typography>
+                    </TableCell>
+                    <TableCell width={"auto"}>{item.purpose}</TableCell>
+                    <TableCell width={"10%"}>
+                      {item.reservation_teacher?.name || "-"}
+                    </TableCell>
+                    <TableCell width={"10%"}>
                       <Button
                         variant="contained"
                         sx={{
@@ -116,8 +133,15 @@ const ReservationCard = ({ data }) => {
         <DetailPeminjaman
           open={openDetail}
           setOpen={setOpenDetail}
-          data={data}
-          selectedIndex={selectedIndex}
+          reservationParam={{
+            ...data.reservations[selectedIndex],
+            rooms: {
+              room_id: data.room_id,
+              room_name: data.room_name,
+            },
+          }}
+          setRefreshData={setRefreshData}
+          type="pending"
         />
       )}
     </Box>

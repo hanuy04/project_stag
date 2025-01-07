@@ -9,3 +9,11 @@
 .text-blue {
   color: #0c21c1;
 }
+
+.text-white {
+  color: white;
+}
+
+.border-blue {
+  border-color: "#0c21c1";
+}

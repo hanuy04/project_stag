@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Dec 26, 2024 at 10:18 AM
--- Server version: 8.0.30
--- PHP Version: 8.1.10
+-- Host: 127.0.0.1
+-- Generation Time: Jan 07, 2025 at 04:42 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `db_fas`
 --
-CREATE DATABASE IF NOT EXISTS `db_fas` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `db_fas`;
 
 -- --------------------------------------------------------
 
@@ -30,14 +28,14 @@ USE `db_fas`;
 --
 
 CREATE TABLE `complains` (
-  `complain_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `classroom_facilities_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `complaint` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  `status` enum('resolved','still resolving','unresolved') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unresolved',
-  `lampiran` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `complain_id` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `classroom_facilities_id` varchar(255) NOT NULL,
+  `complaint` text NOT NULL,
+  `description` text NOT NULL,
+  `created_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `status` enum('resolved','still resolving','unresolved') NOT NULL DEFAULT 'unresolved',
+  `lampiran` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -65,11 +63,11 @@ INSERT INTO `complains` (`complain_id`, `username`, `classroom_facilities_id`, `
 --
 
 CREATE TABLE `facilities` (
-  `facility_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `facility_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `facility_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `facility_qty` int NOT NULL,
-  `room_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `facility_id` varchar(255) NOT NULL,
+  `facility_name` varchar(100) NOT NULL,
+  `facility_description` text NOT NULL,
+  `facility_qty` int(11) NOT NULL,
+  `room_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -105,28 +103,86 @@ INSERT INTO `facilities` (`facility_id`, `facility_name`, `facility_description`
 --
 
 CREATE TABLE `reservations` (
-  `reservation_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `room_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `reservation_id` varchar(255) NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `room_id` varchar(255) NOT NULL,
   `start_time` datetime(3) NOT NULL,
   `end_time` datetime(3) NOT NULL,
-  `purpose` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status_sarpras` enum('pending','approved','rejected','cancelled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `teacher_assistant` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status_guru` enum('pending','rejected','approved','') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+  `purpose` varchar(255) NOT NULL,
+  `status_sarpras` enum('pending','approved','rejected','cancelled') NOT NULL DEFAULT 'pending',
+  `teacher_assistant` varchar(255) DEFAULT NULL,
+  `status_guru` enum('pending','rejected','approved','') DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `prev` varchar(255) DEFAULT NULL,
+  `next` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `reservations`
 --
 
-INSERT INTO `reservations` (`reservation_id`, `username`, `room_id`, `start_time`, `end_time`, `purpose`, `status_sarpras`, `teacher_assistant`, `status_guru`, `description`) VALUES
-('RE001', 'MR001', 'R021', '2024-12-05 14:00:00.000', '2024-12-05 15:00:00.000', 'Project Presentation', 'approved', NULL, NULL, NULL),
-('RE002', 'MR002', 'R022', '2024-12-05 14:00:00.000', '2024-12-05 15:00:00.000', 'Team Meeting', 'approved', NULL, NULL, NULL),
-('RE003', 'MR003', 'R023', '2024-12-06 10:00:00.000', '2024-12-06 11:00:00.000', 'Workshop', 'approved', NULL, NULL, NULL),
-('RE004', '12345', '0', '2024-12-21 12:58:46.963', '2024-12-21 14:58:46.963', 'pinjam', 'approved', NULL, NULL, NULL),
-('RE005', 'MR001', 'R007', '2024-12-26 09:00:00.000', '2024-12-26 10:30:00.000', 'kerja kelompok', 'pending', 'GR001', 'rejected', 'kerja kelompok ko di aula');
+INSERT INTO `reservations` (`reservation_id`, `username`, `room_id`, `start_time`, `end_time`, `purpose`, `status_sarpras`, `teacher_assistant`, `status_guru`, `description`, `prev`, `next`) VALUES
+('JD000001', 'sarpras', 'R022', '2025-01-07 07:00:00.000', '2025-01-07 09:00:00.000', 'KELAS MATEMATIKA', 'approved', NULL, NULL, NULL, NULL, NULL),
+('JD000002', 'sarpras', 'R023', '2025-01-08 01:00:00.000', '2025-01-08 02:59:00.000', 'ALLDAY1', 'approved', NULL, NULL, NULL, NULL, NULL),
+('RE001', 'MR001', 'R021', '2024-01-05 14:10:00.798', '2024-12-05 15:10:00.301', 'Project Presentation', 'pending', NULL, NULL, 'Ken murid ditolak', NULL, NULL),
+('RE002', 'MR002', 'R022', '2024-01-05 14:00:00.000', '2024-12-05 15:00:00.000', 'Team Meeting', 'pending', NULL, NULL, NULL, NULL, NULL),
+('RE003', 'MR003', 'R023', '2024-01-05 10:00:00.000', '2024-12-06 11:00:00.000', 'Workshop', 'pending', NULL, NULL, NULL, NULL, NULL),
+('RE004', '12345', '0', '2024-12-21 12:58:46.963', '2024-12-21 14:58:46.963', 'pinjam', 'pending', NULL, NULL, NULL, NULL, NULL),
+('RE005', 'MR001', 'R001', '2024-01-05 09:00:00.000', '2024-01-05 10:30:00.000', 'kerja kelompok', 'approved', 'GR001', 'pending', 'tidak boleh ya ges', NULL, NULL),
+('RE006', 'MR001', 'R001', '2024-01-05 09:00:00.000', '2024-01-05 10:00:00.000', 'Meeting', 'rejected', 'GR001', 'pending', 'Ruangan digunakan untuk kegiatan lain', NULL, NULL),
+('RE007', 'MR002', 'R002', '2024-12-01 10:00:00.000', '2024-12-01 11:00:00.000', 'Workshop', 'approved', 'GR002', 'approved', NULL, NULL, NULL),
+('RE008', 'MR003', 'R003', '2024-12-01 11:00:00.000', '2024-12-01 12:00:00.000', 'Training', 'approved', NULL, NULL, 'ini 10 karakter', NULL, NULL),
+('RE009', 'MR004', 'R004', '2024-12-01 12:00:00.000', '2024-12-01 13:00:00.000', 'Seminar', 'approved', 'GR003', 'approved', NULL, NULL, NULL),
+('RE010', 'MR005', 'R005', '2024-12-01 13:00:00.000', '2024-12-01 14:00:00.000', 'Discussion', 'approved', NULL, NULL, 'Ruangan sudah dipesan.', NULL, NULL),
+('RE011', 'MR006', 'R006', '2024-12-01 14:00:00.000', '2024-12-01 15:00:00.000', 'Presentation', 'approved', 'GR004', 'approved', NULL, NULL, NULL),
+('RE012', 'MR007', 'R007', '2024-12-01 15:00:00.000', '2024-12-01 17:30:00.000', 'Workshop', 'pending', NULL, NULL, 'Ruangan digunakan untuk kegiatan lain', NULL, NULL),
+('RE013', 'MR008', 'R008', '2024-12-01 16:00:00.000', '2024-12-01 17:00:00.000', 'Meeting', 'pending', 'GR005', 'approved', NULL, NULL, NULL),
+('RE014', 'MR009', 'R007', '2024-12-01 17:00:00.000', '2024-12-01 18:00:00.000', 'Training', 'pending', NULL, NULL, 'Ruangan sedang digunakan.', NULL, NULL),
+('RE015', 'MR010', 'R010', '2024-12-01 18:00:00.000', '2024-12-01 19:00:00.000', 'Seminar', 'pending', 'GR001', 'approved', NULL, NULL, NULL),
+('RE016', 'MR001', 'R011', '2024-12-02 09:00:00.000', '2024-12-02 10:00:00.000', 'Discussion', 'pending', 'GR002', 'approved', NULL, NULL, NULL),
+('RE017', 'MR002', 'R012', '2024-12-02 10:00:00.000', '2024-12-02 11:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan sedang dalam perbaikan.', NULL, NULL),
+('RE018', 'MR003', 'R013', '2024-12-02 11:00:00.000', '2024-12-02 12:00:00.000', 'Workshop', 'pending', 'GR003', 'approved', NULL, NULL, NULL),
+('RE019', 'MR004', 'R014', '2024-12-02 12:00:00.000', '2024-12-02 13:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan sudah dipesan.', NULL, NULL),
+('RE020', 'MR005', 'R015', '2024-12-02 13:00:00.000', '2024-12-02 14:00:00.000', 'Training', 'pending', 'GR004', 'approved', NULL, NULL, NULL),
+('RE021', 'MR006', 'R016', '2024-12-02 14:00:00.000', '2024-12-02 15:00:00.000', 'Seminar', 'pending', NULL, NULL, 'Ruangan tidak tersedia.', NULL, NULL),
+('RE022', 'MR007', 'R017', '2024-12-02 15:00:00.000', '2024-12-02 16:00:00.000', 'Discussion', 'pending', 'GR005', 'approved', NULL, NULL, NULL),
+('RE023', 'MR008', 'R018', '2024-12-02 16:00:00.000', '2024-12-02 17:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan sedang digunakan.', NULL, NULL),
+('RE024', 'MR009', 'R019', '2024-12-02 17:00:00.000', '2024-12-02 18:00:00.000', 'Workshop', 'pending', 'GR001', 'approved', NULL, NULL, NULL),
+('RE025', 'MR010', 'R020', '2024-12-02 18:00:00.000', '2024-12-02 19:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan sedang dalam perbaikan.', NULL, NULL),
+('RE026', 'MR001', 'R021', '2024-12-03 09:00:00.000', '2024-12-03 10:00:00.000', 'Training', 'pending', 'GR002', 'approved', NULL, NULL, NULL),
+('RE027', 'MR002', 'R022', '2024-12-03 10:00:00.000', '2024-12-03 11:00:00.000', 'Seminar', 'pending', NULL, NULL, 'Ruangan sudah dipesan.', NULL, NULL),
+('RE028', 'MR003', 'R023', '2024-12-03 11:00:00.000', '2024-12-03 12:00:00.000', 'Discussion', 'pending', 'GR003', 'approved', NULL, NULL, NULL),
+('RE029', 'MR004', 'R022', '2024-12-03 12:00:00.000', '2024-12-03 13:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan tidak tersedia.', NULL, NULL),
+('RE030', 'MR005', 'R025', '2024-12-03 13:00:00.000', '2024-12-03 14:00:00.000', 'Workshop', 'pending', 'GR004', 'approved', NULL, NULL, NULL),
+('RE031', 'MR006', 'R026', '2024-12-03 14:00:00.000', '2024-12-03 15:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan sedang digunakan.', NULL, NULL),
+('RE032', 'MR007', 'R027', '2024-12-03 15:00:00.000', '2024-12-03 16:00:00.000', 'Training', 'pending', 'GR005', 'approved', NULL, NULL, NULL),
+('RE033', 'MR008', 'R028', '2024-12-03 16:00:00.000', '2024-12-03 17:00:00.000', 'Seminar', 'pending', NULL, NULL, 'Ruangan sedang dalam perbaikan.', NULL, NULL),
+('RE034', 'MR009', 'R029', '2024-12-03 17:00:00.000', '2024-12-03 18:00:00.000', 'Discussion', 'pending', 'GR001', 'approved', NULL, NULL, NULL),
+('RE035', 'MR010', 'R030', '2024-12-03 18:00:00.000', '2024-12-03 19:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan sudah dipesan.', NULL, NULL),
+('RE036', 'MR001', 'R031', '2024-12-04 09:00:00.000', '2024-12-04 10:00:00.000', 'Workshop', 'pending', 'GR002', 'approved', NULL, NULL, NULL),
+('RE037', 'MR002', 'R032', '2024-12-04 10:00:00.000', '2024-12-04 11:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan tidak tersedia.', NULL, NULL),
+('RE038', 'MR003', 'R033', '2024-12-04 11:00:00.000', '2024-12-04 12:00:00.000', 'Training', 'pending', 'GR003', 'approved', NULL, NULL, NULL),
+('RE039', 'MR004', 'R034', '2024-12-04 12:00:00.000', '2024-12-04 13:00:00.000', 'Seminar', 'pending', NULL, NULL, 'Ruangan sedang digunakan.', NULL, NULL),
+('RE040', 'MR005', 'R035', '2024-12-04 13:00:00.000', '2024-12-04 14:00:00.000', 'Discussion', 'pending', 'GR004', 'approved', NULL, NULL, NULL),
+('RE041', 'MR006', 'R036', '2024-12-04 14:00:00.000', '2024-12-04 15:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan sedang dalam perbaikan.', NULL, NULL),
+('RE042', 'MR007', 'R037', '2024-12-04 15:00:00.000', '2024-12-04 16:00:00.000', 'Workshop', 'pending', 'GR005', 'approved', NULL, NULL, NULL),
+('RE043', 'MR008', 'R038', '2024-12-04 16:00:00.000', '2024-12-04 17:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan sudah dipesan.', NULL, NULL),
+('RE044', 'MR009', 'R001', '2024-12-05 09:00:00.000', '2024-12-05 10:00:00.000', 'Training', 'pending', 'GR001', 'approved', NULL, NULL, NULL),
+('RE045', 'MR010', 'R002', '2024-12-05 10:00:00.000', '2024-12-05 11:00:00.000', 'Seminar', 'pending', NULL, NULL, 'Ruangan tidak tersedia.', NULL, NULL),
+('RE046', 'MR001', 'R003', '2024-12-05 11:00:00.000', '2024-12-05 12:00:00.000', 'Discussion', 'pending', 'GR002', 'approved', NULL, NULL, NULL),
+('RE047', 'MR002', 'R004', '2024-12-05 12:00:00.000', '2024-12-05 13:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan sedang digunakan.', NULL, NULL),
+('RE048', 'MR003', 'R005', '2024-12-05 13:00:00.000', '2024-12-05 14:00:00.000', 'Workshop', 'pending', 'GR003', 'approved', NULL, NULL, NULL),
+('RE049', 'MR004', 'R006', '2024-12-05 14:00:00.000', '2024-12-05 15:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan sedang dalam perbaikan.', NULL, NULL),
+('RE050', 'MR005', 'R007', '2024-12-05 15:00:00.000', '2024-12-05 16:00:00.000', 'Training', 'pending', 'GR004', 'approved', NULL, NULL, NULL),
+('RE051', 'MR006', 'R008', '2024-12-05 16:00:00.000', '2024-12-05 17:00:00.000', 'Seminar', 'pending', NULL, NULL, 'Ruangan sudah dipesan.', NULL, NULL),
+('RE052', 'MR007', 'R009', '2024-12-05 17:00:00.000', '2024-12-05 18:00:00.000', 'Discussion', 'pending', 'GR005', 'approved', NULL, NULL, NULL),
+('RE053', 'MR008', 'R010', '2024-12-05 18:00:00.000', '2024-12-05 19:00:00.000', 'Presentation', 'pending', NULL, NULL, 'Ruangan tidak tersedia.', NULL, NULL),
+('RE054', 'MR009', 'R011', '2024-12-06 09:00:00.000', '2024-12-06 10:00:00.000', 'Workshop', 'pending', 'GR001', 'approved', NULL, NULL, NULL),
+('RE055', 'MR010', 'R012', '2024-12-06 10:00:00.000', '2024-12-06 11:00:00.000', 'Meeting', 'pending', NULL, NULL, 'Ruangan sedang digunakan.', NULL, NULL),
+('RE056', '12345', 'R013', '2024-12-28 02:45:00.000', '2024-12-28 03:15:00.000', 'kerja kelompok', 'pending', NULL, NULL, NULL, NULL, NULL),
+('RE057', 'MR001', 'R011', '2024-12-28 05:30:00.000', '2024-12-28 02:45:00.000', 'halo', 'pending', NULL, NULL, NULL, NULL, NULL),
+('RE058', 'MURID1', 'R021', '2024-12-28 01:00:00.000', '2024-12-28 03:15:00.000', 'kerja kelompok', 'pending', NULL, NULL, 'kepagian ya ges yaaa', NULL, NULL),
+('RE059', 'MURID2', 'R021', '2024-12-28 03:15:00.000', '2024-12-28 03:45:00.000', 'kerja kelompok', 'pending', NULL, NULL, 'ini ditolak juga', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -135,8 +191,8 @@ INSERT INTO `reservations` (`reservation_id`, `username`, `room_id`, `start_time
 --
 
 CREATE TABLE `roles` (
-  `role_id` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role_name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `role_id` char(1) NOT NULL,
+  `role_name` varchar(191) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -156,11 +212,11 @@ INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 --
 
 CREATE TABLE `rooms` (
-  `room_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `room_name` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `room_capacity` int NOT NULL,
-  `room_category` enum('kelas 10','kelas 11','kelas 12','laboraturium','aula') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `room_status` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
+  `room_id` varchar(255) NOT NULL,
+  `room_name` varchar(11) NOT NULL,
+  `room_capacity` int(11) NOT NULL,
+  `room_category` varchar(255) NOT NULL,
+  `room_status` varchar(191) NOT NULL DEFAULT 'available',
   `is_class` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -169,45 +225,63 @@ CREATE TABLE `rooms` (
 --
 
 INSERT INTO `rooms` (`room_id`, `room_name`, `room_capacity`, `room_category`, `room_status`, `is_class`) VALUES
-('0', 'Halo', 12, NULL, 'none', 0),
-('R001', 'Lab A', 30, NULL, 'available', 0),
-('R002', 'Lab B', 40, NULL, 'available', 0),
-('R003', 'Lab C', 35, NULL, 'unavailable', 0),
-('R004', 'Conf A', 20, NULL, 'available', 0),
-('R005', 'Conf B', 25, NULL, 'available', 0),
-('R006', 'Hall A', 100, NULL, 'unavailable', 0),
-('R007', 'Hall B', 150, NULL, 'available', 0),
-('R008', 'Class A', 50, NULL, 'available', 0),
-('R009', 'Class B', 45, NULL, 'unavailable', 0),
-('R010', 'Class C', 60, NULL, 'available', 0),
-('R011', 'Studio A', 15, NULL, 'available', 0),
-('R012', 'Studio B', 20, NULL, 'available', 0),
-('R013', 'Library A', 25, NULL, 'available', 0),
-('R014', 'Library B', 30, NULL, 'available', 0),
-('R015', 'Gym A', 200, NULL, 'unavailable', 0),
-('R016', 'Gym B', 250, NULL, 'available', 0),
-('R017', 'Pool A', 75, NULL, 'available', 0),
-('R018', 'Pool B', 80, NULL, 'available', 0),
-('R019', 'Cafe A', 40, NULL, 'available', 0),
-('R020', 'Cafe B', 35, NULL, 'available', 0),
-('R021', 'Ruang X-1', 30, NULL, 'available', 0),
-('R022', 'Ruang X-2', 30, NULL, 'available', 0),
-('R023', 'Ruang X-3', 30, NULL, 'available', 0),
-('R024', 'Ruang X-4', 30, NULL, 'available', 0),
-('R025', 'Ruang X-5', 30, NULL, 'available', 0),
-('R026', 'Ruang X-6', 30, NULL, 'available', 0),
-('R027', 'Ruang XI-1', 30, NULL, 'available', 0),
-('R028', 'Ruang XI-2', 30, NULL, 'available', 0),
-('R029', 'Ruang XI-3', 30, NULL, 'available', 0),
-('R030', 'Ruang XI-4', 30, NULL, 'available', 0),
-('R031', 'Ruang XI-5', 30, NULL, 'available', 0),
-('R032', 'Ruang XI-6', 30, NULL, 'available', 0),
-('R033', 'Ruang XII-1', 30, NULL, 'available', 0),
-('R034', 'Ruang XII-2', 30, NULL, 'available', 0),
-('R035', 'Ruang XII-3', 30, NULL, 'available', 0),
-('R036', 'Ruang XII-4', 30, NULL, 'available', 0),
-('R037', 'Ruang XII-5', 30, NULL, 'available', 0),
-('R038', 'Ruang XII-6', 30, NULL, 'available', 0);
+('0', 'Halo', 12, 'lainnya', 'none', 0),
+('R001', 'Lab A', 30, 'lainnya', 'available', 0),
+('R002', 'Lab B', 40, 'lainnya', 'available', 0),
+('R003', 'Lab C', 35, 'lainnya', 'unavailable', 0),
+('R004', 'Conf A', 20, 'lainnya', 'available', 0),
+('R005', 'Conf B', 25, 'lainnya', 'available', 0),
+('R006', 'Hall A', 100, 'lainnya', 'unavailable', 0),
+('R007', 'Hall B', 150, 'lainnya', 'available', 0),
+('R008', 'Class A', 50, 'lainnya', 'available', 0),
+('R009', 'Class B', 45, 'lainnya', 'unavailable', 0),
+('R010', 'Class C', 60, 'lainnya', 'available', 0),
+('R011', 'Studio A', 15, 'lainnya', 'available', 0),
+('R012', 'Studio B', 20, 'lainnya', 'available', 0),
+('R013', 'Library A', 25, 'lainnya', 'available', 0),
+('R014', 'Library B', 30, 'lainnya', 'available', 0),
+('R015', 'Gym A', 200, 'lainnya', 'unavailable', 0),
+('R016', 'Gym B', 250, 'lainnya', 'available', 0),
+('R017', 'Pool A', 75, 'lainnya', 'available', 0),
+('R018', 'Pool B', 80, 'lainnya', 'available', 0),
+('R019', 'Cafe A', 40, 'lainnya', 'available', 0),
+('R020', 'Cafe B', 35, 'lainnya', 'available', 0),
+('R021', 'Ruang X-1', 30, 'kelas 10', 'available', 0),
+('R022', 'Ruang X-2', 30, 'kelas 10', 'available', 0),
+('R023', 'Ruang X-3', 30, 'kelas 10', 'available', 0),
+('R024', 'Ruang X-4', 30, 'kelas 10', 'available', 0),
+('R025', 'Ruang X-5', 30, 'lainnya', 'available', 0),
+('R026', 'Ruang X-6', 30, 'lainnya', 'available', 0),
+('R027', 'Ruang XI-1', 30, 'lainnya', 'available', 0),
+('R028', 'Ruang XI-2', 30, 'lainnya', 'available', 0),
+('R029', 'Ruang XI-3', 30, 'lainnya', 'available', 0),
+('R030', 'Ruang XI-4', 30, 'lainnya', 'available', 0),
+('R031', 'Ruang XI-5', 30, 'lainnya', 'available', 0),
+('R032', 'Ruang XI-6', 30, 'lainnya', 'available', 0),
+('R033', 'Ruang XII-1', 30, 'lainnya', 'available', 0),
+('R034', 'Ruang XII-2', 30, 'lainnya', 'available', 0),
+('R035', 'Ruang XII-3', 30, 'lainnya', 'available', 0),
+('R036', 'Ruang XII-4', 30, 'lainnya', 'available', 0),
+('R037', 'Ruang XII-5', 30, 'lainnya', 'available', 0),
+('R038', 'Ruang XII-6', 30, 'lainnya', 'available', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `room_categories`
+--
+
+CREATE TABLE `room_categories` (
+  `room_category` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `room_categories`
+--
+
+INSERT INTO `room_categories` (`room_category`) VALUES
+('kelas 10'),
+('lainnya');
 
 -- --------------------------------------------------------
 
@@ -216,11 +290,11 @@ INSERT INTO `rooms` (`room_id`, `room_name`, `room_capacity`, `room_category`, `
 --
 
 CREATE TABLE `room_facilities` (
-  `room_facilities_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `room_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `facility_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `qty` int NOT NULL,
-  `condition` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
+  `room_facilities_id` varchar(255) NOT NULL,
+  `room_id` varchar(255) NOT NULL,
+  `facility_id` varchar(255) NOT NULL,
+  `qty` int(11) NOT NULL,
+  `condition` varchar(191) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -257,16 +331,16 @@ INSERT INTO `room_facilities` (`room_facilities_id`, `room_id`, `facility_id`, `
 --
 
 CREATE TABLE `settings` (
-  `id` tinyint NOT NULL,
-  `day` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `booking` tinyint(1) NOT NULL DEFAULT '1',
+  `id` tinyint(4) NOT NULL,
+  `day` varchar(10) NOT NULL,
+  `booking` tinyint(1) NOT NULL DEFAULT 1,
   `booking_start` time NOT NULL,
   `booking_end` time NOT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `active` tinyint(1) NOT NULL DEFAULT 1,
   `reservation_start` time NOT NULL,
   `reservation_end` time NOT NULL,
   `conditional_time` time NOT NULL,
-  `accompanying_teacher` tinyint(1) NOT NULL DEFAULT '1'
+  `accompanying_teacher` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -274,12 +348,12 @@ CREATE TABLE `settings` (
 --
 
 INSERT INTO `settings` (`id`, `day`, `booking`, `booking_start`, `booking_end`, `active`, `reservation_start`, `reservation_end`, `conditional_time`, `accompanying_teacher`) VALUES
-(1, 'Senin', 1, '14:00:00', '17:00:00', 1, '10:00:00', '13:00:00', '12:00:00', 1),
-(2, 'Selasa', 1, '14:00:00', '17:00:00', 1, '12:00:00', '19:00:00', '14:00:00', 1),
+(1, 'Senin', 1, '14:00:00', '17:00:00', 1, '10:00:00', '13:00:00', '12:00:00', 0),
+(2, 'Selasa', 1, '14:00:00', '17:00:00', 1, '12:00:00', '19:00:00', '14:00:00', 0),
 (3, 'Rabu', 1, '14:00:00', '17:00:00', 0, '12:00:00', '13:00:00', '12:00:00', 1),
-(4, 'Kamis', 1, '14:00:00', '17:00:00', 0, '11:00:00', '02:00:00', '16:02:00', 1),
+(4, 'Kamis', 1, '14:00:00', '17:00:00', 1, '14:00:00', '18:00:00', '19:00:00', 1),
 (5, 'Jumat', 1, '14:00:00', '16:00:00', 1, '16:00:00', '17:00:00', '20:00:00', 1),
-(6, 'Sabtu', 1, '14:00:00', '17:00:00', 1, '14:00:00', '17:00:00', '16:00:00', 1),
+(6, 'Sabtu', 0, '14:00:00', '17:00:00', 1, '14:00:00', '17:00:00', '16:00:00', 1),
 (7, 'Minggu', 0, '14:00:00', '16:00:00', 1, '14:00:00', '16:00:00', '17:00:00', 1);
 
 -- --------------------------------------------------------
@@ -289,13 +363,13 @@ INSERT INTO `settings` (`id`, `day`, `booking`, `booking_start`, `booking_end`, 
 --
 
 CREATE TABLE `users` (
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role_id` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
-  `kelas` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `no_absen` int DEFAULT NULL
+  `username` varchar(255) NOT NULL,
+  `password` varchar(191) NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `role_id` char(1) NOT NULL,
+  `status` char(1) NOT NULL DEFAULT '1',
+  `kelas` varchar(255) DEFAULT NULL,
+  `no_absen` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -304,6 +378,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`username`, `password`, `name`, `role_id`, `status`, `kelas`, `no_absen`) VALUES
 ('12345', '123', 'Jessica', '3', '1', NULL, NULL),
+('12348', '12345678', 'Hai', '1', '2', NULL, NULL),
+('cikgu', '12345678', 'GURU', '1', '1', NULL, NULL),
 ('GR001', 'pass6', 'Frank Guru', '1', '1', NULL, NULL),
 ('GR002', 'pass7', 'Grace Guru', '1', '1', NULL, NULL),
 ('GR003', 'pass8', 'Hank Guru', '1', '1', NULL, NULL),
@@ -319,6 +395,8 @@ INSERT INTO `users` (`username`, `password`, `name`, `role_id`, `status`, `kelas
 ('MR008', 'pass18', 'Rita Murid', '3', '1', NULL, NULL),
 ('MR009', 'pass19', 'Sam Murid', '3', '1', NULL, NULL),
 ('MR010', 'pass20', 'Tina Murid', '3', '1', NULL, NULL),
+('MURID1', '12345678', 'John Doe', '3', '1', 'R021', 12),
+('MURID2', '12345678', 'Jane Doe', '3', '1', 'R022', 10),
 ('sarpras', 'jaya', 'SARPRAS', '0', '1', NULL, NULL),
 ('TS001', 'pass1', 'Alice Sarpras', '0', '1', NULL, NULL),
 ('TS002', 'pass2', 'Bob Sarpras', '0', '1', NULL, NULL),
@@ -351,7 +429,10 @@ ALTER TABLE `facilities`
 ALTER TABLE `reservations`
   ADD PRIMARY KEY (`reservation_id`),
   ADD KEY `reservations_username_fkey` (`username`),
-  ADD KEY `reservations_room_id_fkey` (`room_id`);
+  ADD KEY `reservations_room_id_fkey` (`room_id`),
+  ADD KEY `reservations_teacher_fkey` (`teacher_assistant`),
+  ADD KEY `next_fkey` (`next`),
+  ADD KEY `prev_fkey` (`prev`);
 
 --
 -- Indexes for table `roles`
@@ -363,7 +444,14 @@ ALTER TABLE `roles`
 -- Indexes for table `rooms`
 --
 ALTER TABLE `rooms`
-  ADD PRIMARY KEY (`room_id`);
+  ADD PRIMARY KEY (`room_id`),
+  ADD KEY `fk_room_categories` (`room_category`);
+
+--
+-- Indexes for table `room_categories`
+--
+ALTER TABLE `room_categories`
+  ADD PRIMARY KEY (`room_category`);
 
 --
 -- Indexes for table `room_facilities`
@@ -395,7 +483,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` tinyint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -418,8 +506,17 @@ ALTER TABLE `facilities`
 -- Constraints for table `reservations`
 --
 ALTER TABLE `reservations`
-  ADD CONSTRAINT `reservations_room_id_fkey` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `reservations_username_fkey` FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `next_fkey` FOREIGN KEY (`next`) REFERENCES `reservations` (`reservation_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `prev_fkey` FOREIGN KEY (`prev`) REFERENCES `reservations` (`reservation_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservations_room_id_fkey` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservations_teacher_fkey` FOREIGN KEY (`teacher_assistant`) REFERENCES `users` (`username`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservations_username_fkey` FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
+-- Constraints for table `rooms`
+--
+ALTER TABLE `rooms`
+  ADD CONSTRAINT `fk_room_categories` FOREIGN KEY (`room_category`) REFERENCES `room_categories` (`room_category`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `room_facilities`

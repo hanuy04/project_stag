@@ -102,7 +102,7 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
       layout
     >
       <Box className="h-full bg-blue text-white relative">
-        <Box className="bg-gray-100">
+        <Box className="bg-white">
           <Box
             className={`hidden md:flex items-center bg-blue p-4 ${
               pathname.startsWith(`${menuItems[0].path}`)
@@ -138,11 +138,11 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
 
             return (
               <ListItem key={item.menu} className="p-0 ps-5 m-0" disablePadding>
-                <Box className="bg-gray-100 rounded-s-full w-full border-none">
+                <Box className="bg-white rounded-s-full w-full border-none">
                   <Link
                     href={item.path}
                     className={`w-full block ${
-                      isActive ? "bg-gray-100 rounded-s-full" : "bg-blue"
+                      isActive ? "bg-white rounded-s-full" : "bg-blue"
                     } 
                       ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
                       ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
@@ -157,11 +157,9 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
 
         {menuItems[menuItems.length - 1].path === pathname && (
           <ListItem className="p-0 ps-5 +m-0" disablePadding>
-            <Box className="bg-gray-100 rounded-s-full w-full border-none rounded-ee-3xl">
+            <Box className="bg-white rounded-s-full w-full border-none rounded-ee-3xl">
               <Box
-                className={
-                  "w-full block bg-gray-100 rounded-se-3xl bg-blue py-5"
-                }
+                className={"w-full block bg-white rounded-se-3xl bg-blue py-5"}
               ></Box>
             </Box>
           </ListItem>

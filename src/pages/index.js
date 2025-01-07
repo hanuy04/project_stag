@@ -16,7 +16,7 @@ const index = () => {
       const verify = async () => {
         const verified = await verifyToken(token);
         if (verified.success) {
-          if (role == "sarpras") router.push("/peminjaman");
+          if (role == "sarpras") router.push("/sarpras/peminjaman");
           else router.push("/beranda");
         }
       };

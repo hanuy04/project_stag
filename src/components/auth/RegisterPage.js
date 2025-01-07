@@ -90,6 +90,8 @@ const RegisterPage = () => {
     const role_id = formData.get("role");
     const kelas = formData.get("kelas");
     const no_absen = formData.get("no_absen");
+    // alert(role_id)
+
 
     try {
       const response = await fetch("/api/auth/register", {
@@ -213,7 +215,6 @@ const RegisterPage = () => {
             row
           >
             <FormControlLabel value="3" control={<Radio />} label="Siswa" />
-
             <FormControlLabel value="1" control={<Radio />} label="Guru" />
 
             <FormControlLabel

@@ -1,12 +1,12 @@
-import MainLayout from '@/components/layouts/MainLayout'
-import React from 'react'
+import MainLayout from "@/components/layouts/MainLayout";
+import SarprasJadwalPage from "@/components/sarpras/jadwal/SarprasJadwalPage";
 
-const index = () => {
+const SarprasJadwal = () => {
   return (
-    <MainLayout>
-        
+    <MainLayout pageRole={["sarpras"]}>
+      <SarprasJadwalPage />
     </MainLayout>
-  )
-}
+  );
+};
 
-export default index
+export default SarprasJadwal;

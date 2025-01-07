@@ -5,14 +5,12 @@ import { usePathname } from "next/navigation";
 import Navbar from "./navbar";
 
 const Topbar = ({ type, menuItems, title }) => {
-  const pathname = usePathname();
-
   return (
     <Grid2 container paddingBottom={2}>
       <Grid2 item size={8}>
         {type === "button" && <Navbar menuItems={menuItems} />}
         {title && (
-          <Typography paddingLeft={2} fontWeight={"bold"} variant="h4">
+          <Typography fontWeight={"bold"} variant="h4">
             {title}
           </Typography>
         )}

@@ -37,4 +37,8 @@ export default {
       });
     }
   },
+
+  getReservations: async (req, res) => {},
+
+  updateReservations: async (req, res) => {},
 };

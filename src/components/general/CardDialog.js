@@ -7,7 +7,12 @@ const CardDialog = ({ title, open, setOpen, children, maxWidth }) => {
   };
 
   return (
-    <Dialog open={open} fullWidth maxWidth={maxWidth}>
+    <Dialog
+      open={open}
+      fullWidth
+      maxWidth={maxWidth}
+      style={{ overflowY: "auto" }}
+    >
       {/* Tombol Silang */}
       <IconButton
         onClick={handleClose}
@@ -21,7 +26,9 @@ const CardDialog = ({ title, open, setOpen, children, maxWidth }) => {
         <Close />
       </IconButton>
 
-      <DialogTitle fontSize={"lg"} sx={{ fontWeight: "bold" }}>{title}</DialogTitle>
+      <DialogTitle fontSize={"lg"} sx={{ fontWeight: "bold" }}>
+        {title}
+      </DialogTitle>
       <DialogContent>{children}</DialogContent>
     </Dialog>
   );

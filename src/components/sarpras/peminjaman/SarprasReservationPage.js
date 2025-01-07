@@ -9,16 +9,20 @@ import { useSelector } from "react-redux";
 const SarprasReservationPage = () => {
   const [peminjaman, setPeminjaman] = useState([]);
   const token = useSelector((state) => state.persist.auth.token);
+  const [refreshData, setRefreshData] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("/api/rooms/reservations", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "/api/sarpras/reservations?groupby=room&status_sarpras=pending",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -26,9 +30,13 @@ const SarprasReservationPage = () => {
       } else {
         alert(`${response.status} ${data.error || data.message}`);
       }
+      setRefreshData(false);
     };
+
     fetchData();
-  }, []);
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
+  }, [token, refreshData]);
 
   return (
     <>
@@ -36,7 +44,9 @@ const SarprasReservationPage = () => {
         <Grid2 container columns={12}>
           <Grid2 item size={8}>
             {peminjaman.map((item) => {
-              return <ReservationCard data={item} />;
+              return (
+                <ReservationCard data={item} setRefreshData={setRefreshData} />
+              );
             })}
           </Grid2>
           <Grid2 item size={4} paddingLeft={3}>

@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 export default {
   login: async (req, res) => {
     const loginData = req.body;
-    // return res.json(data)
 
     // JOI VALIDATION
     try {
@@ -27,10 +26,8 @@ export default {
         name: result.user.name,
         role: result.user.roles.role_name,
         status: result.user.status,
-
-        // kelas:result.
       };
-      const token = jwt.sign(payload, jwtSecret, { expiresIn: "3h" });
+      const token = jwt.sign(payload, jwtSecret, { expiresIn: "12h" });
 
       return res.status(200).json({
         message: "Login berhasil",
@@ -39,14 +36,14 @@ export default {
       });
     } else {
       return res.status(401).json({
-        error: result.error,
+        error: result.error.message,
       });
     }
   },
 
   register: async (req, res) => {
     try {
-      const data = req.body
+      const data = req.body;
 
       // Validate input
       try {

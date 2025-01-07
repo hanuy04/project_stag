@@ -42,4 +42,21 @@ export default {
       console.log(error.message);
     }
   },
+
+  createReservation: async (data) => {
+    try {
+      const newReservation = {
+        username: data.username,
+        room_id: data.room_id,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        purpose: data.purpose,
+        status_sarpras: "approved",
+      };
+
+      await prisma.reservations.create({
+        data: newReservation,
+      });
+    } catch (e) {}
+  },
 };
