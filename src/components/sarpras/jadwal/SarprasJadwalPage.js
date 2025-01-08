@@ -57,7 +57,7 @@ const SarprasJadwalPage = () => {
     };
 
     fetchData();
-  }, [token, refreshData]);
+  }, [token]);
 
   const changeCategory = (category) => {
     setCategory(category);

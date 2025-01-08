@@ -29,33 +29,49 @@ export default {
       },
     });
   },
+
   getReservations: async (req, res) => {
-    const { groupby, rooms, status_sarpras, date } = req.query;
-
-    if (groupby === "room") {
-      const response =
-        await SarprasReservationService.getReservationsGroupByRoom();
-
-      if (!response.success)
-        return res.status(500).json({ message: response.message });
-
-      const formatedPeminjaman = response.reservations.map((room) => ({
-        ...room,
-        reservations: room.reservations.map((reservation) => ({
-          ...reservation,
-          tanggal: formatFullDate(reservation.start_time),
-          start_time: formatTimeHHMM(reservation.start_time),
-          end_time: formatTimeHHMM(reservation.end_time),
-        })),
-      }));
-
-      return res.status(200).json({ data: formatedPeminjaman });
-    }
+    const {
+      groupby,
+      rooms,
+      status_sarpras,
+      date,
+      type,
+      status_guru,
+      sortColumn,
+      sortOrder,
+      limit,
+      offset,
+      keyword = "",
+      start_date,
+      end_date,
+    } = req.query;
 
     const whereCondition = {};
-    if (rooms) whereCondition.room_id = { in: rooms.split(",") };
 
+    whereCondition.OR = [
+      { rooms: { room_name: { contains: keyword } } },
+      { purpose: { contains: keyword } },
+    ];
+
+    if (type && type === "peminjaman") {
+      whereCondition.OR.push(
+        { users: { name: { contains: keyword } } },
+        { users: { username: { contains: keyword } } },
+        { reservation_teacher: { name: { contains: keyword } } },
+        { description: { contains: keyword } }
+      );
+    }
+
+    if (rooms) whereCondition.room_id = { in: rooms.split(",") };
     if (status_sarpras) whereCondition.status_sarpras = status_sarpras;
+    if (status_guru) whereCondition.status_guru = status_guru;
+    if (type) {
+      const roleCondition = type === "peminjaman" ? { not: "0" } : "0";
+      whereCondition.users = {
+        role_id: roleCondition,
+      };
+    }
 
     if (date) {
       const isoToday = formatDateToISO(date);
@@ -79,16 +95,141 @@ export default {
       }
     }
 
+    if (start_date && end_date) {
+      whereCondition.start_time = {
+        gte: formatDateToISO(start_date),
+        lte: formatDateToISO(end_date),
+      };
+    }
+
+    const orderBy = {};
+    if (sortColumn) {
+      if (sortColumn === "name") orderBy.users = { name: sortOrder };
+      else if (sortColumn === "date") orderBy.start_time = sortOrder;
+      else if (sortColumn === "reservation_id")
+        orderBy.reservation_id = sortOrder;
+      else if (sortColumn === "room_name")
+        orderBy.rooms = { room_name: sortOrder };
+      else if (sortColumn === "reservation_teacher")
+        orderBy.reservation_teacher = { name: sortOrder };
+      else if (sortColumn === "purpose") orderBy.purpose = sortOrder;
+      else if (sortColumn === "description") orderBy.description = sortOrder;
+    }
+
+    const take = parseInt(limit) || undefined;
+    const skip =
+      limit && offset ? parseInt(limit) * (parseInt(offset) - 1) : undefined;
+
+    if (groupby === "room") {
+      const response =
+        await SarprasReservationService.getReservationsGroupByRoom(
+          whereCondition,
+          orderBy
+        );
+
+      if (!response.success)
+        return res.status(500).json({ message: response.message });
+
+      const formatedPeminjaman = response.reservations.map((room) => ({
+        ...room,
+        reservations: room.reservations.map((reservation) => ({
+          ...reservation,
+          tanggal: formatFullDate(reservation.start_time),
+          start_time: formatTimeHHMM(reservation.start_time),
+          end_time: formatTimeHHMM(reservation.end_time),
+        })),
+      }));
+
+      return res.status(200).json({ data: formatedPeminjaman });
+    }
+
     const response = await SarprasReservationService.getReservations(
-      whereCondition
+      whereCondition,
+      orderBy,
+      take,
+      skip
     );
 
     if (!response.success)
       return res.status(500).json({ message: response.message });
 
-    return res
-      .status(200)
-      .json({ success: true, reservations: response.reservations });
+    const getStatus = (reservation) => {
+      if (reservation.teacher_assistant) {
+        if (reservation.status_guru === "pending") return "MENUNGGU PENDAMPING";
+        if (reservation.status_guru === "rejected") return "DITOLAK PENDAMPING";
+      }
+
+      if (reservation.status_sarpras === "pending") return "MENUNGGU SARPRAS";
+      if (reservation.status_sarpras === "approved") return "DISETUJUI";
+      if (reservation.status_sarpras === "rejected") return "DITOLAK SARPRAS";
+
+      return "STATUS TIDAK DIKETAHUI";
+    };
+
+    const sort = () => {
+      const formatedPeminjaman = response.reservations.map((item) => {
+        return {
+          ...item,
+          status: getStatus(item),
+          formatted_start_time: formatTimeHHMM(item.start_time),
+          formatted_end_time: formatTimeHHMM(item.end_time),
+        };
+      });
+
+      let sorted;
+      if (sortColumn === "start_time") {
+        sorted = formatedPeminjaman.sort((a, b) => {
+          if (sortOrder === "asc") {
+            return a.formatted_start_time.localeCompare(b.formatted_start_time); // Ascending
+          } else {
+            return b.formatted_start_time.localeCompare(a.formatted_start_time); // Descending
+          }
+        });
+      } else if (sortColumn === "end_time") {
+        sorted = formatedPeminjaman.sort((a, b) => {
+          if (sortOrder === "asc") {
+            return a.formatted_end_time.localeCompare(b.formatted_end_time); // Ascending
+          } else {
+            return b.formatted_end_time.localeCompare(a.formatted_end_time); // Descending
+          }
+        });
+      } else if (sortColumn == "status") {
+        sorted = formatedPeminjaman.sort((a, b) => {
+          if (sortOrder === "asc") {
+            return a.status.localeCompare(b.status); // Ascending
+          } else {
+            return b.status.localeCompare(a.status); // Descending
+          }
+        });
+      } else {
+        sorted = formatedPeminjaman;
+      }
+
+      const originalSortedReservations = sorted.map((reservation) => {
+        const {
+          formatted_start_time,
+          formatted_end_time,
+          status,
+          ...originalData
+        } = reservation;
+        return originalData; // Kembalikan data asli tanpa format
+      });
+
+      return originalSortedReservations;
+    };
+
+    const actualReservation = await SarprasReservationService.getReservations(
+      whereCondition
+    );
+
+    console.log(actualReservation.length);
+
+    return res.status(200).json({
+      success: true,
+      actual: actualReservation.reservations.length,
+      pagination: response.reservations.length,
+      reservations: sort(),
+    });
   },
 
   createReservation: async (req, res) => {

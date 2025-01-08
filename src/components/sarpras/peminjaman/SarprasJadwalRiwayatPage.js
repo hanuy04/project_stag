@@ -23,7 +23,7 @@ import {
 } from "@/utils/DateTime";
 import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
 
-const SarprasReservationRiwayatPage = () => {
+const SarprasJadwalRiwayatPage = () => {
   const today = new Date();
   const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -44,71 +44,21 @@ const SarprasReservationRiwayatPage = () => {
 
   const headerTable = [
     { label: "No", sort: false },
-    { label: "Peminjam", sort: true },
     { label: "Tanggal", sort: true },
     { label: "Mulai", sort: true },
     { label: "Selesai", sort: true },
+    { label: "Kegiatan", sort: true },
     { label: "Ruangan", sort: true },
-    { label: "Keperluan", sort: true },
-    { label: "Pendamping", sort: true },
-    { label: "Status", sort: true },
-    { label: "Keterangan", sort: true },
   ];
 
-  const displayStatus = (reservation) => {
-    const getLabel = () => {
-      if (reservation.teacher_assistant) {
-        if (reservation.status_guru === "pending")
-          return ["MENUNGGU", "PENDAMPING"];
-        if (reservation.status_guru === "rejected")
-          return ["DITOLAK", "PENDAMPING"];
-      }
-
-      if (reservation.status_sarpras === "pending")
-        return ["MENUNGGU", "SARPRAS"];
-      if (reservation.status_sarpras === "approved") return ["DISETUJUI"];
-      if (reservation.status_sarpras === "rejected") return ["DITOLAK"];
-
-      return "STATUS TIDAK DIKETAHUI";
-    };
-
-    return (
-      <Typography
-        color={
-          getLabel().includes("MENUNGGU")
-            ? "warning"
-            : getLabel().includes("DISETUJUI")
-            ? "success"
-            : "red"
-        }
-        variant="caption"
-        lineHeight={0}
-      >
-        {getLabel().map((item) => item + "\n")}
-      </Typography>
-    );
-  };
-
   const fetchReservations = async () => {
-    const queryStatus = {
-      "MENUNGGU PENDAMPING": "&status_guru=pending",
-      "DITOLAK PENDAMPING": "&status_guru=rejected",
-      "MENUNGGU SARPRAS": "&status_sarpras=pending&status_guru=approved",
-      "DITOLAK SARPRAS": "&status_sarpras=rejected",
-      DISETUJUI: "&status_sarpras=approved",
-    };
-
     const querySortColumn = {
       reservation_id: `&sortColumn=reservation_id`,
-      Peminjam: `&sortColumn=name`,
       Tanggal: `&sortColumn=date`,
       Mulai: `&sortColumn=start_time`,
       Selesai: `&sortColumn=end_time`,
       Ruangan: `&sortColumn=room_name`,
-      Pendamping: `&sortColumn=reservation_teacher`,
-      Status: `&sortColumn=status`,
-      Keterangan: `&sortColumn=description`,
-      Keperluan: `&sortColumn=purpose`,
+      Kegiatan: `&sortColumn=description`,
     };
 
     const querySortOrder = `&sortOrder=${sortAsc ? "asc" : "desc"}`;
@@ -116,9 +66,9 @@ const SarprasReservationRiwayatPage = () => {
 
     try {
       const response = await fetch(
-        `/api/sarpras/reservations?type=peminjaman&start_date=${startDate}&end_date=${endDate}${queryKeyword}&limit=${limit}&offset=${offset}${
-          queryStatus[status] || ""
-        }${querySortColumn[sortColumn] || ""}${querySortOrder}`,
+        `/api/sarpras/reservations?type=jadwal&start_date=${startDate}&end_date=${endDate}${queryKeyword}&limit=${limit}&offset=${offset}${
+          querySortColumn[sortColumn] || ""
+        }${querySortOrder}`,
         {
           method: "GET",
           headers: {
@@ -172,7 +122,7 @@ const SarprasReservationRiwayatPage = () => {
           <Typography variant="body2">Cari</Typography>
           <TextField
             size="small"
-            placeholder="Ruangan, keperluan, nama pendamping, nama peminjam"
+            placeholder="Kegiatan, Ruangan "
             fullWidth
             value={keyword}
             onChange={(e) => {
@@ -180,22 +130,7 @@ const SarprasReservationRiwayatPage = () => {
             }}
           />
         </Grid2>
-        <Grid2 size={3}>
-          <Typography variant="body2">Status</Typography>
-          <Select
-            size="small"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="all">Semua</MenuItem>
-            <MenuItem value="MENUNGGU PENDAMPING">Menunggu pendamping</MenuItem>
-            <MenuItem value="DITOLAK PENDAMPING">Ditolak pendamping</MenuItem>
-            <MenuItem value="MENUNGGU SARPRAS">Menunggu sarpras</MenuItem>
-            <MenuItem value="DITOLAK SARPRAS">Ditolak sarpras</MenuItem>
-            <MenuItem value="DISETUJUI">Disetujui</MenuItem>
-          </Select>
-        </Grid2>
+
         <Grid2>
           <Typography variant="body2">Tanggal</Typography>
           <Box display={"flex"}>
@@ -252,15 +187,6 @@ const SarprasReservationRiwayatPage = () => {
               <TableRow>
                 <TableCell style={bodyCellStyle}>{index + 1}</TableCell>
                 <TableCell style={bodyCellStyle}>
-                  <Typography variant="body2">{item.users.name}</Typography>
-
-                  {item.users.rooms &&
-                    " [" +
-                      item.users.rooms.room_name +
-                      (item.users.no_absen && "/" + item.users.no_absen) +
-                      "]"}
-                </TableCell>
-                <TableCell style={bodyCellStyle}>
                   {formatFullDate(item.start_time)}{" "}
                 </TableCell>
                 <TableCell style={bodyCellStyle}>
@@ -269,18 +195,9 @@ const SarprasReservationRiwayatPage = () => {
                 <TableCell style={bodyCellStyle}>
                   {formatTimeHHMM(item.end_time)}
                 </TableCell>
-                <TableCell style={bodyCellStyle}>
-                  {item.rooms.room_name}
-                </TableCell>
                 <TableCell style={bodyCellStyle}>{item.purpose}</TableCell>
                 <TableCell style={bodyCellStyle}>
-                  {item.reservation_teacher?.name}
-                </TableCell>
-                <TableCell style={{ ...bodyCellStyle, width: "10%" }}>
-                  {displayStatus(item)}
-                </TableCell>
-                <TableCell style={{ ...bodyCellStyle, width: "15%" }}>
-                  {item.description}
+                  {item.rooms.room_name}
                 </TableCell>
               </TableRow>
             );
@@ -304,4 +221,4 @@ const SarprasReservationRiwayatPage = () => {
   );
 };
 
-export default SarprasReservationRiwayatPage;
+export default SarprasJadwalRiwayatPage;

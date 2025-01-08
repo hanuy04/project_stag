@@ -31,7 +31,14 @@ export default {
     }
   },
 
-  getReservations: async (whereCondition = {}) => {
+  getReservations: async (
+    whereCondition = {},
+    orderBy = {},
+    take = undefined,
+    skip = undefined
+  ) => {
+    console.log(skip);
+    
     try {
       const reservations = await prisma.reservations.findMany({
         where: whereCondition,
@@ -44,6 +51,9 @@ export default {
           rooms: true,
           reservation_teacher: true,
         },
+        orderBy,
+        take: take,
+        skip: skip,
       });
       return {
         success: true,
@@ -211,21 +221,17 @@ export default {
     }
   },
 
-  getReservationsGroupByRoom: async () => {
+  getReservationsGroupByRoom: async (whereCondition = {}) => {
     try {
       const reservations = await prisma.rooms.findMany({
         where: {
           reservations: {
-            some: {
-              status_sarpras: "pending",
-            },
+            some: whereCondition,
           },
         },
         include: {
           reservations: {
-            where: {
-              status_sarpras: "pending",
-            },
+            where: whereCondition,
             include: {
               users: {
                 include: {

@@ -67,11 +67,6 @@ const ScheduleTable = ({ rooms, selectedDate, setRefreshData }) => {
     };
 
     fetchReservations();
-
-    const interval = setInterval(fetchReservations, 5000);
-
-    // Bersihkan interval saat komponen di-unmount
-    return () => clearInterval(interval);
   }, [rooms, selectedDate, token]);
 
   const isRoomBooked = (time, room) => {
