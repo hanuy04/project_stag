@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 async function generateSequentialRoomId() {
   const lastRoom = await prisma.rooms.findFirst({
     orderBy: {
-      room_id: 'desc',
+      room_id: "desc",
     },
   });
 
@@ -18,17 +18,17 @@ async function generateSequentialRoomId() {
     newIdNumber = lastIdNumber + 1;
   }
 
-  return `R${newIdNumber.toString().padStart(3, '0')}`;
+  return `R${newIdNumber.toString().padStart(3, "0")}`;
 }
 
 export default async function handler(req, res) {
   const { method, url } = req;
-  
+
   // Parsing URL untuk mendapatkan room_id jika ada
-  const urlParts = url.split('/');
+  const urlParts = url.split("/");
   const roomId = urlParts.length > 3 ? urlParts[3] : null; // Asumsi /api/rooms/{room_id}
 
-  if (url.startsWith('/api/rooms') && !roomId) {
+  if (url.startsWith("/api/rooms") && !roomId) {
     // Handle /api/rooms
     if (method === "GET") {
       try {
@@ -36,18 +36,9 @@ export default async function handler(req, res) {
           orderBy: { room_name: "asc" },
         });
 
-        // const responseData = rooms.map((room) => ({
-        //   room_id: room.room_id,
-        //   room_name: room.room_name,
-        //   room_capacity: room.room_capacity,
-        //   room_status: room.room_status,
-        // }));
-        
-
         console.log("rooms: ", rooms);
 
-        res.status(200).json({ rooms: rooms});
-        
+        res.status(200).json({ rooms: rooms });
       } catch (error) {
         console.error("GET /api/rooms error:", error.message);
         res.status(500).json({ error: "Failed to fetch data" });
@@ -98,7 +89,7 @@ export default async function handler(req, res) {
       res.setHeader("Allow", ["GET", "POST"]);
       res.status(405).end(`Method ${method} Not Allowed`);
     }
-  } else if (url.startsWith('/api/rooms') && roomId) {
+  } else if (url.startsWith("/api/rooms") && roomId) {
     // Handle /api/rooms/{room_id}
     if (method === "PUT") {
       const { name, isLocked } = req.body;

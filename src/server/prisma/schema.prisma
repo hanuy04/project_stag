@@ -46,14 +46,14 @@ model reservations {
   teacher_assistant                                  String?                     @db.VarChar(255)
   status_guru                                        reservations_status_guru?
   description                                        String?                     @db.Text
-  next                                               String?                     @db.VarChar(255)
   prev                                               String?                     @db.VarChar(255)
-  next_reservation                                   reservations?               @relation("reservations_nextToreservations", fields: [next], references: [reservation_id], map: "next_fkey")
+  next                                               String?                     @db.VarChar(255)
+  reservations_reservations_nextToreservations       reservations?               @relation("reservations_nextToreservations", fields: [next], references: [reservation_id], map: "next_fkey")
   other_reservations_reservations_nextToreservations reservations[]              @relation("reservations_nextToreservations")
-  prev_reservation                                   reservations?               @relation("reservations_prevToreservations", fields: [prev], references: [reservation_id], map: "prev_fkey")
+  reservations_reservations_prevToreservations       reservations?               @relation("reservations_prevToreservations", fields: [prev], references: [reservation_id], map: "prev_fkey")
   other_reservations_reservations_prevToreservations reservations[]              @relation("reservations_prevToreservations")
   rooms                                              rooms                       @relation(fields: [room_id], references: [room_id], onDelete: NoAction)
-  reservation_teacher                                users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: NoAction, map: "reservations_teacher_fkey")
+  users_reservations_teacher_assistantTousers        users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: NoAction, map: "reservations_teacher_fkey")
   users                                              users                       @relation(fields: [username], references: [username], onDelete: NoAction)
 
   @@index([room_id], map: "reservations_room_id_fkey")
