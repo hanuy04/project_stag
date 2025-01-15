@@ -135,6 +135,12 @@ model room_categories {
   rooms         rooms[]
 }
 
+// In your schema.prisma file
+enum RoomCategory {
+  // Your existing values
+  lainnya // Add this line if you want to allow this value
+}
+
 enum complains_status {
   resolved
   still_resolving @map("still resolving")

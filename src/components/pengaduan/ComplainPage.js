@@ -14,6 +14,8 @@ import {
   MenuItem,
   Select,
   Box,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { ArrowDropDown, Add, Person, Image } from "@mui/icons-material";
 
@@ -27,6 +29,7 @@ function ComplainPage() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openConfirmationModal, setOpenConfirmationModal] = useState(false);
   const [rooms, setRooms] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [selectedRoom, setSelectedRoom] = useState("");
@@ -38,6 +41,7 @@ function ComplainPage() {
     direction: "asc",
   });
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -48,7 +52,7 @@ function ComplainPage() {
       try {
         const [roomsResponse, facilitiesResponse] = await Promise.all([
           fetch("/api/rooms"),
-          fetch("/api/facilities"),
+          fetch("/api/fasilitas"),
         ]);
 
         const roomsData = await roomsResponse.json();
@@ -57,8 +61,8 @@ function ComplainPage() {
         // console.log(roomsData.rooms);
         // console.log(facilitiesData.facilities);
 
-        setRooms(roomsData.rooms);
-        setFacilities(facilitiesData.facilities);
+        setRooms(roomsData?.rooms || []);
+        setFacilities(facilitiesData?.facilities || []);
       } catch (error) {
         console.error("Error fetching rooms or facilities:", error);
       }
@@ -86,6 +90,11 @@ function ComplainPage() {
 
       if (description == "") {
         alert("Deskripsi harus diisi!");
+        return;
+      }
+
+      if (!selectedFile) {
+        alert("Lampiran harus diisi!");
         return;
       }
 
@@ -142,6 +151,7 @@ function ComplainPage() {
           return;
         }
 
+        // console.log(data.complaints);
         setComplains(data.complaints);
       } catch (error) {
         console.error("Failed to fetch complain data:", error);
@@ -166,21 +176,27 @@ function ComplainPage() {
     setComplains(sortedData);
   };
 
-  const filteredComplaints = complains.filter(
-    (complain) =>
-      complain.fasilitas
-        ?.toLowerCase()
-        .includes(searchPengaduan.toLowerCase()) ||
-      complain.ruangan?.toLowerCase().includes(searchPengaduan.toLowerCase()) ||
-      complain.description.toLowerCase().includes(searchPengaduan.toLowerCase())
-  );
+  const filteredComplaints =
+    complains?.filter(
+      (complain) =>
+        complain?.fasilitas
+          ?.toLowerCase()
+          .includes(searchPengaduan.toLowerCase()) ||
+        complain?.ruangan
+          ?.toLowerCase()
+          .includes(searchPengaduan.toLowerCase()) ||
+        complain?.description
+          ?.toLowerCase()
+          .includes(searchPengaduan.toLowerCase())
+    ) || [];
+
+  // console.log(filteredComplaints);
 
   const indexOfLastComplaint = currentPage * complaintsPerPage;
   const indexOfFirstComplaint = indexOfLastComplaint - complaintsPerPage;
-  const currentComplaints = filteredComplaints.slice(
-    indexOfFirstComplaint,
-    indexOfLastComplaint
-  );
+  const currentComplaints = Array.isArray(filteredComplaints)
+    ? filteredComplaints.slice(indexOfFirstComplaint, indexOfLastComplaint)
+    : [];
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -202,6 +218,18 @@ function ComplainPage() {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleCheckboxChange = (event) => {
+    setIsChecked(event.target.checked);
+  };
+
+  const handleConfirmClick = () => {
+    if (!isChecked) {
+      alert("Anda harus mencentang kotak persetujuan untuk melanjutkan!");
+    } else {
+      setOpenConfirmationModal(true);
+    }
   };
 
   return (
@@ -274,7 +302,10 @@ function ComplainPage() {
           variant="contained"
           startIcon={<Add />}
           style={{ backgroundColor: "#212121", color: "white", zIndex: 1100 }}
-          onClick={() => setOpenModal(true)}
+          onClick={() => {
+            // console.log(rooms); // Log the rooms to the console when the button is clicked
+            setOpenModal(true); // Proceed with opening the modal
+          }}
         >
           Ajukan Pengaduan
         </Button>
@@ -305,31 +336,39 @@ function ComplainPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentComplaints.map((complaint, index) => (
-              <TableRow key={index}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{formatDate(complaint.date)}</TableCell>
-                <TableCell>{complaint.fasilitas}</TableCell>
-                <TableCell>{complaint.ruangan}</TableCell>
-                <TableCell>{complaint.complaint}</TableCell>
-                <TableCell>{complaint.description}</TableCell>
-                <TableCell>{complaint.status}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    style={{ color: "#3F51B5", borderColor: "#3F51B5" }}
-                    size="small"
-                    onClick={() => {
-                      setDetailForm(true);
-                      setSelectedStatus(complaint.status);
-                      setSelectedComplaint(complaint);
-                    }}
-                  >
-                    Detail
-                  </Button>
+            {currentComplaints && currentComplaints.length > 0 ? (
+              currentComplaints.map((complaint, index) => (
+                <TableRow key={index}>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{formatDate(complaint.date)}</TableCell>
+                  <TableCell>{complaint.fasilitas}</TableCell>
+                  <TableCell>{complaint.ruangan}</TableCell>
+                  <TableCell>{complaint.complaint}</TableCell>
+                  <TableCell>{complaint.description}</TableCell>
+                  <TableCell>{complaint.status}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      style={{ color: "#3F51B5", borderColor: "#3F51B5" }}
+                      size="small"
+                      onClick={() => {
+                        setDetailForm(true);
+                        setSelectedStatus(complaint.status);
+                        setSelectedComplaint(complaint);
+                      }}
+                    >
+                      Detail
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  Tidak ada pengaduan untuk ditampilkan
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -631,11 +670,81 @@ function ComplainPage() {
                 </Typography>
               </Box>
 
-              <Button variant="contained" onClick={handleSubmit}>
+              <Button
+                variant="contained"
+                onClick={() => setOpenConfirmationModal("true")}
+              >
                 Submit
               </Button>
             </form>
-            <Button onClick={() => setOpenModal(false)}>Cancel</Button>
+            <Button onClick={() => setOpenModal(false)}>Batal</Button>
+          </div>
+        </div>
+      )}
+
+      {openConfirmationModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              borderRadius: "8px",
+              padding: "24px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+            }}
+          >
+            <Typography variant="h6" style={{ marginBottom: "16px" }}>
+              Konfirmasi Pengaduan
+            </Typography>
+            <Typography variant="body2">
+              Apakah anda yakin ingin mengajukan pengaduan atas keluhan di{" "}
+              {selectedRoom} fasilitas {selectedFacility}?
+            </Typography>
+            <form
+              className="grid gap-4 mt-2"
+              style={{ display: "flex", gap: "10px", width: "100%" }}
+            >
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isChecked}
+                    onChange={handleCheckboxChange}
+                    color="primary"
+                  />
+                }
+                label="Saya setuju"
+              />
+              <Button
+                variant="contained"
+                color="success"
+                onClick={handleConfirmClick}
+                style={{ flex: 1 }}
+              >
+                Konfirmasi
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => setOpenConfirmationModal(false)}
+                color="error"
+                style={{ flex: 1 }}
+              >
+                Batal
+              </Button>
+            </form>
           </div>
         </div>
       )}
