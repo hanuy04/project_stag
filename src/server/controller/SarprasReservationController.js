@@ -158,7 +158,6 @@ export default {
         if (reservation.status_guru === "pending") return "MENUNGGU PENDAMPING";
         if (reservation.status_guru === "rejected") return "DITOLAK PENDAMPING";
       }
-
       if (reservation.status_sarpras === "pending") return "MENUNGGU SARPRAS";
       if (reservation.status_sarpras === "approved") return "DISETUJUI";
       if (reservation.status_sarpras === "rejected") return "DITOLAK SARPRAS";
@@ -221,8 +220,6 @@ export default {
     const actualReservation = await SarprasReservationService.getReservations(
       whereCondition
     );
-
-    console.log(actualReservation.length);
 
     return res.status(200).json({
       success: true,
@@ -387,11 +384,6 @@ export default {
         }
       });
     }
-
-    if (date) {
-    }
-
-    console.log(data);
 
     // update reservasi
     const update = await SarprasReservationService.updateReservation(id, data);

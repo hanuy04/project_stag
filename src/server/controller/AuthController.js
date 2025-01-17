@@ -36,7 +36,7 @@ export default {
       });
     } else {
       return res.status(401).json({
-        error: result.error.message,
+        error: "Username tidak ditemukan",
       });
     }
   },

@@ -14,7 +14,6 @@ import { red } from "@mui/material/colors";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-// import Profile from "../general/Profile";
 import PeminjamanSection from "./peminjaman/PeminjamanSection";
 import LoadingPage from "../general/LoadingPage";
 import ClockDisplay from "../general/ClockDisplay";

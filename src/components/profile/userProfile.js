@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { KeyboardArrowRight, Menu, Person } from "@mui/icons-material";
 import { Button, TextField } from "@mui/material";
+import { Color } from "@/styles/Color";
+import Profile from "../general/Profile";
 
 const UserProfile = () => {
   const [users, setUsers] = useState([]);
@@ -8,6 +10,7 @@ const UserProfile = () => {
   const [roles, setRoles] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [showLogout, setShowLogout] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -133,23 +136,16 @@ const UserProfile = () => {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">Daftar User</h1>
             <div className="relative">
-              <Button
+              {/* <Button
                 variant="contained"
-                style={{ backgroundColor: "#4338CA" }}
+                style={{ backgroundColor: `${Color.blue}` }}
                 endIcon={<KeyboardArrowRight />}
                 startIcon={<Person />}
                 onClick={() => setShowLogout(!showLogout)}
               >
                 Agnes [12345]
-              </Button>
-              {showLogout && (
-                <button
-                  className="absolute right-0 mt-2 w-full bg-white border shadow-lg py-2 px-4 rounded-lg text-red-600 hover:bg-red-50"
-                  onClick={() => console.log("Logout clicked")}
-                >
-                  Logout
-                </button>
-              )}
+              </Button> */}
+              <Profile />
             </div>
           </div>
 
@@ -176,21 +172,19 @@ const UserProfile = () => {
           <div className="flex gap-4 mb-5">
             <button
               onClick={() => setRoleFilter("siswa")}
-              className={`px-4 py-2 rounded-lg ${
-                roleFilter === "siswa"
-                  ? "bg-[#4338CA] text-white"
-                  : "bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg ${roleFilter === "siswa"
+                ? "bg-[#4338CA] text-white"
+                : "bg-gray-200"
+                }`}
             >
               Daftar Siswa
             </button>
             <button
               onClick={() => setRoleFilter("guru")}
-              className={`px-4 py-2 rounded-lg ${
-                roleFilter === "guru"
-                  ? "bg-[#4338CA] text-white"
-                  : "bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-lg ${roleFilter === "guru"
+                ? "bg-[#4338CA] text-white"
+                : "bg-gray-200"
+                }`}
             >
               Daftar Guru
             </button>
@@ -230,10 +224,10 @@ const UserProfile = () => {
                           header === "Peran"
                             ? "peran"
                             : header === "No Absen"
-                            ? "no_absen"
-                            : header === "Nama"
-                            ? "name"
-                            : header.toLowerCase();
+                              ? "no_absen"
+                              : header === "Nama"
+                                ? "name"
+                                : header.toLowerCase();
                         return (
                           <th
                             key={header}
@@ -268,11 +262,10 @@ const UserProfile = () => {
                       </td>
                       <td className="border p-2">
                         <span
-                          className={`px-2 py-1 rounded-full text-sm ${
-                            user.status === "1"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                          className={`px-2 py-1 rounded-full text-sm ${user.status === "1"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                            }`}
                         >
                           {user.status === "1" ? "Aktif" : "Nonaktif"}
                         </span>
@@ -303,11 +296,10 @@ const UserProfile = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded-lg ${
-                  currentPage === page
-                    ? "bg-[#4338CA] text-white"
-                    : "border hover:bg-gray-50"
-                }`}
+                className={`px-3 py-1 rounded-lg ${currentPage === page
+                  ? "bg-[#4338CA] text-white"
+                  : "border hover:bg-gray-50"
+                  }`}
               >
                 {page}
               </button>
