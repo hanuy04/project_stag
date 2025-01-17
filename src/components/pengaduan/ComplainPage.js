@@ -71,9 +71,8 @@ function ComplainPage() {
     fetchData();
   }, []);
 
-  const handleSubmit = async () => {
-    try {
-      if (selectedRoom == "") {
+  const handleSubmit = () => {
+    if (selectedRoom == "") {
         alert("Ruangan harus dipilih!");
         return;
       }
@@ -98,39 +97,7 @@ function ComplainPage() {
         return;
       }
 
-      const formData = new FormData();
-      formData.append("ruangan", selectedRoom);
-      formData.append("fasilitas", selectedFacility);
-      formData.append("keluhan", complaint);
-      formData.append("deskripsi", description);
-      formData.append("photo", selectedFile);
-
-      const response = await fetch("/api/addComplain", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Server error: ${response.status} - ${errorText}`);
-        throw new Error(errorText || "Gagal mengajukan pengaduan");
-      }
-
-      const newComplaint = await response.json();
-      setComplains((prev) => [...prev, newComplaint]);
-
-      setSelectedRoom("");
-      setSelectedFacility("");
-      setComplaint("");
-      setDescription("");
-      setSelectedFile(null);
-
-      setOpenModal(false);
-      alert("Pengaduan berhasil diajukan!");
-    } catch (error) {
-      console.error("Error submitting complaint:", error.message);
-      alert("Terjadi kesalahan saat mengajukan pengaduan: " + error.message);
-    }
+      setOpenConfirmationModal(true);
   };
 
   useEffect(() => {
@@ -224,11 +191,45 @@ function ComplainPage() {
     setIsChecked(event.target.checked);
   };
 
-  const handleConfirmClick = () => {
+  const handleConfirmClick = async () => {
     if (!isChecked) {
       alert("Anda harus mencentang kotak persetujuan untuk melanjutkan!");
     } else {
-      setOpenConfirmationModal(true);
+      try {
+        const formData = new FormData();
+        formData.append("ruangan", selectedRoom);
+        formData.append("fasilitas", selectedFacility);
+        formData.append("keluhan", complaint);
+        formData.append("deskripsi", description);
+        formData.append("photo", selectedFile);
+
+        const response = await fetch("/api/addComplain", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Server error: ${response.status} - ${errorText}`);
+          throw new Error(errorText || "Gagal mengajukan pengaduan");
+        }
+
+        const newComplaint = await response.json();
+        setComplains((prev) => [...prev, newComplaint]);
+
+        setSelectedRoom("");
+        setSelectedFacility("");
+        setComplaint("");
+        setDescription("");
+        setSelectedFile(null);
+
+        setOpenModal(false);
+        setOpenConfirmationModal(false);
+        alert("Pengaduan berhasil diajukan!");
+      } catch (error) {
+        console.error("Error submitting complaint:", error.message);
+        alert("Terjadi kesalahan saat mengajukan pengaduan: " + error.message);
+      }
     }
   };
 
@@ -670,10 +671,7 @@ function ComplainPage() {
                 </Typography>
               </Box>
 
-              <Button
-                variant="contained"
-                onClick={() => setOpenConfirmationModal("true")}
-              >
+              <Button variant="contained" onClick={() => handleSubmit()}>
                 Submit
               </Button>
             </form>

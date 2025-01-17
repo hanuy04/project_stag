@@ -515,6 +515,13 @@ export default function FacilityManagement() {
         severity: "warning",
       });
       return;
+    } else if (newFacilityQuantity <= 0) {
+      setFacilitiesSnackbar({
+        open: true,
+        message: "Kuantitas harus > 0!",
+        severity: "warning",
+      });
+      return;
     }
 
     setIsProcessing(true);
@@ -673,33 +680,33 @@ export default function FacilityManagement() {
     if (!window.confirm("Are you sure you want to delete this facility?")) {
       return;
     }
-  
+
     setIsProcessing(true);
     try {
       console.log(`Deleting facility with ID: ${facilityId}`);
       const response = await fetch(`/api/facilities/${facilityId}`, {
         method: "DELETE",
       });
-  
+
       // Periksa apakah respons memiliki format JSON
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         throw new Error("Server returned non-JSON response");
       }
-  
+
       const result = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(result.error || "Failed to delete facility");
       }
-  
+
       console.log("Delete result:", result);
-  
+
       // Perbarui state fasilitas
       setFacilities((prevFacilities) =>
         prevFacilities.filter((facility) => facility.id !== facilityId)
       );
-  
+
       setFacilitiesSnackbar({
         open: true,
         message: result.message || "Facility deleted successfully",

@@ -71,17 +71,29 @@ export default async function handler(req, res) {
     console.log(nextReservationId);
 
     let newReservationData;
+    // waktu lokal
+    const startDate = new Date(`${tanggal}T${waktuMulai}:00`);
+    const endDate = new Date(`${tanggal}T${waktuSelesai}:00`);
+
+    // ubah ke utc
+    const utcStartTime = new Date(
+      startDate.getTime() - startDate.getTimezoneOffset() * 60000
+    );
+    const utcEndTime = new Date(
+      endDate.getTime() - endDate.getTimezoneOffset() * 60000
+    );
+
     if (teacher) {
-      newReservationData = {
+      const newReservationData = {
         reservation_id: nextReservationId,
         username: username,
         room_id: room.room_id,
-        start_time: new Date(`${tanggal}T${waktuMulai}:00`),
-        end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
+        start_time: utcStartTime.toISOString(),
+        end_time: utcEndTime.toISOString(),
         purpose: keperluan,
         status_sarpras: "pending",
-        teacher_assistant: teacher,
-        status_guru: "pending",
+        teacher_assistant: teacher || null,
+        status_guru: teacher ? "pending" : null,
         description: null,
       };
     } else {
@@ -89,8 +101,8 @@ export default async function handler(req, res) {
         reservation_id: nextReservationId,
         username: username,
         room_id: room.room_id,
-        start_time: new Date(`${tanggal}T${waktuMulai}:00`),
-        end_time: new Date(`${tanggal}T${waktuSelesai}:00`),
+        start_time: utcStartTime.toISOString(),
+        end_time: utcEndTime.toISOString(),
         purpose: keperluan,
         status_sarpras: "pending",
         teacher_assistant: null,

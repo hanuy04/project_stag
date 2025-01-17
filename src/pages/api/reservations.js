@@ -5,22 +5,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { kategori } = req.query;
-  console.log("API: Mendapatkan kategori ruangan: ", kategori);
+  const { kategori, tanggal } = req.query;
+  console.log(
+    "API: Mendapatkan kategori ruangan: ",
+    kategori,
+    "dengan tanggal: ",
+    tanggal
+  );
 
   try {
-    const today = new Date();
-    const dayStart = new Date(today.setHours(14, 0, 0, 0));
-    const dayEnd = new Date(today.setHours(23, 59, 59, 999));
+    // Jika parameter tanggal ada, gunakan sebagai basis rentang waktu
+    let dayStart, dayEnd;
+
+    if (tanggal) {
+      const selectedDate = new Date(tanggal);
+      dayStart = new Date(selectedDate.setHours(0, 0, 0, 0)); // Awal hari
+      dayEnd = new Date(selectedDate.setHours(23, 59, 59, 999)); // Akhir hari
+    } else {
+      // Default ke hari ini jika tanggal tidak diberikan
+      const today = new Date();
+      dayStart = new Date(today.setHours(0, 0, 0, 0));
+      dayEnd = new Date(today.setHours(23, 59, 59, 999));
+    }
+
     console.log("Date range:", dayStart, dayEnd);
-
-    // console.log("sini");
-
-    // console.log("Kategori:", kategori);
-    // console.log("Querying rooms with conditions:", {
-    //   room_name: `Ruang ${kategori}`,
-    //   room_status: "available",
-    // });
 
     // Query rooms berdasarkan kategori dan status "available"
     const roomsData = await prisma.rooms.findMany({
@@ -33,8 +41,7 @@ export default async function handler(req, res) {
         room_name: true,
         reservations: {
           where: {
-            start_time: { gte: dayStart },
-            end_time: { lte: dayEnd },
+            start_time: { gte: dayStart, lte: dayEnd },
             status_sarpras: "approved",
           },
           select: {

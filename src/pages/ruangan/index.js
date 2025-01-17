@@ -7,12 +7,15 @@ const Index = () => {
   const [roomData, setRoomData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("X-");
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const response = await fetch(
-          `/api/reservations?kategori=${selectedCategory}`
+          `/api/reservations?kategori=${selectedCategory}&tanggal=${selectedDate}` // query ada kategori kelas dan tanggal reservasi
         );
 
         if (!response.ok) {
@@ -20,8 +23,6 @@ const Index = () => {
         }
 
         const data = await response.json();
-        console.log("data: ", data.rooms);
-
         if (!data || data.error) {
           console.error(
             "Error fetching rooms:",
@@ -39,7 +40,7 @@ const Index = () => {
     };
 
     fetchRooms();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedDate]);
 
   const timeSlots = [
     "07:00 - 08:00",
@@ -59,6 +60,10 @@ const Index = () => {
     setSelectedCategory(e.target.value);
   };
 
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
   // Filter rooms based on selected category
   const filteredRooms = roomData.filter(
     (room) =>
@@ -72,34 +77,61 @@ const Index = () => {
       .map((t) => t.substring(0, 5));
 
     const reservation = room.reservations.find((res) => {
-      const resStart = res.start_time.slice(11, 16); // Format HH:mm dari start_time
-      const resEnd = res.end_time.slice(11, 16); // Format HH:mm dari end_time
-      console.log(resStart, " - ", resEnd);
+      const resStart = res.start_time.slice(11, 16);
+      const resEnd = res.end_time.slice(11, 16);
 
-      // Ambil reservasi yang mulai setelah startSlot dan sebelum endSlot
-      return resStart >= startSlot && resEnd <= endSlot;
+      return (
+        (resStart >= startSlot && resStart < endSlot) ||
+        (resEnd > startSlot && resEnd <= endSlot) ||
+        (resStart <= startSlot && resEnd >= endSlot)
+      );
     });
 
-    // console.log("reservation: ", reservation);
-    // console.log("Room Data:", roomData);
-    // console.log("Selected Category:", selectedCategory);
-    // console.log("Filtered Rooms:", filteredRooms);
-
     if (reservation) {
+      const resStart = reservation.start_time.slice(11, 16);
+      const resEnd = reservation.end_time.slice(11, 16);
+
+      const slotStartMinutes =
+        parseInt(startSlot.split(":")[0]) * 60 +
+        parseInt(startSlot.split(":")[1]);
+      const slotEndMinutes =
+        parseInt(endSlot.split(":")[0]) * 60 + parseInt(endSlot.split(":")[1]);
+
+      const resStartMinutes =
+        parseInt(resStart.split(":")[0]) * 60 +
+        parseInt(resStart.split(":")[1]);
+      const resEndMinutes =
+        parseInt(resEnd.split(":")[0]) * 60 + parseInt(resEnd.split(":")[1]);
+
+      const overlapStart = Math.max(slotStartMinutes, resStartMinutes);
+      const overlapEnd = Math.min(slotEndMinutes, resEndMinutes);
+
+      const overlapPercentage =
+        ((overlapEnd - overlapStart) / (slotEndMinutes - slotStartMinutes)) *
+        100;
+
+      const gradientDirection =
+        resStartMinutes < slotStartMinutes ? "to right" : "to left";
+
       return (
-        <td className="border border-blue-700 bg-orange-500 text-left p-1">
-          <b>{reservation.users.name}</b>
+        <td
+          className="border border-gray-300 text-left p-2"
+          style={{
+            backgroundColor: "orange", // Fill the entire column with orange color
+          }}
+        >
+          <strong>{reservation.users.name}</strong>
           <br />
           {reservation.purpose}
           <br />
-          <b>
+          <strong>
             {reservation.start_time.substring(11, 16)} -{" "}
             {reservation.end_time.substring(11, 16)}
-          </b>
+          </strong>
         </td>
       );
     } else {
-      return <td className="border border-blue-700 bg-white p-1"></td>;
+      return <td className="border border-gray-300 bg-white p-2"></td>;
     }
   };
 
@@ -113,7 +145,7 @@ const Index = () => {
       <div className="bg-white w-full h-screen">
         <div className="p-4 w-full">
           <div className="flex w-1/2 mt-10">
-            <label>Kategori</label> 
+            <label className="font-bold">Kategori</label>
             <select
               className="form-control border border-black rounded p-1 mx-3 w-full"
               value={selectedCategory}
@@ -123,6 +155,14 @@ const Index = () => {
               <option value="XI-">Kelas XI</option>
               <option value="XII-">Kelas XII</option>
             </select>
+
+            <label className="font-bold">Tanggal</label>
+            <input
+              type="date"
+              className="form-control border border-black rounded p-1 mx-3 w-full"
+              value={selectedDate}
+              onChange={handleDateChange}
+            />
           </div>
 
           <div className="w-full mt-5">

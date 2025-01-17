@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jan 07, 2025 at 04:42 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: Jan 17, 2025 at 02:16 PM
+-- Server version: 8.0.30
+-- PHP Version: 8.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -17,10 +17,6 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `db_fas`
---
-
 -- --------------------------------------------------------
 
 --
@@ -28,15 +24,15 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `complains` (
-  `complain_id` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `classroom_facilities_id` varchar(255) NOT NULL,
-  `complaint` text NOT NULL,
-  `description` text NOT NULL,
-  `created_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),
-  `status` enum('resolved','still resolving','unresolved') NOT NULL DEFAULT 'unresolved',
-  `lampiran` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `complain_id` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `classroom_facilities_id` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `complaint` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `status` ENUM('resolved','still resolving','unresolved') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unresolved',
+  `lampiran` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `complains`
@@ -63,11 +59,11 @@ INSERT INTO `complains` (`complain_id`, `username`, `classroom_facilities_id`, `
 --
 
 CREATE TABLE `facilities` (
-  `facility_id` varchar(255) NOT NULL,
-  `facility_name` varchar(100) NOT NULL,
-  `facility_description` text NOT NULL,
-  `facility_qty` int(11) NOT NULL,
-  `room_id` varchar(255) NOT NULL
+  `facility_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `facility_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `facility_description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `facility_qty` int NOT NULL,
+  `room_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -103,18 +99,18 @@ INSERT INTO `facilities` (`facility_id`, `facility_name`, `facility_description`
 --
 
 CREATE TABLE `reservations` (
-  `reservation_id` varchar(255) NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `room_id` varchar(255) NOT NULL,
+  `reservation_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `room_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `start_time` datetime(3) NOT NULL,
   `end_time` datetime(3) NOT NULL,
-  `purpose` varchar(255) NOT NULL,
-  `status_sarpras` enum('pending','approved','rejected','cancelled') NOT NULL DEFAULT 'pending',
-  `teacher_assistant` varchar(255) DEFAULT NULL,
-  `status_guru` enum('pending','rejected','approved','') DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `prev` varchar(255) DEFAULT NULL,
-  `next` varchar(255) DEFAULT NULL
+  `purpose` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status_sarpras` enum('pending','approved','rejected','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `teacher_assistant` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status_guru` enum('pending','rejected','approved','') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `prev` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `next` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -191,8 +187,8 @@ INSERT INTO `reservations` (`reservation_id`, `username`, `room_id`, `start_time
 --
 
 CREATE TABLE `roles` (
-  `role_id` char(1) NOT NULL,
-  `role_name` varchar(191) NOT NULL
+  `role_id` char(1) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role_name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -212,11 +208,11 @@ INSERT INTO `roles` (`role_id`, `role_name`) VALUES
 --
 
 CREATE TABLE `rooms` (
-  `room_id` varchar(255) NOT NULL,
-  `room_name` varchar(11) NOT NULL,
-  `room_capacity` int(11) NOT NULL,
-  `room_category` varchar(255) NOT NULL,
-  `room_status` varchar(191) NOT NULL DEFAULT 'available',
+  `room_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `room_name` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `room_capacity` int NOT NULL,
+  `room_category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `room_status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
   `is_class` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -290,11 +286,11 @@ INSERT INTO `room_categories` (`room_category`) VALUES
 --
 
 CREATE TABLE `room_facilities` (
-  `room_facilities_id` varchar(255) NOT NULL,
-  `room_id` varchar(255) NOT NULL,
-  `facility_id` varchar(255) NOT NULL,
-  `qty` int(11) NOT NULL,
-  `condition` varchar(191) NOT NULL
+  `room_facilities_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `room_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `facility_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `qty` int NOT NULL,
+  `condition` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -331,16 +327,16 @@ INSERT INTO `room_facilities` (`room_facilities_id`, `room_id`, `facility_id`, `
 --
 
 CREATE TABLE `settings` (
-  `id` tinyint(4) NOT NULL,
-  `day` varchar(10) NOT NULL,
-  `booking` tinyint(1) NOT NULL DEFAULT 1,
+  `id` tinyint NOT NULL,
+  `day` varchar(10) COLLATE utf8mb4_general_ci NOT NULL,
+  `booking` tinyint(1) NOT NULL DEFAULT '1',
   `booking_start` time NOT NULL,
   `booking_end` time NOT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT 1,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
   `reservation_start` time NOT NULL,
   `reservation_end` time NOT NULL,
   `conditional_time` time NOT NULL,
-  `accompanying_teacher` tinyint(1) NOT NULL DEFAULT 1
+  `accompanying_teacher` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -363,13 +359,13 @@ INSERT INTO `settings` (`id`, `day`, `booking`, `booking_start`, `booking_end`, 
 --
 
 CREATE TABLE `users` (
-  `username` varchar(255) NOT NULL,
-  `password` varchar(191) NOT NULL,
-  `name` varchar(191) NOT NULL,
-  `role_id` char(1) NOT NULL,
-  `status` char(1) NOT NULL DEFAULT '1',
-  `kelas` varchar(255) DEFAULT NULL,
-  `no_absen` int(11) DEFAULT NULL
+  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role_id` char(1) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` char(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1',
+  `kelas` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_absen` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -395,6 +391,7 @@ INSERT INTO `users` (`username`, `password`, `name`, `role_id`, `status`, `kelas
 ('MR008', 'pass18', 'Rita Murid', '3', '1', NULL, NULL),
 ('MR009', 'pass19', 'Sam Murid', '3', '1', NULL, NULL),
 ('MR010', 'pass20', 'Tina Murid', '3', '1', NULL, NULL),
+('MR011', 'pass20', 'Murid OSIS', '2', '1', 'R021', 5),
 ('MURID1', '12345678', 'John Doe', '3', '1', 'R021', 12),
 ('MURID2', '12345678', 'Jane Doe', '3', '1', 'R022', 10),
 ('sarpras', 'jaya', 'SARPRAS', '0', '1', NULL, NULL),
@@ -483,7 +480,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` tinyint(4) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` tinyint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -508,9 +505,9 @@ ALTER TABLE `facilities`
 ALTER TABLE `reservations`
   ADD CONSTRAINT `next_fkey` FOREIGN KEY (`next`) REFERENCES `reservations` (`reservation_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `prev_fkey` FOREIGN KEY (`prev`) REFERENCES `reservations` (`reservation_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `reservations_room_id_fkey` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `reservations_teacher_fkey` FOREIGN KEY (`teacher_assistant`) REFERENCES `users` (`username`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `reservations_username_fkey` FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON DELETE NO ACTION ON UPDATE CASCADE;
+  ADD CONSTRAINT `reservations_room_id_fkey` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`room_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservations_teacher_fkey` FOREIGN KEY (`teacher_assistant`) REFERENCES `users` (`username`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `reservations_username_fkey` FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `rooms`

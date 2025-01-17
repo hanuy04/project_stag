@@ -4,11 +4,13 @@ export default async function handler(req, res) {
   if (req.method !== "GET")
     return res.status(405).json({ error: "Method not allowed" });
 
+  const { startDate, endDate } = req.query;
+
   try {
     const complains = await prisma.complains.findMany({
-      // where: {
-      //   status: { in: ["unresolved", "still_resolving"] },
-      // },
+      where: {
+        status: { in: ["unresolved", "still_resolving"] },
+      },
       select: {
         complain_id: true,
         created_at: true,

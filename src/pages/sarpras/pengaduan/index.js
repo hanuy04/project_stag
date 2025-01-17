@@ -13,6 +13,7 @@ import {
   Paper,
   Menu,
   MenuItem,
+  Alert,
 } from "@mui/material";
 import { ArrowDropDown, Add, Person } from "@mui/icons-material";
 
@@ -30,11 +31,16 @@ const index = () => {
     key: null,
     direction: "asc",
   });
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [alertShown, setAlertShown] = useState(false);
 
   useEffect(() => {
     const fetchComplains = async () => {
       try {
-        const response = await fetch(`/api/fetchComplains`);
+        const response = await fetch(
+          `/api/fetchComplains?tanggal_awal=${startDate}&tanggal_akhir=${endDate}`
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -85,14 +91,30 @@ const index = () => {
     setComplains(sortedData);
   };
 
-  const filteredComplaints = complains.filter(
-    (complain) =>
+  const filteredComplaints = complains.filter((complain) => {
+    const complaintDate = new Date(complain.date);
+    if (new Date(endDate) < new Date(startDate)) {
+      if (!alertShown) {
+        // alert("Mohon isi tanggal yang valid!");
+        setAlertShown(true); // Tandai bahwa alert telah ditampilkan
+      }
+      return false;
+    }
+
+    // Reset alertShown jika validasi berhasil
+    if (alertShown) {
+      setAlertShown(false);
+    }
+    if (startDate && complaintDate < new Date(startDate)) return false;
+    if (endDate && complaintDate > new Date(endDate)) return false;
+    return (
       complain.fasilitas
         ?.toLowerCase()
         .includes(searchPengaduan.toLowerCase()) ||
       complain.ruangan?.toLowerCase().includes(searchPengaduan.toLowerCase()) ||
       complain.description.toLowerCase().includes(searchPengaduan.toLowerCase())
-  );
+    );
+  });
 
   // logic utk pagination
   const indexOfLastComplaint = currentPage * complaintsPerPage;
@@ -115,7 +137,7 @@ const index = () => {
       minute: "2-digit",
       hour12: false, // pake format 24 jam
     };
-    return new Date(date).toLocaleString("en-US", options);
+    return new Date(date).toLocaleString("en-ID", options);
   };
 
   // update status complain
@@ -233,6 +255,56 @@ const index = () => {
             }}
             onChange={(e) => setSearchPengaduan(e.target.value)}
           />
+          <div>
+            <label
+              htmlFor="start-date"
+              style={{
+                display: "block",
+                marginBottom: "5px",
+                fontWeight: "bold",
+              }}
+            >
+              Tanggal Awal
+            </label>
+            <input
+              type="date"
+              id="start-date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              style={{
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                backgroundColor: "white",
+              }}
+            />
+          </div>
+
+          {/* Input Tanggal Akhir */}
+          <div>
+            <label
+              htmlFor="end-date"
+              style={{
+                display: "block",
+                marginBottom: "5px",
+                fontWeight: "bold",
+              }}
+            >
+              Tanggal Akhir
+            </label>
+            <input
+              type="date"
+              id="end-date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              style={{
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                backgroundColor: "white",
+              }}
+            />
+          </div>
         </div>
 
         <TableContainer component={Paper}>
@@ -435,6 +507,27 @@ const index = () => {
                 </Button>
               </div>
             </div>
+          </div>
+        )}
+        {alertShown && (
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              borderRadius: "8px",
+              padding: "16px",
+              width: "300px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Alert variant="error" onClose={() => setAlertShown(false)}>
+              Mohon isi tanggal akhir yang valid!
+            </Alert>
           </div>
         )}
       </div>
