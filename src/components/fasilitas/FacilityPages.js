@@ -740,9 +740,14 @@ export default function FacilityManagement() {
                 variant="contained"
                 sx={{
                   bgcolor: "#3f51b5",
+                  color: "white",
                   borderRadius: "8px 0 0 8px",
                   "&:hover": {
                     bgcolor: "#32408f",
+                    color: "white",
+                  },
+                  "&.Mui-selected": {
+                    color: "white",
                   },
                   flex: 1,
                   minWidth: "200px",
@@ -754,9 +759,14 @@ export default function FacilityManagement() {
                 variant="contained"
                 sx={{
                   bgcolor: "#3f51b5",
+                  color: "white",
                   borderRadius: "0 8px 8px 0",
                   "&:hover": {
                     bgcolor: "#32408f",
+                    color: "white",
+                  },
+                  "&.Mui-selected": {
+                    color: "white",
                   },
                   flex: 1,
                   minWidth: "200px",
