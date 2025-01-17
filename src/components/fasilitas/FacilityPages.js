@@ -673,33 +673,33 @@ export default function FacilityManagement() {
     if (!window.confirm("Are you sure you want to delete this facility?")) {
       return;
     }
-  
+
     setIsProcessing(true);
     try {
       console.log(`Deleting facility with ID: ${facilityId}`);
       const response = await fetch(`/api/facilities/${facilityId}`, {
         method: "DELETE",
       });
-  
+
       // Periksa apakah respons memiliki format JSON
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         throw new Error("Server returned non-JSON response");
       }
-  
+
       const result = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(result.error || "Failed to delete facility");
       }
-  
+
       console.log("Delete result:", result);
-  
+
       // Perbarui state fasilitas
       setFacilities((prevFacilities) =>
         prevFacilities.filter((facility) => facility.id !== facilityId)
       );
-  
+
       setFacilitiesSnackbar({
         open: true,
         message: result.message || "Facility deleted successfully",
@@ -733,9 +733,14 @@ export default function FacilityManagement() {
                 variant="contained"
                 sx={{
                   bgcolor: "#3f51b5",
+                  color: "white",
                   borderRadius: "8px 0 0 8px",
                   "&:hover": {
                     bgcolor: "#32408f",
+                    color: "white",
+                  },
+                  "&.Mui-selected": {
+                    color: "white",
                   },
                   flex: 1,
                   minWidth: "200px",
@@ -747,9 +752,14 @@ export default function FacilityManagement() {
                 variant="contained"
                 sx={{
                   bgcolor: "#3f51b5",
+                  color: "white",
                   borderRadius: "0 8px 8px 0",
                   "&:hover": {
                     bgcolor: "#32408f",
+                    color: "white",
+                  },
+                  "&.Mui-selected": {
+                    color: "white",
                   },
                   flex: 1,
                   minWidth: "200px",
