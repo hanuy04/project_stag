@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3000:3001"
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - DATABASE_URL=mysql://root:root@db:8306/db_fas
