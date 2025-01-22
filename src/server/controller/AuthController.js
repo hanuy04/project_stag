@@ -2,7 +2,7 @@ import { validateLogin, validateRegister } from "@/utils/validation/authSchema";
 import AuthService from "../service/AuthService";
 import jwt from "jsonwebtoken";
 
-export default {
+const AuthController = {
   login: async (req, res) => {
     const loginData = req.body;
 
@@ -87,3 +87,5 @@ export default {
     }
   },
 };
+
+export default AuthController

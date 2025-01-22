@@ -27,6 +27,7 @@ import { login } from "@/store/persistSlices/authSlice";
 import { useRouter } from "next/router";
 import { Check, Class, Edit } from "@mui/icons-material";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
@@ -240,7 +241,7 @@ const RegisterPage = () => {
                   >
                     {rooms.map((item) => {
                       return (
-                        <MenuItem value={item.room_id}>
+                        <MenuItem value={item.room_id} key={item.room_id}>
                           {item.room_name}
                         </MenuItem>
                       );
@@ -278,9 +279,9 @@ const RegisterPage = () => {
 
         <p className="text-center text-sm text-gray-600">
           Sudah punya akun? Login
-          <a className="text-blue" href="/">
+          <Link href="/" className="text-blue">
             <u>disini</u>
-          </a>
+          </Link>
         </p>
 
         <p className="text-center text-sm text-gray-600">

@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { login } from "@/store/persistSlices/authSlice";
 import { useRouter } from "next/router";
 import AuthLayout from "@/components/layouts/AuthLayout";
+import Link from "next/link";
 
 const StyledButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
@@ -114,9 +115,9 @@ const LoginPage = () => {
         </StyledButton>
         <p className="text-center text-sm text-gray-600">
           Belum punya akun? Daftar{" "}
-          <a href="/register" className="text-blue">
+          <Link href="/register" className="text-blue">
             <u>disini</u>
-          </a>
+          </Link>
         </p>
 
         <p className="text-center text-sm text-gray-600">

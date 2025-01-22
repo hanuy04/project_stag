@@ -1155,8 +1155,8 @@ export default function FacilityManagement() {
           <DialogTitle>Konfirmasi Hapus Ruangan</DialogTitle>
           <DialogContent>
             <Typography>
-              Apakah Anda yakin ingin menghapus ruangan "
-              {roomToDelete?.room_name}"? Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus ruangan
+              {roomToDelete?.room_name}? Tindakan ini tidak dapat dibatalkan.
             </Typography>
           </DialogContent>
           <DialogActions>

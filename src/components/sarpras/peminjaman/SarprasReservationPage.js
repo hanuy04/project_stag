@@ -64,9 +64,9 @@ const SarprasReservationPage = () => {
       <SarprasReservationTemplate>
         <Grid2 container columns={12}>
           <Grid2 item size={8}>
-            {peminjaman.map((item) => {
+            {peminjaman.map((item, index) => {
               return (
-                <ReservationCard data={item} setRefreshData={setRefreshData} />
+                <ReservationCard key={index} data={item} setRefreshData={setRefreshData} />
               );
             })}
           </Grid2>

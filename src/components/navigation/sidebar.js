@@ -28,6 +28,7 @@ import {
 } from "@mui/icons-material";
 import Topbar from "./topbar";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 
 const getIcon = (name, active) => {
   const color = active ? "text-blue" : "text-white";
@@ -122,9 +123,11 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
               }`}
           >
             <Box className="w-20 h-20 flex items-center justify-center">
-              <img
+              <Image
                 src="/images/logo_stag.png"
                 alt="Stagfast"
+                width={64} // Sesuaikan dengan ukuran gambar
+                height={64} // Sesuaikan dengan ukuran gambar
                 className="w-16"
               />
             </Box>

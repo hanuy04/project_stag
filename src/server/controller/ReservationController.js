@@ -2,7 +2,7 @@ import { formatFullDate, formatTimeHHMM } from "@/utils/DateTime";
 import ReservationService from "../service/ReservationService";
 import reservations from "@/pages/api/rooms/reservations";
 
-export default {
+const ReservationController = {
   getUserReservations: async (req, res) => {
     const { username } = req.query
     const peminjaman = await ReservationService.getUserReservations(username);
@@ -41,3 +41,4 @@ export default {
 
   updateReservations: async (req, res) => { },
 };
+export default ReservationController
