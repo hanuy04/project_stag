@@ -5,11 +5,32 @@ import ClockDisplay from "@/components/general/ClockDisplay";
 import ReservationCard from "./ReservationCard";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import GuideSection from "@/components/beranda/guideSection";
 
 const SarprasReservationPage = () => {
   const [peminjaman, setPeminjaman] = useState([]);
   const token = useSelector((state) => state.persist.auth.token);
   const [refreshData, setRefreshData] = useState(false);
+
+  const [expandedPeminjaman, setExpandedPeminjaman] = useState(true);
+  const [expandedPengaduan, setExpandedPengaduan] = useState(false);
+
+  useEffect(() => {
+    setExpandedPengaduan(!expandedPeminjaman)
+  }, [expandedPeminjaman])
+
+  useEffect(() => {
+    setExpandedPeminjaman(!expandedPengaduan)
+  }, [expandedPengaduan])
+
+  const guideSteps = [
+    "Buka menu Jadwal untuk melihat ruangan yang masih tersedia.",
+    "Ajukan permintaan peminjaman melalui sistem",
+    "Masukkan guru pendamping (jika melewati batas waktu)",
+    "Tunggu persetujuan guru pendamping",
+    "Tunggu persetujuan dari sarpras",
+    "Tunjukkan bukti peminjaman ke CS",
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +72,18 @@ const SarprasReservationPage = () => {
           </Grid2>
           <Grid2 item size={4} paddingLeft={3}>
             <ClockDisplay />
+            <GuideSection
+              title="Cara Peminjaman Ruangan"
+              steps={guideSteps}
+              expanded={expandedPeminjaman}
+              setExpanded={setExpandedPeminjaman}
+            />
+            <GuideSection
+              title="Cara Pengaduan Fasilitas"
+              steps={guideSteps}
+              expanded={expandedPengaduan}
+              setExpanded={setExpandedPengaduan}
+            />
           </Grid2>
         </Grid2>
       </SarprasReservationTemplate>

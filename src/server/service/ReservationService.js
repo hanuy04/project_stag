@@ -1,14 +1,26 @@
 import prisma from "../db/prisma";
 
 export default {
-  getUserReservations: async (username, limit, offset) => {
-    const peminjaman = await prisma.reservations.findMany({
-      where: {
-        username: username,
-      },
-    });
-
-    return peminjaman;
+  getUserReservations: async (username = {}) => {
+    try {
+      const peminjaman = await prisma.reservations.findMany({
+        where: {
+          username: username
+        },
+        include: {
+          users: true, 
+          rooms: true, 
+          reservation_teacher : true
+        },
+        orderBy: { reservation_id: "desc" },
+        take: 3
+      });
+      return peminjaman;
+    } catch (e) {
+      return {
+        message: e.message
+      }
+    }
   },
 
   getReservationGroupByRoom: async () => {
@@ -57,6 +69,6 @@ export default {
       await prisma.reservations.create({
         data: newReservation,
       });
-    } catch (e) {}
+    } catch (e) { }
   },
 };

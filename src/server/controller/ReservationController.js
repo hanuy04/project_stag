@@ -4,9 +4,8 @@ import reservations from "@/pages/api/rooms/reservations";
 
 export default {
   getUserReservations: async (req, res) => {
-    const username = req.user.username;
-
-    const peminjaman = await ReservationService.getUserReservations();
+    const { username } = req.query
+    const peminjaman = await ReservationService.getUserReservations(username);
     return res.json(peminjaman);
   },
 

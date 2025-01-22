@@ -18,6 +18,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import { ArrowDropDown, Add, Person, Image } from "@mui/icons-material";
+import Profile from "../general/Profile";
 
 function ComplainPage() {
   const [searchPengaduan, setSearchPengaduan] = useState("");
@@ -73,31 +74,31 @@ function ComplainPage() {
 
   const handleSubmit = () => {
     if (selectedRoom == "") {
-        alert("Ruangan harus dipilih!");
-        return;
-      }
+      alert("Ruangan harus dipilih!");
+      return;
+    }
 
-      if (selectedFacility == "") {
-        alert("Fasilitas harus dipilih!");
-        return;
-      }
+    if (selectedFacility == "") {
+      alert("Fasilitas harus dipilih!");
+      return;
+    }
 
-      if (complaint == "") {
-        alert("Keluhan harus diisi!");
-        return;
-      }
+    if (complaint == "") {
+      alert("Keluhan harus diisi!");
+      return;
+    }
 
-      if (description == "") {
-        alert("Deskripsi harus diisi!");
-        return;
-      }
+    if (description == "") {
+      alert("Deskripsi harus diisi!");
+      return;
+    }
 
-      if (!selectedFile) {
-        alert("Lampiran harus diisi!");
-        return;
-      }
+    if (!selectedFile) {
+      alert("Lampiran harus diisi!");
+      return;
+    }
 
-      setOpenConfirmationModal(true);
+    setOpenConfirmationModal(true);
   };
 
   useEffect(() => {
@@ -260,21 +261,7 @@ function ComplainPage() {
           Pengaduan Fasilitas
         </Typography>
 
-        <Button
-          onClick={handleClick}
-          style={{
-            backgroundColor: "#3F51B5",
-            color: "white",
-            borderRadius: "50px",
-            padding: "8px 16px",
-            textTransform: "none",
-            boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
-          }}
-          startIcon={<Person style={{ fontSize: "20px" }} />}
-          endIcon={<ArrowDropDown />}
-        >
-          Agnes [12345]
-        </Button>
+        <Profile />
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
