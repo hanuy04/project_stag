@@ -78,8 +78,8 @@ const SarprasReservationRiwayatPage = () => {
           getLabel().includes("MENUNGGU")
             ? "warning"
             : getLabel().includes("DISETUJUI")
-            ? "success"
-            : "red"
+              ? "success"
+              : "red"
         }
         variant="caption"
         lineHeight={0}
@@ -116,8 +116,7 @@ const SarprasReservationRiwayatPage = () => {
 
     try {
       const response = await fetch(
-        `/api/sarpras/reservations?type=peminjaman&start_date=${startDate}&end_date=${endDate}${queryKeyword}&limit=${limit}&offset=${offset}${
-          queryStatus[status] || ""
+        `/api/sarpras/reservations?type=peminjaman&start_date=${startDate}&end_date=${endDate}${queryKeyword}&limit=${limit}&offset=${offset}${queryStatus[status] || ""
         }${querySortColumn[sortColumn] || ""}${querySortOrder}`,
         {
           method: "GET",
@@ -222,8 +221,8 @@ const SarprasReservationRiwayatPage = () => {
       <Table size="small">
         <TableHead>
           <TableRow style={{ textAlign: "center" }}>
-            {headerTable.map((item) => (
-              <TableCell
+            {headerTable.map((item, index) => (
+              <TableCell key={index}
                 className="bg-blue"
                 style={headerCellStyle}
                 onClick={() => {
@@ -249,16 +248,16 @@ const SarprasReservationRiwayatPage = () => {
         <TableBody>
           {reservations.map((item, index) => {
             return (
-              <TableRow>
+              <TableRow key={index}>
                 <TableCell style={bodyCellStyle}>{index + 1}</TableCell>
                 <TableCell style={bodyCellStyle}>
                   <Typography variant="body2">{item.users.name}</Typography>
 
                   {item.users.rooms &&
                     " [" +
-                      item.users.rooms.room_name +
-                      (item.users.no_absen && "/" + item.users.no_absen) +
-                      "]"}
+                    item.users.rooms.room_name +
+                    (item.users.no_absen && "/" + item.users.no_absen) +
+                    "]"}
                 </TableCell>
                 <TableCell style={bodyCellStyle}>
                   {formatFullDate(item.start_time)}{" "}

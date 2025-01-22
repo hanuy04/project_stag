@@ -28,6 +28,7 @@ import {
 } from "@mui/icons-material";
 import Topbar from "./topbar";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 
 const getIcon = (name, active) => {
   const color = active ? "text-blue" : "text-white";
@@ -56,9 +57,8 @@ const MenuItemContent = ({ item, isActive }) => (
       <ListItemText
         primary={item}
         primaryTypographyProps={{
-          className: `transition-colors duration-300 ${
-            isActive ? "text-blue-700" : "text-white"
-          }`,
+          className: `transition-colors duration-300 ${isActive ? "text-blue-700" : "text-white"
+            }`,
         }}
       />
     </motion.div>
@@ -67,21 +67,34 @@ const MenuItemContent = ({ item, isActive }) => (
 
 const HelpCenter = () => (
   <motion.div
-    className="absolute bottom-4 left-4 right-4"
+    className="absolute bottom-10 left-10 right-10"
     initial={{ opacity: 1 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 0.3 }}
   >
-    <Box className="bg-white/10 rounded-xl p-4">
-      <Box className="w-8 h-8 rounded-full bg-pink-600 flex items-center justify-center mb-2">
+    <Box
+      className="bg-white rounded-xl p-5 relative"
+    >
+      <Box
+        className="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center mb-2 absolute -top-4 left-1/2 transform -translate-x-1/2"
+      >
         <HelpIcon className="text-white text-xl" />
       </Box>
-      <Typography className="font-semibold mb-1 text-white">
-        Pusat Bantuan
-      </Typography>
-      <Typography className="text-sm text-gray-200 mb-3">
-        Jika terjadi kesalahan, silahkan hubungi tim IT.
-      </Typography>
+
+      <Box className="my-3 font-bold">
+        <Typography className="font-bold text-black text-center text-xl"> {/* Perbesar ukuran teks judul */}
+          Pusat Bantuan
+        </Typography>
+      </Box>
+
+      <Box className="my-5">
+        <Typography className="text-base text-black mb-3 text-center"> {/* Perbesar ukuran teks deskripsi */}
+          Jika terjadi kesalahan, silahkan hubungi tim IT.
+        </Typography>
+
+      </Box>
+
+
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Link
           href="/help"
@@ -104,16 +117,17 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
       <Box className="h-full bg-blue text-white relative">
         <Box className="bg-white">
           <Box
-            className={`hidden md:flex items-center bg-blue p-4 ${
-              pathname.startsWith(`${menuItems[0].path}`)
-                ? "rounded-ee-3xl"
-                : ""
-            }`}
+            className={`hidden md:flex items-center bg-blue p-4 ${pathname.startsWith(`${menuItems[0].path}`)
+              ? "rounded-ee-3xl"
+              : ""
+              }`}
           >
             <Box className="w-20 h-20 flex items-center justify-center">
-              <img
+              <Image
                 src="/images/logo_stag.png"
                 alt="Stagfast"
+                width={64} // Sesuaikan dengan ukuran gambar
+                height={64} // Sesuaikan dengan ukuran gambar
                 className="w-16"
               />
             </Box>
@@ -141,9 +155,8 @@ const DesktopSidebar = ({ menuItems, pathname }) => {
                 <Box className="bg-white rounded-s-full w-full border-none">
                   <Link
                     href={item.path}
-                    className={`w-full block ${
-                      isActive ? "bg-white rounded-s-full" : "bg-blue"
-                    } 
+                    className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"
+                      } 
                       ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
                       ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
                   >
@@ -197,9 +210,8 @@ const MobileSidebar = ({ menuItems, pathname }) => {
     <Box className="h-full bg-blue text-white relative">
       <Box className="bg-white">
         <Box
-          className={`flex items-center bg-blue p-4 ${
-            menuItems[0].path === pathname ? "rounded-ee-3xl" : ""
-          }`}
+          className={`flex items-center bg-blue p-4 ${menuItems[0].path === pathname ? "rounded-ee-3xl" : ""
+            }`}
         >
           <Box className="w-20 h-20 flex items-center justify-center">
             <img src="/images/logo_stag.png" alt="Stagfast" className="w-16" />
@@ -234,9 +246,8 @@ const MobileSidebar = ({ menuItems, pathname }) => {
               <Box className="bg-white rounded-s-full w-full border-none">
                 <Link
                   href={item.path}
-                  className={`w-full block ${
-                    isActive ? "bg-white rounded-s-full" : "bg-blue"
-                  }
+                  className={`w-full block ${isActive ? "bg-white rounded-s-full" : "bg-blue"
+                    }
                     ${!isActive && nextItemActive ? "rounded-ee-3xl" : ""}
                     ${!isActive && prevItemActive ? "rounded-se-3xl" : ""}`}
                   onClick={handleDrawerToggle}

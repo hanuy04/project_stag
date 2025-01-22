@@ -9,18 +9,17 @@ import {
   IconButton,
   ListItemText,
 } from "@mui/material";
-import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import CollapseCard from "../general/CollapseCard";
+import { Color } from "@/styles/Color";
 
-export default function GuideSection({ title, steps }) {
-  const [expanded, setExpanded] = useState(false);
+export default function GuideSection({ title, steps, expanded, setExpanded }) {
 
   return (
-    <CollapseCard title="Tata Cara Peminjaman Ruangan">
+    <CollapseCard title={title} expanded={expanded} setExpanded={setExpanded}>
       {steps.map((step, index) => (
         <ListItem key={index}>
           <Box className="flex items-start">
-            <Avatar className="bg-blue mr-4">{index + 1}</Avatar>
+            <Avatar className="bg-blue mr-4" style={{ backgroundColor: Color.blue }}>{index + 1}</Avatar>
             <ListItemText primary={step} />
           </Box>
         </ListItem>

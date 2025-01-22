@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 
-const index = () => {
+const Index = () => {
   const router = useRouter();
   const token = useSelector((state) => state.persist.auth.token);
   const role = useSelector((state) => state.persist.auth.user?.role);
@@ -27,4 +27,4 @@ const index = () => {
   return <LoginPage />;
 };
 
-export default index;
+export default Index;

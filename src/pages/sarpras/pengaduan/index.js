@@ -16,8 +16,9 @@ import {
   Alert,
 } from "@mui/material";
 import { ArrowDropDown, Add, Person } from "@mui/icons-material";
+import Image from "next/image";
 
-const index = () => {
+const Pengaduan = () => {
   const [searchPengaduan, setSearchPengaduan] = useState("");
   const [complains, setComplains] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -447,9 +448,11 @@ const index = () => {
                 </Typography>
                 <Typography>
                   {selectedComplaint.lampiran ? (
-                    <img
+                    <Image
                       src={selectedComplaint.lampiran}
                       alt="Lampiran"
+                      width={800} // Sesuaikan dengan ukuran asli gambar
+                      height={200} // Sesuaikan dengan ukuran asli gambar
                       style={{
                         width: "100%",
                         maxHeight: "200px",
@@ -535,4 +538,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Pengaduan;

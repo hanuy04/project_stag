@@ -53,7 +53,7 @@ model reservations {
   reservations_reservations_prevToreservations       reservations?               @relation("reservations_prevToreservations", fields: [prev], references: [reservation_id], map: "prev_fkey")
   other_reservations_reservations_prevToreservations reservations[]              @relation("reservations_prevToreservations")
   rooms                                              rooms                       @relation(fields: [room_id], references: [room_id], onDelete: NoAction)
-  users_reservations_teacher_assistantTousers        users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: NoAction, map: "reservations_teacher_fkey")
+  reservation_teacher                                users?                      @relation("reservations_teacher_assistantTousers", fields: [teacher_assistant], references: [username], onDelete: NoAction, map: "reservations_teacher_fkey")
   users                                              users                       @relation(fields: [username], references: [username], onDelete: NoAction)
 
   @@index([room_id], map: "reservations_room_id_fkey")

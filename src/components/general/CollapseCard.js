@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-const CollapseCard = ({ children, title = "tes" }) => {
-  const [expanded, setExpanded] = useState(false);
+const CollapseCard = ({ title, children, expanded, setExpanded }) => {
+  
 
   return (
     <Box className="mb-4 shadow-lg rounded-xl bg-white">
@@ -25,9 +25,8 @@ const CollapseCard = ({ children, title = "tes" }) => {
         <IconButton>
           <ExpandMore
             sx={{ color: "white" }}
-            className={`transform transition-transform ${
-              expanded ? "rotate-180" : ""
-            }`}
+            className={`transform transition-transform ${expanded ? "rotate-180" : ""
+              }`}
           />
         </IconButton>
       </Box>

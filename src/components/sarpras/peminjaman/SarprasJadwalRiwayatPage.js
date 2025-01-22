@@ -66,8 +66,7 @@ const SarprasJadwalRiwayatPage = () => {
 
     try {
       const response = await fetch(
-        `/api/sarpras/reservations?type=jadwal&start_date=${startDate}&end_date=${endDate}${queryKeyword}&limit=${limit}&offset=${offset}${
-          querySortColumn[sortColumn] || ""
+        `/api/sarpras/reservations?type=jadwal&start_date=${startDate}&end_date=${endDate}${queryKeyword}&limit=${limit}&offset=${offset}${querySortColumn[sortColumn] || ""
         }${querySortOrder}`,
         {
           method: "GET",
@@ -157,8 +156,9 @@ const SarprasJadwalRiwayatPage = () => {
       <Table size="small">
         <TableHead>
           <TableRow style={{ textAlign: "center" }}>
-            {headerTable.map((item) => (
+            {headerTable.map((item, index) => (
               <TableCell
+                key={index}
                 className="bg-blue"
                 style={headerCellStyle}
                 onClick={() => {
@@ -184,7 +184,7 @@ const SarprasJadwalRiwayatPage = () => {
         <TableBody>
           {reservations.map((item, index) => {
             return (
-              <TableRow>
+              <TableRow key={index}>
                 <TableCell style={bodyCellStyle}>{index + 1}</TableCell>
                 <TableCell style={bodyCellStyle}>
                   {formatFullDate(item.start_time)}{" "}
