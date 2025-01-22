@@ -1,4 +1,4 @@
-FROM node:20
+FROM oven/bun:latest
 
 WORKDIR /usr/src/app
 
@@ -6,16 +6,18 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN bun i
+RUN bun install
+RUN bun install --legacy-peer-deps
 
 # Copy the rest of the application
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN bun run build
 
 # Expose the port the app runs on
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "start", "--", "-H", "0.0.0.0"]
+CMD ["bun", "run", "start", "--", "-H", "0.0.0.0"]
