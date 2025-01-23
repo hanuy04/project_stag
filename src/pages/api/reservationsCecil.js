@@ -84,7 +84,7 @@ export default async function handler(req, res) {
     );
 
     if (teacher) {
-      const newReservationData = {
+      newReservationData = {
         reservation_id: nextReservationId,
         username: username,
         room_id: room.room_id,
